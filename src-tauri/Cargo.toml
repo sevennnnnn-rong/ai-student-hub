@@ -1,0 +1,26 @@
+[package]
+name = "ai-student-hub"
+version = "0.1.0"
+description = "AI驱动的大学生效率助手"
+authors = ["AI Student Hub"]
+edition = "2021"
+
+[lib]
+name = "ai_student_hub_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

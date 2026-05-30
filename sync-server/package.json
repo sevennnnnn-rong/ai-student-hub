@@ -1,0 +1,16 @@
+{
+  "name": "ai-student-hub-sync-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "sql.js": "^1.11.0",
+    "cors": "^2.8.5",
+    "uuid": "^10.0.0",
+    "ws": "^8.18.0"
+  }
+}
