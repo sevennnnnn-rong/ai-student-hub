@@ -200,9 +200,9 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="animate-fade-in-up">
+    <div className="animate-fade-in-up max-w-6xl mx-auto">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-start gap-3 items-center mb-6">
         <div className="flex gap-2 flex-wrap items-center">
           <Select
             value={semester}
@@ -266,7 +266,7 @@ export default function SchedulePage() {
               />
               <div className="col-span-1 sm:col-span-2">
                 <label className="block text-sm text-gray-400 mb-2">颜色</label>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {COLORS.map((color, index) => (
                     <button
                       key={color}
@@ -301,7 +301,7 @@ export default function SchedulePage() {
       ) : (
         <>
         <div className="overflow-x-auto relative rounded-lg glass">
-          <div className="grid grid-cols-8 gap-px min-w-[800px]">
+          <div className="grid grid-cols-8 gap-[1px] min-w-[800px]">
             {/* 表头 */}
             <div className="p-3 font-bold text-sm text-gray-400">时间</div>
             {DAYS.map((day, index) => (
@@ -320,7 +320,7 @@ export default function SchedulePage() {
             {/* 时间网格 */}
             {HOURS.map(hour => (
               <Fragment key={hour}>
-                <div className={`p-2 text-sm border-b border-white/5 ${isCurrentTimeSlot(0, hour) ? 'font-bold gradient-text' : 'text-gray-500'}`}>
+                <div className={`p-3 text-sm border-b border-white/5 ${getCurrentDayAndHour().hour === hour ? 'font-bold gradient-text' : 'text-gray-500'}`}>
                   {hour}:00
                 </div>
                 {DAYS.map((_, dayIndex) => {

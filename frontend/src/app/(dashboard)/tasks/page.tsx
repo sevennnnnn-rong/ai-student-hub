@@ -214,7 +214,7 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="animate-fade-in-up">
+    <div className="animate-fade-in-up max-w-6xl mx-auto">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
 
       {/* 逾期提醒 */}
@@ -238,7 +238,7 @@ export default function TasksPage() {
       {/* 创建任务 */}
       <Card className="mb-6 glass">
         <CardContent className="pt-6">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <Input
               placeholder="输入任务标题..."
               value={newTitle}
@@ -276,7 +276,7 @@ export default function TasksPage() {
           type="checkbox"
           checked={filteredTasks.length > 0 && selectedIds.size === filteredTasks.length}
           onChange={selectAll}
-          className="rounded w-4 h-4"
+          className="rounded w-4 h-4 accent-blue-500 cursor-pointer"
         />
         <ArrowUpDown size={14} className="text-gray-400" />
         <span className="text-sm text-gray-400">排序：</span>
@@ -303,13 +303,13 @@ export default function TasksPage() {
         <div className="space-y-2">
           {filteredTasks.map(task => (
             <Card key={task.id} className={`glass card-hover ${task.status === 'done' ? 'opacity-60' : ''} ${isOverdue(task) ? 'border-red-500/30' : ''}`}>
-              <CardContent className="flex items-center justify-between p-4">
+              <CardContent className="flex items-start justify-between p-4">
                 <div className="flex items-center gap-3 flex-1">
                   <input
                     type="checkbox"
                     checked={selectedIds.has(task.id)}
                     onChange={() => toggleSelect(task.id)}
-                    className="rounded w-4 h-4"
+                    className="rounded w-4 h-4 accent-blue-500 cursor-pointer"
                   />
                   <button onClick={() => toggleStatus(task)} aria-label={task.status === 'done' ? '标记为未完成' : '标记为完成'}>
                     {task.status === 'done' ? (
@@ -382,7 +382,7 @@ export default function TasksPage() {
       {/* 编辑对话框 */}
       {editTask && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" role="dialog" aria-modal="true" aria-label="编辑任务">
-          <Card className="w-full max-w-md mx-4 glass-strong animate-scale-in">
+          <Card className="w-full max-w-lg mx-4 glass-strong animate-scale-in">
             <CardContent className="pt-6">
               <h3 className="text-lg font-semibold mb-4 gradient-text">编辑任务</h3>
               <div className="space-y-4">

@@ -175,7 +175,7 @@ export default function NotesPage() {
   }
 
   return (
-    <div className="animate-fade-in-up">
+    <div className="animate-fade-in-up max-w-6xl mx-auto">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
       <div className="flex justify-between items-center mb-6">
         <RippleButton onClick={() => { setShowForm(!showForm); resetForm(); }}>
@@ -312,7 +312,7 @@ export default function NotesPage() {
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredNotes.map(note => (
             <Card key={note.id} className="glass card-hover">
               <CardHeader className="pb-2">
