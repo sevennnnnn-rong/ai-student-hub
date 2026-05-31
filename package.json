@@ -1,0 +1,17 @@
+{
+  "name": "ai-student-hub",
+  "version": "1.2.0",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w frontend",
+    "build": "npm run build -w frontend",
+    "build:android": "npm run build:android -w frontend",
+    "lint": "npm run lint -w frontend",
+    "version:patch": "npm version patch --workspaces --include-workspace-root --no-git-tag-version",
+    "version:minor": "npm version minor --workspaces --include-workspace-root --no-git-tag-version",
+    "version:major": "npm version major --workspaces --include-workspace-root --no-git-tag-version"
+  }
+}

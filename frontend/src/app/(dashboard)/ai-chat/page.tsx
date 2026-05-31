@@ -2,12 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { aiApi, taskApi } from '@/lib/api'
-import { useToast } from '@/lib/hooks'
+import { useToast } from '@/lib/stores/toast-store'
 import { RippleButton } from '@/components/ripple-button'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { Send, Bot, User, Sparkles, ListTodo, Calendar, FileText, Copy, Check, Trash2 } from 'lucide-react'
+import { Send, Bot, User, Sparkles, ListTodo, Calendar, FileText, Copy, Check, Trash2, AlertTriangle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { ToastContainer } from '@/components/toast'
 
@@ -28,6 +28,7 @@ export default function AiChatPage() {
   const [loading, setLoading] = useState(false)
   const [copiedId, setCopiedId] = useState<number | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [chatError, setChatError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toasts, toast, dismiss } = useToast()
 
@@ -64,6 +65,7 @@ export default function AiChatPage() {
       const response = await aiApi.chat(message, history)
       const reply = response.data.response
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+      setChatError(null)
 
       if (message.includes('创建任务') || message.includes('新建任务') || message.includes('帮我做')) {
         try {
@@ -77,6 +79,7 @@ export default function AiChatPage() {
         } catch {}
       }
     } catch (error) {
+      setChatError('AI对话失败，请检查API配置')
       toast.error('AI对话失败，请检查API配置')
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -90,6 +93,15 @@ export default function AiChatPage() {
   return (
     <div className="max-w-2xl mx-auto h-full flex flex-col animate-fade-in-up">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
+
+      {/* Offline indicator */}
+      {chatError && (
+        <div className="flex items-center gap-2 p-3 mb-4 glass rounded-lg text-yellow-400 text-sm">
+          <AlertTriangle size={16} />
+          {chatError}
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <div />
         {messages.length > 0 && (

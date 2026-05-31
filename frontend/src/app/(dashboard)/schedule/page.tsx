@@ -1,29 +1,18 @@
 'use client'
 
 import { useState, useEffect, Fragment } from 'react'
-import { scheduleApi } from '@/lib/api'
-import { useToast } from '@/lib/hooks'
+import { useScheduleStore } from '@/lib/stores/schedule-store'
+import { useToast } from '@/lib/stores/toast-store'
 import { RippleButton } from '@/components/ripple-button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
-import { Plus, Trash2, Edit2, Clock, MapPin, User, Calendar } from 'lucide-react'
+import { Plus, Trash2, Edit2, Clock, MapPin, User, Calendar, AlertTriangle } from 'lucide-react'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { EmptyState } from '@/components/empty-state'
 import { ToastContainer } from '@/components/toast'
 import { LoadingSpinner } from '@/components/loading'
-
-interface Course {
-  id: number
-  name: string
-  teacher: string | null
-  location: string | null
-  day_of_week: number
-  start_time: string
-  end_time: string
-  color: string
-  semester: string | null
-}
+import type { Course } from '@/lib/stores/schedule-store'
 
 const DAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 8)
@@ -40,14 +29,17 @@ const semesterOptions = [
 const dayOptions = DAYS.map((day, i) => ({ value: String(i + 1), label: day }))
 
 export default function SchedulePage() {
-  const [courses, setCourses] = useState<Course[]>([])
+  // Store state
+  const { courses, loading, error } = useScheduleStore()
+  const store = useScheduleStore()
+  const { toasts, toast, dismiss } = useToast()
+
+  // UI-local state
   const [showForm, setShowForm] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [editCourse, setEditCourse] = useState<Course | null>(null)
-  const [loading, setLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [semester, setSemester] = useState('')
-  const { toasts, toast, dismiss } = useToast()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -93,19 +85,8 @@ export default function SchedulePage() {
   })
 
   useEffect(() => {
-    loadCourses()
+    store.loadCourses()
   }, [])
-
-  const loadCourses = async (sem?: string) => {
-    try {
-      const data = await scheduleApi.getAll(sem || undefined)
-      setCourses(data)
-    } catch (error) {
-      toast.error('加载课程失败')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const resetForm = () => {
     setFormData({
@@ -127,8 +108,7 @@ export default function SchedulePage() {
     }
 
     try {
-      const course = await scheduleApi.create(formData)
-      setCourses([...courses, course])
+      await store.addCourse(formData)
       setShowForm(false)
       resetForm()
       toast.success('课程添加成功')
@@ -156,8 +136,7 @@ export default function SchedulePage() {
     if (!editCourse || !formData.name.trim()) return
 
     try {
-      const updated = await scheduleApi.update(editCourse.id, formData)
-      setCourses(courses.map(c => c.id === editCourse.id ? updated : c))
+      await store.updateCourse(editCourse.id, formData)
       setEditCourse(null)
       setShowForm(false)
       resetForm()
@@ -171,8 +150,7 @@ export default function SchedulePage() {
     if (!deleteId) return
 
     try {
-      await scheduleApi.delete(deleteId)
-      setCourses(courses.filter(c => c.id !== deleteId))
+      await store.deleteCourse(deleteId)
       toast.success('课程删除成功')
     } catch (error) {
       toast.error('删除课程失败')
@@ -202,11 +180,20 @@ export default function SchedulePage() {
   return (
     <div className="animate-fade-in-up max-w-6xl mx-auto">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
+
+      {/* Offline indicator */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 mb-4 glass rounded-lg text-yellow-400 text-sm">
+          <AlertTriangle size={16} />
+          {error}
+        </div>
+      )}
+
       <div className="flex justify-start gap-3 items-center mb-6">
         <div className="flex gap-2 flex-wrap items-center">
           <Select
             value={semester}
-            onChange={(e) => { setSemester(e.target.value); loadCourses(e.target.value) }}
+            onChange={(e) => { setSemester(e.target.value); store.loadCourses(e.target.value || undefined) }}
             options={semesterOptions}
             className="w-auto"
           />

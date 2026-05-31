@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { taskApi } from '@/lib/api'
-import { useToast } from '@/lib/hooks'
+import { useTaskStore } from '@/lib/stores/task-store'
+import { useToast } from '@/lib/stores/toast-store'
 import { RippleButton } from '@/components/ripple-button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -12,22 +12,15 @@ import { ConfirmDialog } from '@/components/confirm-dialog'
 import { EmptyState } from '@/components/empty-state'
 import { TaskCardSkeleton } from '@/components/loading'
 import { ToastContainer } from '@/components/toast'
-
-interface Task {
-  id: number
-  title: string
-  description: string | null
-  due_date: string | null
-  priority: number
-  status: string
-  category: string | null
-  created_at: string
-}
+import type { Task } from '@/lib/stores/task-store'
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>([])
+  // Store state
+  const { tasks, loading, error } = useTaskStore()
+  const { toasts, toast, dismiss } = useToast()
+
+  // UI-local state (form inputs, modals, filters)
   const [newTitle, setNewTitle] = useState('')
-  const [loading, setLoading] = useState(true)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [editTask, setEditTask] = useState<Task | null>(null)
   const [editTitle, setEditTitle] = useState('')
@@ -39,10 +32,13 @@ export default function TasksPage() {
   const [sortBy, setSortBy] = useState<'created' | 'priority' | 'due_date'>('created')
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [batchDelete, setBatchDelete] = useState(false)
-  const { toasts, toast, dismiss } = useToast()
 
+  // Store actions
+  const store = useTaskStore()
+
+  // Load tasks on mount
   useEffect(() => {
-    loadTasks()
+    store.loadTasks()
   }, [])
 
   useEffect(() => {
@@ -54,23 +50,11 @@ export default function TasksPage() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [editTask])
 
-  const loadTasks = async () => {
-    try {
-      const data = await taskApi.getAll()
-      setTasks(data)
-    } catch (error) {
-      toast.error('加载任务失败')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleCreate = async () => {
     if (!newTitle.trim()) return
 
     try {
-      const task = await taskApi.create({ title: newTitle })
-      setTasks([task, ...tasks])
+      await store.addTask({ title: newTitle })
       setNewTitle('')
       toast.success('任务创建成功')
     } catch (error) {
@@ -81,8 +65,7 @@ export default function TasksPage() {
   const toggleStatus = async (task: Task) => {
     const newStatus = task.status === 'done' ? 'pending' : 'done'
     try {
-      const updated = await taskApi.update(task.id, { status: newStatus })
-      setTasks(tasks.map(t => t.id === task.id ? updated : t))
+      await store.updateTask(task.id, { status: newStatus })
       toast.success(newStatus === 'done' ? '任务已完成' : '任务已恢复')
     } catch (error) {
       toast.error('更新任务失败')
@@ -93,8 +76,7 @@ export default function TasksPage() {
     if (!deleteId) return
 
     try {
-      await taskApi.delete(deleteId)
-      setTasks(tasks.filter(t => t.id !== deleteId))
+      await store.deleteTask(deleteId)
       toast.success('任务删除成功')
     } catch (error) {
       toast.error('删除任务失败')
@@ -116,14 +98,13 @@ export default function TasksPage() {
     if (!editTask || !editTitle.trim()) return
 
     try {
-      const updated = await taskApi.update(editTask.id, {
+      await store.updateTask(editTask.id, {
         title: editTitle,
         description: editDescription || null,
         due_date: editDueDate || null,
         priority: editPriority,
         category: editCategory || null,
       })
-      setTasks(tasks.map(t => t.id === editTask.id ? updated : t))
       setEditTask(null)
       toast.success('任务更新成功')
     } catch (error) {
@@ -151,8 +132,7 @@ export default function TasksPage() {
   const handleBatchComplete = async () => {
     const ids = Array.from(selectedIds)
     try {
-      await Promise.all(ids.map(id => taskApi.update(id, { status: 'done' })))
-      setTasks(tasks.map(t => ids.includes(t.id) ? { ...t, status: 'done' } : t))
+      await Promise.all(ids.map(id => store.updateTask(id, { status: 'done' })))
       setSelectedIds(new Set())
       toast.success(`已标记 ${ids.length} 个任务为完成`)
     } catch {
@@ -163,8 +143,7 @@ export default function TasksPage() {
   const handleBatchDelete = async () => {
     const ids = Array.from(selectedIds)
     try {
-      await Promise.all(ids.map(id => taskApi.delete(id)))
-      setTasks(tasks.filter(t => !ids.includes(t.id)))
+      await Promise.all(ids.map(id => store.deleteTask(id)))
       setSelectedIds(new Set())
       toast.success(`已删除 ${ids.length} 个任务`)
     } catch {
@@ -216,6 +195,14 @@ export default function TasksPage() {
   return (
     <div className="animate-fade-in-up max-w-6xl mx-auto">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
+
+      {/* Offline indicator */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 mb-4 glass rounded-lg text-yellow-400 text-sm">
+          <AlertTriangle size={16} />
+          {error}
+        </div>
+      )}
 
       {/* 逾期提醒 */}
       {tasks.filter(t => isOverdue(t)).length > 0 && (

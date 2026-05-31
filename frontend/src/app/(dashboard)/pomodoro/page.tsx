@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { pomodoroApi, taskApi } from '@/lib/api'
-import { useToast } from '@/lib/hooks'
+import { taskApi } from '@/lib/api'
+import { usePomodoroStore } from '@/lib/stores/pomodoro-store'
+import { useToast } from '@/lib/stores/toast-store'
 import { RippleButton } from '@/components/ripple-button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select } from '@/components/ui/select'
-import { Play, Pause, RotateCcw, Timer, CheckCircle, History, Clock, ChevronDown, ChevronUp, X } from 'lucide-react'
+import { Play, Pause, RotateCcw, Timer, CheckCircle, History, Clock, ChevronDown, ChevronUp, X, AlertTriangle } from 'lucide-react'
 import { ToastContainer } from '@/components/toast'
 import { LoadingSpinner } from '@/components/loading'
+import type { PomodoroSession } from '@/lib/stores/pomodoro-store'
 
 interface Task {
   id: number
@@ -16,33 +18,26 @@ interface Task {
   status: string
 }
 
-interface PomodoroSession {
-  id: number
-  task_id: number | null
-  task_title?: string
-  duration_minutes: number
-  completed: boolean
-  started_at: string
-  ended_at: string | null
-}
-
 const STORAGE_KEY = 'pomodoro_state'
 
 export default function PomodoroPage() {
+  // Store state
+  const { sessions, stats, activeSession, loading, error, loadSessions, loadStats, startSession, stopSession } = usePomodoroStore()
+  const { toasts, toast, dismiss } = useToast()
+
+  // UI-local state (timer, form inputs, modals)
   const [timeLeft, setTimeLeft] = useState(25 * 60)
   const [isRunning, setIsRunning] = useState(false)
   const [sessionId, setSessionId] = useState<number | null>(null)
-  const [stats, setStats] = useState<any>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
   const [duration, setDuration] = useState(25)
-  const [sessions, setSessions] = useState<PomodoroSession[]>([])
   const [showHistory, setShowHistory] = useState(false)
   const [completedCount, setCompletedCount] = useState(0)
   const [showLongBreak, setShowLongBreak] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
-  const { toasts, toast, dismiss } = useToast()
 
+  // Load data on mount
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
@@ -70,7 +65,7 @@ export default function PomodoroPage() {
     }
     loadStats()
     loadTasks()
-    loadSessions()
+    loadSessions({ limit: '10' })
   }, [])
 
   useEffect(() => {
@@ -107,15 +102,6 @@ export default function PomodoroPage() {
     return () => clearInterval(timer)
   }, [isRunning, isPaused, timeLeft])
 
-  const loadStats = async () => {
-    try {
-      const data = await pomodoroApi.getStats('today')
-      setStats(data.data)
-    } catch (error) {
-      console.error('加载统计失败:', error)
-    }
-  }
-
   const loadTasks = async () => {
     try {
       const data = await taskApi.getAll({ status: 'pending' })
@@ -125,18 +111,9 @@ export default function PomodoroPage() {
     }
   }
 
-  const loadSessions = async () => {
-    try {
-      const data = await pomodoroApi.getSessions({ limit: '10' })
-      setSessions(data)
-    } catch (error) {
-      console.error('加载历史记录失败:', error)
-    }
-  }
-
   const handleStart = async () => {
     try {
-      const session = await pomodoroApi.start({
+      const session = await startSession({
         task_id: selectedTaskId,
         duration_minutes: duration
       })
@@ -190,12 +167,12 @@ export default function PomodoroPage() {
     if (!sessionId) return
 
     try {
-      await pomodoroApi.stop(sessionId, { completed })
+      await stopSession(sessionId, { completed })
       setIsRunning(false)
       setSessionId(null)
       setTimeLeft(duration * 60)
       loadStats()
-      loadSessions()
+      loadSessions({ limit: '10' })
       if (completed) {
         playNotificationSound()
         sendDesktopNotification('番茄钟完成！', `已完成 ${duration} 分钟专注，休息一下吧`)
@@ -227,6 +204,14 @@ export default function PomodoroPage() {
   return (
     <div className="max-w-md mx-auto px-4 animate-fade-in-up">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
+
+      {/* Offline indicator */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 mb-4 glass rounded-lg text-yellow-400 text-sm">
+          <AlertTriangle size={16} />
+          {error}
+        </div>
+      )}
 
       {/* 计时器 */}
       <Card className="glass mb-6">

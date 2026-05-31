@@ -1,35 +1,32 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { noteApi, taskApi } from '@/lib/api'
-import { useToast } from '@/lib/hooks'
+import { useNoteStore } from '@/lib/stores/note-store'
+import { useToast } from '@/lib/stores/toast-store'
+import { taskApi } from '@/lib/api'
 import { RippleButton } from '@/components/ripple-button'
 import { Select } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Plus, FileText, Trash2, Edit2, Search, Bold, Italic, Heading1, List, Link2 } from 'lucide-react'
+import { Plus, FileText, Trash2, Edit2, Search, Bold, Italic, Heading1, List, Link2, AlertTriangle } from 'lucide-react'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { EmptyState } from '@/components/empty-state'
 import { ToastContainer } from '@/components/toast'
 import { LoadingSpinner } from '@/components/loading'
 import ReactMarkdown from 'react-markdown'
-
-interface Note {
-  id: number
-  title: string
-  content: string | null
-  task_id: number | null
-  created_at: string
-  updated_at: string
-}
+import type { Note } from '@/lib/stores/note-store'
 
 export default function NotesPage() {
-  const [notes, setNotes] = useState<Note[]>([])
+  // Store state
+  const { notes, loading, error } = useNoteStore()
+  const store = useNoteStore()
+  const { toasts, toast, dismiss } = useToast()
+
+  // UI-local state (form inputs, modals, filters)
   const [showForm, setShowForm] = useState(false)
   const [editNote, setEditNote] = useState<Note | null>(null)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [loading, setLoading] = useState(true)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [searchKeyword, setSearchKeyword] = useState('')
   const [previewMode, setPreviewMode] = useState(false)
@@ -52,8 +49,8 @@ export default function NotesPage() {
       textarea.setSelectionRange(start + before.length, start + before.length + selected.length)
     }, 0)
   }
-  const { toasts, toast, dismiss } = useToast()
 
+  // Load notes on mount
   useEffect(() => {
     const draft = localStorage.getItem(NOTES_DRAFT_KEY)
     if (draft) {
@@ -66,7 +63,7 @@ export default function NotesPage() {
         }
       } catch {}
     }
-    loadNotes()
+    store.loadNotes()
     taskApi.getAll().then(data => setTasks(data)).catch(() => {})
   }, [])
 
@@ -75,17 +72,6 @@ export default function NotesPage() {
       localStorage.setItem(NOTES_DRAFT_KEY, JSON.stringify({ title, content }))
     }
   }, [title, content, showForm])
-
-  const loadNotes = async () => {
-    try {
-      const data = await noteApi.getAll()
-      setNotes(data)
-    } catch (error) {
-      toast.error('加载笔记失败')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const resetForm = () => {
     setTitle('')
@@ -102,8 +88,7 @@ export default function NotesPage() {
     }
 
     try {
-      const note = await noteApi.create({ title, content, task_id: linkedTaskId })
-      setNotes([note, ...notes])
+      await store.addNote({ title, content, task_id: linkedTaskId })
       resetForm()
       setShowForm(false)
       toast.success('笔记创建成功')
@@ -124,8 +109,7 @@ export default function NotesPage() {
     if (!editNote || !title.trim()) return
 
     try {
-      const updated = await noteApi.update(editNote.id, { title, content, task_id: linkedTaskId })
-      setNotes(notes.map(n => n.id === editNote.id ? updated : n))
+      await store.updateNote(editNote.id, { title, content, task_id: linkedTaskId })
       resetForm()
       setShowForm(false)
       toast.success('笔记更新成功')
@@ -138,8 +122,7 @@ export default function NotesPage() {
     if (!deleteId) return
 
     try {
-      await noteApi.delete(deleteId)
-      setNotes(notes.filter(n => n.id !== deleteId))
+      await store.deleteNote(deleteId)
       toast.success('笔记删除成功')
     } catch (error) {
       toast.error('删除笔记失败')
@@ -177,6 +160,15 @@ export default function NotesPage() {
   return (
     <div className="animate-fade-in-up max-w-6xl mx-auto">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
+
+      {/* Offline indicator */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 mb-4 glass rounded-lg text-yellow-400 text-sm">
+          <AlertTriangle size={16} />
+          {error}
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <RippleButton onClick={() => { setShowForm(!showForm); resetForm(); }}>
           <Plus className="mr-2" size={16} />
