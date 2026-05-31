@@ -14,28 +14,36 @@ on:
 jobs:
   build-web:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: web-dist
-          path: out/
+          path: frontend/out/
 
   build-android:
     needs: build-web
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -46,69 +54,78 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: web-dist
-          path: out/
+          path: frontend/out/
+      - run: npx cap add android || true
       - run: npx cap sync android
       - name: Build APK
-        working-directory: android
+        working-directory: frontend/android
         run: ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
 
   build-windows:
     needs: build-web
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - uses: actions/download-artifact@v4
         with:
           name: web-dist
-          path: out/
+          path: frontend/out/
       - name: Install Electron dependencies
-        working-directory: electron
+        working-directory: frontend/electron
         run: npm ci
       - name: Copy web assets
         run: npx cap sync @capacitor-community/electron
       - name: Build Windows EXE
-        working-directory: electron
+        working-directory: frontend/electron
         run: npm run electron:make -- --win
       - uses: actions/upload-artifact@v4
         with:
           name: windows-exe
-          path: electron/dist/*.exe
+          path: frontend/electron/dist/*.exe
 
   build-macos:
     needs: build-web
     runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - uses: actions/download-artifact@v4
         with:
           name: web-dist
-          path: out/
+          path: frontend/out/
       - name: Install Electron dependencies
-        working-directory: electron
+        working-directory: frontend/electron
         run: npm ci
       - name: Copy web assets
         run: npx cap sync @capacitor-community/electron
       - name: Build macOS DMG
-        working-directory: electron
+        working-directory: frontend/electron
         run: npm run electron:make -- --mac
       - uses: actions/upload-artifact@v4
         with:
           name: macos-dmg
-          path: electron/dist/*.dmg
+          path: frontend/electron/dist/*.dmg
 
   release:
     needs: [build-android, build-windows, build-macos]
