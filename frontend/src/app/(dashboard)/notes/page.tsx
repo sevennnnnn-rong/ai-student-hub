@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { noteApi, taskApi } from '@/lib/api'
 import { useToast } from '@/lib/hooks'
-import { Button } from '@/components/ui/button'
+import { RippleButton } from '@/components/ripple-button'
+import { Select } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Plus, FileText, Trash2, Edit2, Search, Bold, Italic, Heading1, List, Link2 } from 'lucide-react'
@@ -158,10 +159,14 @@ export default function NotesPage() {
       return new Date(dateB).getTime() - new Date(dateA).getTime()
     })
 
+  const taskOptions = [
+    { value: '', label: '关联任务（可选）' },
+    ...tasks.map(task => ({ value: task.id.toString(), label: task.title }))
+  ]
+
   if (loading) {
     return (
-      <div>
-        <h1 className="text-2xl font-bold mb-6">笔记</h1>
+      <div className="animate-fade-in-up">
         <div className="flex justify-center py-12">
           <LoadingSpinner />
         </div>
@@ -170,14 +175,13 @@ export default function NotesPage() {
   }
 
   return (
-    <div>
+    <div className="animate-fade-in-up">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">笔记</h1>
-        <Button onClick={() => { setShowForm(!showForm); resetForm(); }}>
+        <RippleButton onClick={() => { setShowForm(!showForm); resetForm(); }}>
           <Plus className="mr-2" size={16} />
           {showForm ? '取消' : '新建笔记'}
-        </Button>
+        </RippleButton>
       </div>
 
       {/* 搜索框 + 排序 */}
@@ -192,21 +196,21 @@ export default function NotesPage() {
               className="pl-10"
             />
           </div>
-          <Button
+          <RippleButton
             variant="outline"
             size="sm"
             onClick={() => setSortBy(sortBy === 'updated' ? 'created' : 'updated')}
           >
             {sortBy === 'updated' ? '最近编辑' : '创建时间'}
-          </Button>
+          </RippleButton>
         </div>
       )}
 
       {/* 创建/编辑表单 */}
       {showForm && (
-        <Card className="mb-6">
+        <Card className="mb-6 glass-strong animate-scale-in">
           <CardHeader>
-            <CardTitle>{editNote ? '编辑笔记' : '新建笔记'}</CardTitle>
+            <CardTitle className="gradient-text">{editNote ? '编辑笔记' : '新建笔记'}</CardTitle>
           </CardHeader>
           <CardContent>
             <Input
@@ -215,36 +219,32 @@ export default function NotesPage() {
               onChange={(e) => setTitle(e.target.value)}
               className="mb-4"
             />
-            <select
-              className="w-full border rounded-md px-3 py-2 text-sm mb-4"
-              value={linkedTaskId || ''}
+            <Select
+              options={taskOptions}
+              value={linkedTaskId?.toString() || ''}
               onChange={(e) => setLinkedTaskId(e.target.value ? parseInt(e.target.value) : null)}
-            >
-              <option value="">关联任务（可选）</option>
-              {tasks.map(task => (
-                <option key={task.id} value={task.id}>{task.title}</option>
-              ))}
-            </select>
+              className="mb-4"
+            />
             <div className="flex items-center gap-2 mb-2">
-              <Button
+              <RippleButton
                 type="button"
                 variant={previewMode ? 'outline' : 'default'}
                 size="sm"
                 onClick={() => setPreviewMode(false)}
               >
                 编辑
-              </Button>
-              <Button
+              </RippleButton>
+              <RippleButton
                 type="button"
                 variant={previewMode ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setPreviewMode(true)}
               >
                 预览
-              </Button>
+              </RippleButton>
             </div>
             {previewMode ? (
-              <div className="w-full min-h-[10rem] border rounded-md p-3 overflow-auto prose prose-sm max-w-none resize-y">
+              <div className="w-full min-h-[10rem] border rounded-md p-3 overflow-auto prose prose-sm max-w-none resize-y glass">
                 {content ? (
                   <ReactMarkdown>{content}</ReactMarkdown>
                 ) : (
@@ -253,22 +253,22 @@ export default function NotesPage() {
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-2 mb-2 p-1 bg-gray-50 rounded-md border">
-                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('**', '**')} title="加粗">
+                <div className="flex items-center gap-2 mb-2 p-1 bg-gray-50 rounded-md border glass">
+                  <RippleButton type="button" variant="ghost" size="icon" onClick={() => insertMarkdown('**', '**')} title="加粗">
                     <Bold size={18} />
-                  </Button>
-                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('*', '*')} title="斜体">
+                  </RippleButton>
+                  <RippleButton type="button" variant="ghost" size="icon" onClick={() => insertMarkdown('*', '*')} title="斜体">
                     <Italic size={18} />
-                  </Button>
-                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('## ')} title="标题">
+                  </RippleButton>
+                  <RippleButton type="button" variant="ghost" size="icon" onClick={() => insertMarkdown('## ')} title="标题">
                     <Heading1 size={18} />
-                  </Button>
-                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('- ')} title="列表">
+                  </RippleButton>
+                  <RippleButton type="button" variant="ghost" size="icon" onClick={() => insertMarkdown('- ')} title="列表">
                     <List size={18} />
-                  </Button>
-                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('[', '](url)')} title="链接">
+                  </RippleButton>
+                  <RippleButton type="button" variant="ghost" size="icon" onClick={() => insertMarkdown('[', '](url)')} title="链接">
                     <Link2 size={18} />
-                  </Button>
+                  </RippleButton>
                 </div>
                 <textarea
                   ref={textareaRef}
@@ -291,12 +291,12 @@ export default function NotesPage() {
               </>
             )}
             <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
+              <RippleButton variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
                 取消
-              </Button>
-              <Button onClick={editNote ? handleSaveEdit : handleCreate}>
+              </RippleButton>
+              <RippleButton onClick={editNote ? handleSaveEdit : handleCreate}>
                 {editNote ? '保存' : '创建'}
-              </Button>
+              </RippleButton>
             </div>
           </CardContent>
         </Card>
@@ -304,25 +304,27 @@ export default function NotesPage() {
 
       {/* 笔记列表 */}
       {filteredNotes.length === 0 ? (
-        <EmptyState
-          icon={FileText}
-          title={searchKeyword ? '未找到匹配的笔记' : '暂无笔记'}
-          description={searchKeyword ? '尝试其他关键词' : '点击上方按钮创建你的第一篇笔记'}
-        />
+        <div className="glass rounded-lg">
+          <EmptyState
+            icon={FileText}
+            title={searchKeyword ? '未找到匹配的笔记' : '暂无笔记'}
+            description={searchKeyword ? '尝试其他关键词' : '点击上方按钮创建你的第一篇笔记'}
+          />
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredNotes.map(note => (
-            <Card key={note.id} className="hover:shadow-md transition-shadow">
+            <Card key={note.id} className="glass card-hover">
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg line-clamp-1">{note.title}</CardTitle>
+                  <CardTitle className="text-lg line-clamp-1 gradient-text">{note.title}</CardTitle>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => handleEdit(note)} aria-label="编辑笔记">
+                    <RippleButton variant="ghost" size="icon" onClick={() => handleEdit(note)} aria-label="编辑笔记">
                       <Edit2 size={14} />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setDeleteId(note.id)} aria-label="删除笔记">
+                    </RippleButton>
+                    <RippleButton variant="ghost" size="icon" onClick={() => setDeleteId(note.id)} aria-label="删除笔记">
                       <Trash2 size={14} />
-                    </Button>
+                    </RippleButton>
                   </div>
                 </div>
               </CardHeader>

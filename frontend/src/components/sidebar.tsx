@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { CheckSquare, Timer, Calendar, FileText, MessageSquare, Sun, Moon, Menu, X } from 'lucide-react'
 import { useTheme } from '@/lib/theme'
 import { useState } from 'react'
+import { RippleButton } from '@/components/ripple-button'
 
 const navItems = [
   { href: '/tasks', label: '任务管理', icon: CheckSquare },
@@ -23,7 +24,7 @@ export function Sidebar() {
     <>
       {/* 移动端菜单按钮 */}
       <button
-        className="fixed top-4 left-4 z-50 md:hidden bg-gray-900 text-white p-2 rounded-lg"
+        className="fixed top-4 left-4 z-50 md:hidden glass p-2 rounded-lg"
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? '关闭菜单' : '打开菜单'}
       >
@@ -33,7 +34,7 @@ export function Sidebar() {
       {/* 遮罩层 */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -41,11 +42,11 @@ export function Sidebar() {
       {/* 侧边栏 */}
       <aside aria-label="导航菜单" className={`
         fixed md:static inset-y-0 left-0 z-40
-        w-64 bg-gray-900 text-white p-4
-        transform transition-transform duration-200 ease-in-out
+        w-64 glass-strong text-white p-4
+        transform transition-transform duration-300 ease-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <h1 className="text-xl font-bold mb-6 pt-12 md:pt-0">AI Student Hub</h1>
+        <h1 className="text-xl font-bold mb-6 pt-12 md:pt-0 gradient-text">AI Student Hub</h1>
         <nav className="flex-1">
           {navItems.map((item) => {
             const Icon = item.icon
@@ -56,8 +57,10 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 p-3 rounded-lg mb-2 transition-colors ${
-                  isActive ? 'bg-blue-600' : 'hover:bg-gray-800'
+                className={`flex items-center gap-3 p-3 rounded-lg mb-2 transition-all duration-200 ${
+                  isActive
+                    ? 'gradient-bg text-white glow-sm'
+                    : 'hover:bg-white/10'
                 }`}
               >
                 <Icon size={20} />
@@ -68,14 +71,15 @@ export function Sidebar() {
         </nav>
 
         {/* 深色模式切换 */}
-        <div className="mt-auto pt-4 border-t border-gray-700">
-          <button
+        <div className="mt-auto pt-4 border-t border-white/10">
+          <RippleButton
             onClick={toggleTheme}
-            className="flex items-center gap-3 p-3 rounded-lg w-full hover:bg-gray-800 transition-colors"
+            variant="ghost"
+            className="flex items-center gap-3 p-3 rounded-lg w-full justify-start text-white hover:bg-white/10"
           >
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             <span>{theme === 'light' ? '深色模式' : '浅色模式'}</span>
-          </button>
+          </RippleButton>
         </div>
       </aside>
     </>

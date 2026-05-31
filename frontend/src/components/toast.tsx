@@ -17,15 +17,15 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   if (toasts.length === 0) return null
 
   const icons = {
-    success: <CheckCircle className="text-green-500" size={20} />,
-    error: <XCircle className="text-red-500" size={20} />,
-    info: <Info className="text-blue-500" size={20} />,
+    success: <CheckCircle className="text-green-400" size={20} />,
+    error: <XCircle className="text-red-400" size={20} />,
+    info: <Info className="text-blue-400" size={20} />,
   }
 
-  const bgColors = {
-    success: 'bg-green-50 border-green-200',
-    error: 'bg-red-50 border-red-200',
-    info: 'bg-blue-50 border-blue-200',
+  const accents = {
+    success: 'border-green-500/30',
+    error: 'border-red-500/30',
+    info: 'border-blue-500/30',
   }
 
   return (
@@ -33,13 +33,13 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
       {toasts.map(toast => (
         <div
           key={toast.id}
-          className={`flex items-center gap-3 p-3 rounded-lg border shadow-lg ${bgColors[toast.type]} animate-slide-in`}
+          className={`flex items-center gap-3 p-3 rounded-lg glass-strong border ${accents[toast.type]} animate-slide-in`}
         >
           {icons[toast.type]}
-          <span className="text-sm">{toast.message}</span>
+          <span className="text-sm text-white">{toast.message}</span>
           <button
             onClick={() => onDismiss(toast.id)}
-            className="ml-2 text-gray-400 hover:text-gray-600"
+            className="ml-2 text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
           >
             <X size={16} />
           </button>

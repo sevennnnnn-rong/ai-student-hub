@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import { taskApi } from '@/lib/api'
 import { useToast } from '@/lib/hooks'
-import { Button } from '@/components/ui/button'
+import { RippleButton } from '@/components/ripple-button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { Plus, CheckCircle, Circle, Trash2, Edit2, Calendar, Tag, ArrowUpDown, AlertTriangle } from 'lucide-react'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { EmptyState } from '@/components/empty-state'
@@ -192,7 +193,7 @@ export default function TasksPage() {
       return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
     })
 
-  const priorityColors = ['bg-gray-100', 'bg-yellow-100', 'bg-red-100']
+  const priorityColors = ['bg-gray-500/20 text-gray-300', 'bg-yellow-500/20 text-yellow-300', 'bg-red-500/20 text-red-300']
   const priorityLabels = ['普通', '重要', '紧急']
 
   const isOverdue = (task: Task) => {
@@ -202,8 +203,7 @@ export default function TasksPage() {
 
   if (loading) {
     return (
-      <div>
-        <h1 className="text-2xl font-bold mb-6">任务管理</h1>
+      <div className="animate-fade-in-up">
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
             <TaskCardSkeleton key={i} />
@@ -214,13 +214,12 @@ export default function TasksPage() {
   }
 
   return (
-    <div>
+    <div className="animate-fade-in-up">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
-      <h1 className="text-2xl font-bold mb-6">任务管理</h1>
 
       {/* 逾期提醒 */}
       {tasks.filter(t => isOverdue(t)).length > 0 && (
-        <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="flex items-center gap-2 p-3 mb-4 glass rounded-lg text-red-400 text-sm">
           <AlertTriangle size={16} />
           你有 {tasks.filter(t => isOverdue(t)).length} 个任务已逾期
         </div>
@@ -228,16 +227,16 @@ export default function TasksPage() {
 
       {/* 批量操作栏 */}
       {selectedIds.size > 0 && (
-        <div className="flex flex-wrap items-center gap-2 p-3 mb-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <span className="text-sm text-blue-700">已选 {selectedIds.size} 项</span>
-          <Button size="sm" onClick={handleBatchComplete}>批量完成</Button>
-          <Button size="sm" variant="destructive" onClick={() => setBatchDelete(true)}>批量删除</Button>
-          <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>取消选择</Button>
+        <div className="flex flex-wrap items-center gap-2 p-3 mb-4 glass rounded-lg">
+          <span className="text-sm text-blue-400">已选 {selectedIds.size} 项</span>
+          <RippleButton size="sm" onClick={handleBatchComplete}>批量完成</RippleButton>
+          <RippleButton size="sm" variant="destructive" onClick={() => setBatchDelete(true)}>批量删除</RippleButton>
+          <RippleButton size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>取消选择</RippleButton>
         </div>
       )}
 
       {/* 创建任务 */}
-      <Card className="mb-6">
+      <Card className="mb-6 glass">
         <CardContent className="pt-6">
           <div className="flex gap-2">
             <Input
@@ -246,10 +245,10 @@ export default function TasksPage() {
               onChange={(e) => setNewTitle(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             />
-            <Button onClick={handleCreate}>
+            <RippleButton onClick={handleCreate}>
               <Plus className="mr-2" size={16} />
               添加
-            </Button>
+            </RippleButton>
           </div>
         </CardContent>
       </Card>
@@ -257,7 +256,7 @@ export default function TasksPage() {
       {/* 筛选器 */}
       <div className="flex flex-wrap gap-2 mb-4">
         {(['all', 'pending', 'done'] as const).map(f => (
-          <Button
+          <RippleButton
             key={f}
             variant={filter === f ? 'default' : 'outline'}
             size="sm"
@@ -267,7 +266,7 @@ export default function TasksPage() {
             <span className="ml-1 text-xs opacity-70">
               ({f === 'all' ? tasks.length : tasks.filter(t => t.status === f).length})
             </span>
-          </Button>
+          </RippleButton>
         ))}
       </div>
 
@@ -277,19 +276,19 @@ export default function TasksPage() {
           type="checkbox"
           checked={filteredTasks.length > 0 && selectedIds.size === filteredTasks.length}
           onChange={selectAll}
-          className="rounded"
+          className="rounded w-4 h-4"
         />
         <ArrowUpDown size={14} className="text-gray-400" />
-        <span className="text-sm text-gray-500">排序：</span>
+        <span className="text-sm text-gray-400">排序：</span>
         {([['created', '创建时间'], ['priority', '优先级'], ['due_date', '截止日期']] as const).map(([key, label]) => (
-          <Button
+          <RippleButton
             key={key}
             variant={sortBy === key ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSortBy(key)}
           >
             {label}
-          </Button>
+          </RippleButton>
         ))}
       </div>
 
@@ -303,24 +302,24 @@ export default function TasksPage() {
       ) : (
         <div className="space-y-2">
           {filteredTasks.map(task => (
-            <Card key={task.id} className={`${task.status === 'done' ? 'opacity-60' : ''} ${isOverdue(task) ? 'border-red-300 bg-red-50' : ''}`}>
+            <Card key={task.id} className={`glass card-hover ${task.status === 'done' ? 'opacity-60' : ''} ${isOverdue(task) ? 'border-red-500/30' : ''}`}>
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3 flex-1">
                   <input
                     type="checkbox"
                     checked={selectedIds.has(task.id)}
                     onChange={() => toggleSelect(task.id)}
-                    className="rounded"
+                    className="rounded w-4 h-4"
                   />
                   <button onClick={() => toggleStatus(task)} aria-label={task.status === 'done' ? '标记为未完成' : '标记为完成'}>
                     {task.status === 'done' ? (
-                      <CheckCircle className="text-green-500" size={20} />
+                      <CheckCircle className="text-green-400" size={20} />
                     ) : (
-                      <Circle className="text-gray-400 hover:text-gray-600" size={20} />
+                      <Circle className="text-gray-400 hover:text-white transition-colors" size={20} />
                     )}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <p className={`font-medium ${task.status === 'done' ? 'line-through text-gray-400' : ''}`}>
+                    <p className={`font-medium ${task.status === 'done' ? 'line-through text-gray-500' : ''}`}>
                       {task.title}
                     </p>
                     {task.description && (
@@ -328,14 +327,14 @@ export default function TasksPage() {
                     )}
                     <div className="flex items-center gap-2 mt-1">
                       {task.due_date && (
-                        <span className={`text-xs flex items-center gap-1 ${isOverdue(task) ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                        <span className={`text-xs flex items-center gap-1 ${isOverdue(task) ? 'text-red-400 font-medium' : 'text-gray-400'}`}>
                           <Calendar size={12} />
                           {new Date(task.due_date).toLocaleDateString('zh-CN')}
                           {isOverdue(task) && ' (已逾期)'}
                         </span>
                       )}
                       {task.category && (
-                        <span className="text-xs px-2 py-0.5 bg-gray-100 rounded flex items-center gap-1">
+                        <span className="text-xs px-2 py-0.5 glass rounded flex items-center gap-1">
                           <Tag size={12} />
                           {task.category}
                         </span>
@@ -347,12 +346,12 @@ export default function TasksPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="default" onClick={() => handleEdit(task)} aria-label="编辑任务">
+                  <RippleButton variant="ghost" size="icon" onClick={() => handleEdit(task)} aria-label="编辑任务">
                     <Edit2 size={16} />
-                  </Button>
-                  <Button variant="ghost" size="default" onClick={() => setDeleteId(task.id)} aria-label="删除任务">
+                  </RippleButton>
+                  <RippleButton variant="ghost" size="icon" onClick={() => setDeleteId(task.id)} aria-label="删除任务">
                     <Trash2 size={16} />
-                  </Button>
+                  </RippleButton>
                 </div>
               </CardContent>
             </Card>
@@ -382,10 +381,10 @@ export default function TasksPage() {
 
       {/* 编辑对话框 */}
       {editTask && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-label="编辑任务">
-          <Card className="w-full max-w-md mx-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" role="dialog" aria-modal="true" aria-label="编辑任务">
+          <Card className="w-full max-w-md mx-4 glass-strong animate-scale-in">
             <CardContent className="pt-6">
-              <h3 className="text-lg font-semibold mb-4">编辑任务</h3>
+              <h3 className="text-lg font-semibold mb-4 gradient-text">编辑任务</h3>
               <div className="space-y-4">
                 <Input
                   placeholder="任务标题"
@@ -402,15 +401,15 @@ export default function TasksPage() {
                   value={editDueDate}
                   onChange={(e) => setEditDueDate(e.target.value)}
                 />
-                <select
-                  className="w-full border rounded-md px-3 py-2"
-                  value={editPriority}
+                <Select
+                  value={String(editPriority)}
                   onChange={(e) => setEditPriority(parseInt(e.target.value))}
-                >
-                  <option value={0}>普通</option>
-                  <option value={1}>重要</option>
-                  <option value={2}>紧急</option>
-                </select>
+                  options={[
+                    { value: '0', label: '普通' },
+                    { value: '1', label: '重要' },
+                    { value: '2', label: '紧急' },
+                  ]}
+                />
                 <Input
                   placeholder="分类（可选）"
                   value={editCategory}
@@ -418,12 +417,12 @@ export default function TasksPage() {
                 />
               </div>
               <div className="flex justify-end gap-2 mt-6">
-                <Button variant="outline" onClick={() => setEditTask(null)}>
+                <RippleButton variant="outline" onClick={() => setEditTask(null)}>
                   取消
-                </Button>
-                <Button onClick={handleSaveEdit}>
+                </RippleButton>
+                <RippleButton onClick={handleSaveEdit}>
                   保存
-                </Button>
+                </RippleButton>
               </div>
             </CardContent>
           </Card>

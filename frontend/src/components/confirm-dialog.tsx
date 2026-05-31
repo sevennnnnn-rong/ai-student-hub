@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Button } from '@/components/ui/button'
+import { RippleButton } from '@/components/ripple-button'
 import { Card, CardContent } from '@/components/ui/card'
+import { X } from 'lucide-react'
 
 interface ConfirmDialogProps {
   title: string
@@ -22,21 +23,30 @@ export function ConfirmDialog({ title, message, onConfirm, onCancel, variant = '
   }, [onCancel])
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-label={title}>
-      <Card className="w-full max-w-md mx-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" role="dialog" aria-modal="true" aria-label={title}>
+      <Card className="w-full max-w-md mx-4 glass-strong animate-scale-in">
         <CardContent className="pt-6">
-          <h3 className="text-lg font-semibold mb-2">{title}</h3>
-          <p className="text-gray-600 mb-6">{message}</p>
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-lg font-semibold gradient-text">{title}</h3>
+            <button
+              onClick={onCancel}
+              className="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+              aria-label="关闭"
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <p className="text-gray-400 mb-6">{message}</p>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={onCancel}>
+            <RippleButton variant="outline" onClick={onCancel}>
               取消
-            </Button>
-            <Button
+            </RippleButton>
+            <RippleButton
               variant={variant === 'danger' ? 'destructive' : 'default'}
               onClick={onConfirm}
             >
               确认
-            </Button>
+            </RippleButton>
           </div>
         </CardContent>
       </Card>

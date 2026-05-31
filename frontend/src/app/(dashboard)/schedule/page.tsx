@@ -3,9 +3,10 @@
 import { useState, useEffect, Fragment } from 'react'
 import { scheduleApi } from '@/lib/api'
 import { useToast } from '@/lib/hooks'
-import { Button } from '@/components/ui/button'
+import { RippleButton } from '@/components/ripple-button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { Plus, Trash2, Edit2, Clock, MapPin, User, Calendar } from 'lucide-react'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { EmptyState } from '@/components/empty-state'
@@ -27,6 +28,16 @@ interface Course {
 const DAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 8)
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+const COLOR_NAMES = ['蓝色', '绿色', '黄色', '红色', '紫色', '粉色', '青色']
+
+const semesterOptions = [
+  { value: '', label: '全部学期' },
+  { value: '2025-1', label: '2025 第一学期' },
+  { value: '2025-2', label: '2025 第二学期' },
+  { value: '2026-1', label: '2026 第一学期' },
+]
+
+const dayOptions = DAYS.map((day, i) => ({ value: String(i + 1), label: day }))
 
 export default function SchedulePage() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -63,7 +74,7 @@ export default function SchedulePage() {
   }
 
   const scrollToToday = () => {
-    const { day: currentDay, hour: currentHour } = getCurrentDayAndHour()
+    const { day: currentDay } = getCurrentDayAndHour()
     const element = document.getElementById(`day-${currentDay}`)
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -180,8 +191,7 @@ export default function SchedulePage() {
 
   if (loading) {
     return (
-      <div>
-        <h1 className="text-2xl font-bold mb-6">课程表</h1>
+      <div className="animate-fade-in-up">
         <div className="flex justify-center py-12">
           <LoadingSpinner />
         </div>
@@ -190,40 +200,35 @@ export default function SchedulePage() {
   }
 
   return (
-    <div>
+    <div className="animate-fade-in-up">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">课程表</h1>
-        <div className="flex gap-2 flex-wrap">
-          <select
-            className="border rounded-md px-3 py-1 text-sm"
+        <div className="flex gap-2 flex-wrap items-center">
+          <Select
             value={semester}
             onChange={(e) => { setSemester(e.target.value); loadCourses(e.target.value) }}
-          >
-            <option value="">全部学期</option>
-            <option value="2025-1">2025 第一学期</option>
-            <option value="2025-2">2025 第二学期</option>
-            <option value="2026-1">2026 第一学期</option>
-          </select>
-          <Button variant="outline" onClick={scrollToToday}>
+            options={semesterOptions}
+            className="w-auto"
+          />
+          <RippleButton variant="outline" size="sm" onClick={scrollToToday}>
             <Calendar className="mr-2" size={16} />
             今天
-          </Button>
-          <Button onClick={() => { setShowForm(!showForm); setEditCourse(null); resetForm(); }}>
+          </RippleButton>
+          <RippleButton size="sm" onClick={() => { setShowForm(!showForm); setEditCourse(null); resetForm(); }}>
             <Plus className="mr-2" size={16} />
             {showForm ? '取消' : '添加课程'}
-          </Button>
+          </RippleButton>
         </div>
       </div>
 
       {/* 添加/编辑课程表单 */}
       {showForm && (
-        <Card className="mb-6">
+        <Card className="mb-6 glass animate-scale-in">
           <CardHeader>
-            <CardTitle>{editCourse ? '编辑课程' : '添加课程'}</CardTitle>
+            <CardTitle className="gradient-text">{editCourse ? '编辑课程' : '添加课程'}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 placeholder="课程名称 *"
                 value={formData.name}
@@ -239,15 +244,11 @@ export default function SchedulePage() {
                 value={formData.location}
                 onChange={(e) => setFormData({...formData, location: e.target.value})}
               />
-              <select
-                className="border rounded-md px-3 py-2"
-                value={formData.day_of_week}
+              <Select
+                value={String(formData.day_of_week)}
                 onChange={(e) => setFormData({...formData, day_of_week: parseInt(e.target.value)})}
-              >
-                {DAYS.map((day, i) => (
-                  <option key={i} value={i + 1}>{day}</option>
-                ))}
-              </select>
+                options={dayOptions}
+              />
               <Input
                 type="time"
                 value={formData.start_time}
@@ -263,27 +264,28 @@ export default function SchedulePage() {
                 value={formData.semester}
                 onChange={(e) => setFormData({...formData, semester: e.target.value})}
               />
-              <div className="col-span-2">
-                <label className="block text-sm text-gray-500 mb-2">颜色</label>
+              <div className="col-span-1 sm:col-span-2">
+                <label className="block text-sm text-gray-400 mb-2">颜色</label>
                 <div className="flex gap-2">
-                  {COLORS.map(color => (
+                  {COLORS.map((color, index) => (
                     <button
                       key={color}
-                      className={`w-10 h-10 rounded-full border-2 ${formData.color === color ? 'border-gray-800' : 'border-transparent'}`}
+                      className={`w-10 h-10 rounded-full border-2 transition-all ${formData.color === color ? 'border-white scale-110 glow-sm' : 'border-transparent hover:scale-105'}`}
                       style={{ backgroundColor: color }}
                       onClick={() => setFormData({...formData, color})}
+                      aria-label={COLOR_NAMES[index]}
                     />
                   ))}
                 </div>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={() => { setShowForm(false); setEditCourse(null); resetForm(); }}>
+              <RippleButton variant="outline" onClick={() => { setShowForm(false); setEditCourse(null); resetForm(); }}>
                 取消
-              </Button>
-              <Button onClick={editCourse ? handleSaveEdit : handleCreate}>
+              </RippleButton>
+              <RippleButton onClick={editCourse ? handleSaveEdit : handleCreate}>
                 {editCourse ? '保存' : '添加'}
-              </Button>
+              </RippleButton>
             </div>
           </CardContent>
         </Card>
@@ -298,19 +300,19 @@ export default function SchedulePage() {
         />
       ) : (
         <>
-        <div className="overflow-x-auto relative">
-          <div className="grid grid-cols-8 gap-px bg-gray-200 min-w-[800px]">
+        <div className="overflow-x-auto relative rounded-lg glass">
+          <div className="grid grid-cols-8 gap-px min-w-[800px]">
             {/* 表头 */}
-            <div className="bg-gray-100 p-3 font-bold text-sm">时间</div>
+            <div className="p-3 font-bold text-sm text-gray-400">时间</div>
             {DAYS.map((day, index) => (
               <div
                 key={day}
                 id={`day-${index + 1}`}
-                className={`p-3 font-bold text-sm text-center ${isToday(index + 1) ? 'bg-blue-100 text-blue-700' : 'bg-gray-100'}`}
+                className={`p-3 font-bold text-sm text-center ${isToday(index + 1) ? 'gradient-bg text-white' : 'bg-white/5'}`}
               >
                 {day}
                 {isToday(index + 1) && (
-                  <span className="block text-xs font-normal mt-1">今天</span>
+                  <span className="block text-xs font-normal mt-1 opacity-80">今天</span>
                 )}
               </div>
             ))}
@@ -318,7 +320,7 @@ export default function SchedulePage() {
             {/* 时间网格 */}
             {HOURS.map(hour => (
               <Fragment key={hour}>
-                <div className={`bg-white p-2 text-sm border-b ${isCurrentTimeSlot(0, hour) ? 'bg-blue-50 font-bold text-blue-600' : 'text-gray-500'}`}>
+                <div className={`p-2 text-sm border-b border-white/5 ${isCurrentTimeSlot(0, hour) ? 'font-bold gradient-text' : 'text-gray-500'}`}>
                   {hour}:00
                 </div>
                 {DAYS.map((_, dayIndex) => {
@@ -327,12 +329,12 @@ export default function SchedulePage() {
                   return (
                     <div
                       key={`${dayIndex}-${hour}`}
-                      className={`bg-white p-1 min-h-[60px] border-b border-r ${isCurrent ? 'bg-blue-50 ring-2 ring-inset ring-blue-400' : ''}`}
+                      className={`p-1 min-h-[60px] border-b border-r border-white/5 ${isCurrent ? 'bg-white/5 ring-2 ring-inset ring-blue-400/50' : ''}`}
                     >
                       {coursesAt.map(course => (
                         <div
                           key={course.id}
-                          className="text-xs p-2 rounded text-white mb-1 relative group cursor-pointer"
+                          className="text-xs p-2 rounded text-white mb-1 relative group cursor-pointer hover:brightness-110 transition-all"
                           style={{ backgroundColor: course.color }}
                           onClick={() => handleEdit(course)}
                         >
@@ -341,7 +343,7 @@ export default function SchedulePage() {
                             <p className="truncate opacity-80">{course.location}</p>
                           )}
                           <button
-                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-white hover:text-red-200"
+                            className="absolute top-1 right-1 opacity-60 md:opacity-0 md:group-hover:opacity-100 text-white hover:text-red-200 transition-opacity p-1"
                             aria-label="删除课程"
                             onClick={(e) => {
                               e.stopPropagation()
@@ -360,7 +362,7 @@ export default function SchedulePage() {
           </div>
         </div>
         {/* 横滑提示 - 仅小屏显示 */}
-        <div className="sm:hidden flex items-center justify-center py-2 text-xs text-gray-400">
+        <div className="sm:hidden flex items-center justify-center py-2 text-xs text-gray-500">
           <span>← 左右滑动查看完整课表 →</span>
         </div>
         </>

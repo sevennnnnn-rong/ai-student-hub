@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { aiApi, taskApi } from '@/lib/api'
 import { useToast } from '@/lib/hooks'
-import { Button } from '@/components/ui/button'
+import { RippleButton } from '@/components/ripple-button'
+import { ConfirmDialog } from '@/components/confirm-dialog'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Send, Bot, User, Sparkles, ListTodo, Calendar, FileText, Copy, Check, Trash2 } from 'lucide-react'
@@ -26,6 +27,7 @@ export default function AiChatPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [copiedId, setCopiedId] = useState<number | null>(null)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toasts, toast, dismiss } = useToast()
 
@@ -86,32 +88,44 @@ export default function AiChatPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto h-full flex flex-col">
+    <div className="max-w-2xl mx-auto h-full flex flex-col animate-fade-in-up">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">AI 助手</h1>
+        <div />
         {messages.length > 0 && (
-          <Button variant="outline" size="sm" onClick={() => setMessages([])}>
+          <RippleButton variant="outline" size="sm" onClick={() => setShowClearConfirm(true)}>
             <Trash2 className="mr-2" size={14} />
             清空对话
-          </Button>
+          </RippleButton>
         )}
       </div>
+
+      {showClearConfirm && (
+        <ConfirmDialog
+          title="清空对话"
+          message="确定要清空所有对话记录吗？此操作不可撤销。"
+          onConfirm={() => {
+            setMessages([])
+            setShowClearConfirm(false)
+          }}
+          onCancel={() => setShowClearConfirm(false)}
+        />
+      )}
 
       {/* 消息列表 */}
       <div className="flex-1 overflow-y-auto mb-4 space-y-4">
         {messages.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-12 glass">
+            <div className="w-16 h-16 rounded-full glass flex items-center justify-center mx-auto mb-4">
               <Sparkles className="text-blue-600" size={32} />
             </div>
             <h2 className="text-xl font-semibold mb-2">你好！我是你的 AI 助手</h2>
             <p className="text-gray-500 mb-6">可以帮你创建任务、管理日程、回答问题</p>
 
             {/* 快捷操作 */}
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center gap-3 flex-wrap">
               {quickActions.map((action) => (
-                <Button
+                <RippleButton
                   key={action.label}
                   variant="outline"
                   className="flex items-center gap-2"
@@ -119,7 +133,7 @@ export default function AiChatPage() {
                 >
                   <action.icon size={16} />
                   {action.label}
-                </Button>
+                </RippleButton>
               ))}
             </div>
           </div>
@@ -131,7 +145,7 @@ export default function AiChatPage() {
             className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.role === 'assistant' && (
-              <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-full gradient-bg flex items-center justify-center flex-shrink-0">
                 <Bot size={16} className="text-white" />
               </div>
             )}
@@ -139,8 +153,8 @@ export default function AiChatPage() {
               <div
                 className={`p-3 rounded-2xl ${
                   msg.role === 'user'
-                    ? 'bg-blue-500 text-white rounded-br-md'
-                    : 'bg-gray-100 rounded-bl-md'
+                    ? 'gradient-bg text-white rounded-br-md'
+                    : 'glass rounded-bl-md'
                 }`}
               >
                 {msg.role === 'assistant' ? (
@@ -154,7 +168,7 @@ export default function AiChatPage() {
               {msg.role === 'assistant' && (
                 <button
                   onClick={() => handleCopy(msg.content, i)}
-                  className="absolute -right-8 top-1 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-gray-200"
+                  className="absolute -right-10 top-1 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-gray-200"
                   aria-label="复制回复"
                 >
                   {copiedId === i ? (
@@ -166,7 +180,7 @@ export default function AiChatPage() {
               )}
             </div>
             {msg.role === 'user' && (
-              <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-full glass flex items-center justify-center flex-shrink-0">
                 <User size={16} className="text-white" />
               </div>
             )}
@@ -175,14 +189,14 @@ export default function AiChatPage() {
 
         {loading && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-full gradient-bg flex items-center justify-center flex-shrink-0">
               <Bot size={16} className="text-white" />
             </div>
-            <div className="bg-gray-100 p-3 rounded-2xl rounded-bl-md">
+            <div className="glass p-3 rounded-2xl rounded-bl-md">
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </div>
@@ -192,19 +206,19 @@ export default function AiChatPage() {
       </div>
 
       {/* 输入框 */}
-      <div className="sticky bottom-0 bg-white border-t pt-4">
+      <div className="sticky bottom-0 glass border-t border-white/10 pt-4">
         <div className="flex gap-2">
           <Input
-            placeholder="输入消息... (Enter 发送)"
+            placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
             disabled={loading}
             className="flex-1"
           />
-          <Button onClick={() => handleSend()} disabled={loading || !input.trim()}>
+          <RippleButton onClick={() => handleSend()} disabled={loading || !input.trim()}>
             <Send size={16} />
-          </Button>
+          </RippleButton>
         </div>
       </div>
     </div>

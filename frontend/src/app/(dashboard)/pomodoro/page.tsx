@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import { pomodoroApi, taskApi } from '@/lib/api'
 import { useToast } from '@/lib/hooks'
-import { Button } from '@/components/ui/button'
+import { RippleButton } from '@/components/ripple-button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Play, Pause, RotateCcw, Timer, CheckCircle, History, Clock } from 'lucide-react'
+import { Select } from '@/components/ui/select'
+import { Play, Pause, RotateCcw, Timer, CheckCircle, History, Clock, ChevronDown, ChevronUp, X } from 'lucide-react'
 import { ToastContainer } from '@/components/toast'
 import { LoadingSpinner } from '@/components/loading'
 
@@ -224,22 +225,21 @@ export default function PomodoroPage() {
   const selectedTask = tasks.find(t => t.id === selectedTaskId)
 
   return (
-    <div className="max-w-md mx-auto px-4">
+    <div className="max-w-md mx-auto px-4 animate-fade-in-up">
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
-      <h1 className="text-2xl font-bold mb-6">番茄钟</h1>
 
       {/* 计时器 */}
-      <Card className="mb-6">
+      <Card className="glass mb-6">
         <CardContent className="pt-6 text-center">
           {/* 当前任务 */}
           {isRunning && selectedTask && (
-            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+            <div className="mb-4 p-3 glass rounded-lg">
               <p className="text-sm text-gray-500">当前任务</p>
               <p className="font-medium text-blue-700">{selectedTask.title}</p>
             </div>
           )}
 
-          <div className="text-5xl sm:text-6xl font-mono mb-4">
+          <div className="text-5xl sm:text-6xl font-mono mb-4 gradient-text">
             {formatTime(timeLeft)}
           </div>
 
@@ -251,7 +251,7 @@ export default function PomodoroPage() {
                 className={`w-4 h-4 rounded-full transition-colors ${
                   i < (completedCount % 4)
                     ? 'bg-red-500'
-                    : 'bg-gray-200'
+                    : 'bg-white/10'
                 }`}
               />
             ))}
@@ -264,17 +264,18 @@ export default function PomodoroPage() {
           {!isRunning && (
             <div className="flex justify-center gap-2 mb-6">
               {[15, 25, 30, 45].map(min => (
-                <Button
+                <RippleButton
                   key={min}
                   variant={duration === min ? 'default' : 'outline'}
                   size="sm"
+                  className={duration === min ? 'glass' : ''}
                   onClick={() => {
                     setDuration(min)
                     setTimeLeft(min * 60)
                   }}
                 >
                   {min}分钟
-                </Button>
+                </RippleButton>
               ))}
             </div>
           )}
@@ -282,50 +283,48 @@ export default function PomodoroPage() {
           {/* 任务选择 */}
           {!isRunning && (
             <div className="mb-6">
-              <select
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                value={selectedTaskId || ''}
+              <Select
+                options={[
+                  { value: '', label: '选择任务（可选）' },
+                  ...tasks.map(task => ({ value: String(task.id), label: task.title }))
+                ]}
+                value={selectedTaskId ? String(selectedTaskId) : ''}
                 onChange={(e) => setSelectedTaskId(e.target.value ? parseInt(e.target.value) : null)}
-              >
-                <option value="">选择任务（可选）</option>
-                {tasks.map(task => (
-                  <option key={task.id} value={task.id}>{task.title}</option>
-                ))}
-              </select>
+              />
             </div>
           )}
 
           <div className="flex justify-center gap-3">
             {!isRunning ? (
-              <Button onClick={handleStart} size="lg">
+              <RippleButton onClick={handleStart} size="lg">
                 <Play className="mr-2" size={20} />
                 开始
-              </Button>
+              </RippleButton>
             ) : (
               <>
-                <Button
+                <RippleButton
                   onClick={() => setIsPaused(!isPaused)}
                   size="lg"
                   variant={isPaused ? 'default' : 'outline'}
                 >
                   {isPaused ? <Play className="mr-2" size={20} /> : <Pause className="mr-2" size={20} />}
                   {isPaused ? '继续' : '暂停'}
-                </Button>
-                <Button onClick={() => handleStop(false)} size="lg" variant="destructive">
+                </RippleButton>
+                <RippleButton onClick={() => handleStop(false)} size="lg" variant="destructive">
                   停止
-                </Button>
+                </RippleButton>
               </>
             )}
-            <Button onClick={handleReset} size="lg" variant="outline" disabled={isRunning}>
+            <RippleButton onClick={handleReset} size="lg" variant="outline" disabled={isRunning}>
               <RotateCcw className="mr-2" size={20} />
               重置
-            </Button>
+            </RippleButton>
           </div>
         </CardContent>
       </Card>
 
       {/* 今日统计 */}
-      <Card>
+      <Card className="glass">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Timer size={20} />
@@ -335,17 +334,17 @@ export default function PomodoroPage() {
         <CardContent>
           {stats ? (
             <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-center p-4 glass rounded-lg">
                 <CheckCircle className="mx-auto mb-2 text-green-500" size={24} />
                 <p className="text-2xl font-bold">{stats.completed_sessions}</p>
                 <p className="text-sm text-gray-500">完成番茄</p>
               </div>
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-center p-4 glass rounded-lg">
                 <Timer className="mx-auto mb-2 text-blue-500" size={24} />
                 <p className="text-2xl font-bold">{stats.total_hours}</p>
                 <p className="text-sm text-gray-500">专注小时</p>
               </div>
-              <div className="col-span-2 text-center p-3 bg-blue-50 rounded-lg">
+              <div className="col-span-2 text-center p-3 glass rounded-lg">
                 <p className="text-sm text-gray-500">完成率</p>
                 <p className="text-lg font-bold text-blue-600">{stats.completion_rate}%</p>
               </div>
@@ -359,15 +358,16 @@ export default function PomodoroPage() {
       </Card>
 
       {/* 历史记录 */}
-      <Card className="mt-6">
+      <Card className="glass card-hover mt-6">
         <CardHeader className="cursor-pointer" onClick={() => setShowHistory(!showHistory)}>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <History size={20} />
               最近记录
             </div>
-            <span className="text-sm font-normal text-gray-500">
+            <span className="text-sm font-normal text-gray-500 flex items-center gap-1">
               {showHistory ? '收起' : '展开'}
+              {showHistory ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </span>
           </CardTitle>
         </CardHeader>
@@ -380,7 +380,7 @@ export default function PomodoroPage() {
                 {sessions.map(session => (
                   <div
                     key={session.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    className="flex items-center justify-between p-3 glass rounded-lg"
                   >
                     <div className="flex items-center gap-3">
                       {session.completed ? (
@@ -413,8 +413,16 @@ export default function PomodoroPage() {
 
       {/* 长休息提醒 */}
       {showLongBreak && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-label="长休息提醒">
-          <Card className="w-full max-w-sm mx-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" role="dialog" aria-modal="true" aria-label="长休息提醒">
+          <Card className="glass-strong animate-scale-in w-full max-w-sm mx-4 relative">
+            <RippleButton
+              variant="ghost"
+              size="sm"
+              className="absolute top-3 right-3 h-8 w-8 p-0"
+              onClick={() => setShowLongBreak(false)}
+            >
+              <X size={16} />
+            </RippleButton>
             <CardContent className="pt-6 text-center">
               <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="text-green-500" size={32} />
@@ -422,16 +430,16 @@ export default function PomodoroPage() {
               <h3 className="text-lg font-bold mb-2">已完成 {completedCount} 个番茄钟！</h3>
               <p className="text-gray-500 mb-6">建议休息 15-20 分钟，让大脑恢复活力</p>
               <div className="flex justify-center gap-3">
-                <Button variant="outline" onClick={() => setShowLongBreak(false)}>
+                <RippleButton variant="outline" onClick={() => setShowLongBreak(false)}>
                   继续工作
-                </Button>
-                <Button onClick={() => {
+                </RippleButton>
+                <RippleButton onClick={() => {
                   setShowLongBreak(false)
                   setDuration(15)
                   setTimeLeft(15 * 60)
                 }}>
                   休息 15 分钟
-                </Button>
+                </RippleButton>
               </div>
             </CardContent>
           </Card>
