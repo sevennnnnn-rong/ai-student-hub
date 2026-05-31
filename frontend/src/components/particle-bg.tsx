@@ -26,6 +26,7 @@ export function ParticleBg() {
     let particles: Particle[] = []
     let mouseX = 0
     let mouseY = 0
+    let resizeTimer: ReturnType<typeof setTimeout>
 
     const colors = [
       'rgba(102, 126, 234, ',
@@ -37,6 +38,15 @@ export function ParticleBg() {
     const resize = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
+    }
+
+    const debouncedResize = () => {
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(() => {
+        resize()
+        const count = Math.min(Math.floor((canvas.width * canvas.height) / 15000), 80)
+        particles = Array.from({ length: count }, createParticle)
+      }, 200)
     }
 
     const createParticle = (): Particle => ({
@@ -63,17 +73,20 @@ export function ParticleBg() {
     }
 
     const drawConnections = () => {
+      const maxDist = 120
+      const maxDistSq = maxDist * maxDist
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x
           const dy = particles[i].y - particles[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
+          const distSq = dx * dx + dy * dy
 
-          if (dist < 120) {
+          if (distSq < maxDistSq) {
+            const dist = Math.sqrt(distSq)
             ctx.beginPath()
             ctx.moveTo(particles[i].x, particles[i].y)
             ctx.lineTo(particles[j].x, particles[j].y)
-            const opacity = (1 - dist / 120) * 0.15
+            const opacity = (1 - dist / maxDist) * 0.15
             ctx.strokeStyle = `rgba(102, 126, 234, ${opacity})`
             ctx.lineWidth = 0.5
             ctx.stroke()
@@ -89,8 +102,9 @@ export function ParticleBg() {
         // Mouse interaction
         const dx = mouseX - p.x
         const dy = mouseY - p.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 150) {
+        const distSq = dx * dx + dy * dy
+        if (distSq > 0 && distSq < 22500) {
+          const dist = Math.sqrt(distSq)
           const force = (150 - dist) / 150
           p.vx -= (dx / dist) * force * 0.02
           p.vy -= (dy / dist) * force * 0.02
@@ -125,12 +139,13 @@ export function ParticleBg() {
     init()
     animate()
 
-    window.addEventListener('resize', init)
+    window.addEventListener('resize', debouncedResize)
     window.addEventListener('mousemove', handleMouseMove)
 
     return () => {
       cancelAnimationFrame(animationId)
-      window.removeEventListener('resize', init)
+      clearTimeout(resizeTimer)
+      window.removeEventListener('resize', debouncedResize)
       window.removeEventListener('mousemove', handleMouseMove)
     }
   }, [])

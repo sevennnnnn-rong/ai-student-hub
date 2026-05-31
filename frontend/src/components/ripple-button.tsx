@@ -1,14 +1,24 @@
 'use client'
 
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useEffect } from 'react'
 import { Button, ButtonProps } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-export function RippleButton({ className, children, onClick, ...props }: ButtonProps) {
+export function RippleButton({ className, children, onClick, disabled, ...props }: ButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
+
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout)
+      timeoutsRef.current.clear()
+    }
+  }, [])
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (disabled) return
+
       const button = buttonRef.current
       if (!button) return
 
@@ -18,17 +28,22 @@ export function RippleButton({ className, children, onClick, ...props }: ButtonP
 
       const ripple = document.createElement('span')
       ripple.className = 'ripple'
+      ripple.setAttribute('aria-hidden', 'true')
       ripple.style.left = `${x}px`
       ripple.style.top = `${y}px`
       ripple.style.width = ripple.style.height = `${Math.max(rect.width, rect.height)}px`
 
       button.appendChild(ripple)
 
-      setTimeout(() => ripple.remove(), 600)
+      const timeoutId = setTimeout(() => {
+        ripple.remove()
+        timeoutsRef.current.delete(timeoutId)
+      }, 600)
+      timeoutsRef.current.add(timeoutId)
 
       onClick?.(e)
     },
-    [onClick]
+    [onClick, disabled]
   )
 
   return (
@@ -36,6 +51,7 @@ export function RippleButton({ className, children, onClick, ...props }: ButtonP
       ref={buttonRef}
       className={cn('ripple-container', className)}
       onClick={handleClick}
+      disabled={disabled}
       {...props}
     >
       {children}
