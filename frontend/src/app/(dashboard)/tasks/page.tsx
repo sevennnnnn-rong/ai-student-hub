@@ -228,7 +228,7 @@ export default function TasksPage() {
 
       {/* 批量操作栏 */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-2 p-3 mb-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex flex-wrap items-center gap-2 p-3 mb-4 bg-blue-50 border border-blue-200 rounded-lg">
           <span className="text-sm text-blue-700">已选 {selectedIds.size} 项</span>
           <Button size="sm" onClick={handleBatchComplete}>批量完成</Button>
           <Button size="sm" variant="destructive" onClick={() => setBatchDelete(true)}>批量删除</Button>
@@ -255,7 +255,7 @@ export default function TasksPage() {
       </Card>
 
       {/* 筛选器 */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-4">
         {(['all', 'pending', 'done'] as const).map(f => (
           <Button
             key={f}
@@ -272,7 +272,7 @@ export default function TasksPage() {
       </div>
 
       {/* 排序 + 全选 */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         <input
           type="checkbox"
           checked={filteredTasks.length > 0 && selectedIds.size === filteredTasks.length}
@@ -347,10 +347,10 @@ export default function TasksPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => handleEdit(task)} aria-label="编辑任务">
+                  <Button variant="ghost" size="default" onClick={() => handleEdit(task)} aria-label="编辑任务">
                     <Edit2 size={16} />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setDeleteId(task.id)} aria-label="删除任务">
+                  <Button variant="ghost" size="default" onClick={() => setDeleteId(task.id)} aria-label="删除任务">
                     <Trash2 size={16} />
                   </Button>
                 </div>

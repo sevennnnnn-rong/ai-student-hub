@@ -154,7 +154,7 @@ export default function AiChatPage() {
               {msg.role === 'assistant' && (
                 <button
                   onClick={() => handleCopy(msg.content, i)}
-                  className="absolute -right-8 top-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-gray-200"
+                  className="absolute -right-8 top-1 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-gray-200"
                   aria-label="复制回复"
                 >
                   {copiedId === i ? (

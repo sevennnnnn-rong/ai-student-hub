@@ -194,7 +194,7 @@ export default function SchedulePage() {
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">课程表</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <select
             className="border rounded-md px-3 py-1 text-sm"
             value={semester}
@@ -269,7 +269,7 @@ export default function SchedulePage() {
                   {COLORS.map(color => (
                     <button
                       key={color}
-                      className={`w-8 h-8 rounded-full border-2 ${formData.color === color ? 'border-gray-800' : 'border-transparent'}`}
+                      className={`w-10 h-10 rounded-full border-2 ${formData.color === color ? 'border-gray-800' : 'border-transparent'}`}
                       style={{ backgroundColor: color }}
                       onClick={() => setFormData({...formData, color})}
                     />
@@ -297,7 +297,8 @@ export default function SchedulePage() {
           description="点击上方按钮添加你的第一门课程"
         />
       ) : (
-        <div className="overflow-x-auto">
+        <>
+        <div className="overflow-x-auto relative">
           <div className="grid grid-cols-8 gap-px bg-gray-200 min-w-[800px]">
             {/* 表头 */}
             <div className="bg-gray-100 p-3 font-bold text-sm">时间</div>
@@ -358,6 +359,11 @@ export default function SchedulePage() {
             ))}
           </div>
         </div>
+        {/* 横滑提示 - 仅小屏显示 */}
+        <div className="sm:hidden flex items-center justify-center py-2 text-xs text-gray-400">
+          <span>← 左右滑动查看完整课表 →</span>
+        </div>
+        </>
       )}
 
       {/* 删除确认对话框 */}

@@ -253,21 +253,21 @@ export default function NotesPage() {
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-1 mb-2 p-1 bg-gray-50 rounded-md border">
-                  <Button type="button" variant="ghost" size="sm" onClick={() => insertMarkdown('**', '**')} title="加粗">
-                    <Bold size={14} />
+                <div className="flex items-center gap-2 mb-2 p-1 bg-gray-50 rounded-md border">
+                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('**', '**')} title="加粗">
+                    <Bold size={18} />
                   </Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => insertMarkdown('*', '*')} title="斜体">
-                    <Italic size={14} />
+                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('*', '*')} title="斜体">
+                    <Italic size={18} />
                   </Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => insertMarkdown('## ')} title="标题">
-                    <Heading1 size={14} />
+                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('## ')} title="标题">
+                    <Heading1 size={18} />
                   </Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => insertMarkdown('- ')} title="列表">
-                    <List size={14} />
+                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('- ')} title="列表">
+                    <List size={18} />
                   </Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => insertMarkdown('[', '](url)')} title="链接">
-                    <Link2 size={14} />
+                  <Button type="button" variant="ghost" size="default" onClick={() => insertMarkdown('[', '](url)')} title="链接">
+                    <Link2 size={18} />
                   </Button>
                 </div>
                 <textarea
