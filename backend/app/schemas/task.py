@@ -18,7 +18,7 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     due_date: Optional[datetime] = None
     priority: Optional[int] = Field(default=None, ge=0, le=2)
-    status: Optional[Literal['pending', 'done']] = None
+    status: Optional[Literal['pending', 'in_progress', 'done']] = None
     category: Optional[str] = None
 
 

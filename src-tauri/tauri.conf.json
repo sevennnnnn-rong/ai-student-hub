@@ -1,18 +1,18 @@
 {
   "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-config-schema/schema.json",
-  "productName": "AI Student Hub",
+  "productName": "气象台Hub",
   "version": "0.1.0",
   "identifier": "com.ai-student-hub.app",
   "build": {
     "frontendDist": "../frontend-new/dist",
     "devUrl": "http://localhost:3000",
     "beforeDevCommand": "cmd /c \"cd ..\\frontend-new && npm run dev\"",
-    "beforeBuildCommand": "cd ../frontend-new && npm run build"
+    "beforeBuildCommand": "cmd /c \"cd ..\\frontend-new && npm run build\""
   },
   "app": {
     "windows": [
       {
-        "title": "AI Student Hub",
+        "title": "气象台Hub",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
@@ -28,12 +28,12 @@
     "trayIcon": {
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true,
-      "tooltip": "AI Student Hub"
+      "tooltip": "气象台Hub"
     }
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["nsis"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
