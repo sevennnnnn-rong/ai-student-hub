@@ -17,7 +17,7 @@ import { FullPageLoading } from './components/ui/LoadingStates'
 const Home = lazy(() => import('./pages/Home'))
 const Chat = lazy(() => import('./pages/Chat'))
 const Tasks = lazy(() => import('./pages/Tasks'))
-const Pomodoro = lazy(() => import('./pages/Pomodoro'))
+const Pomodoro = lazy(() => import('./pages/pomodoro'))
 const Schedule = lazy(() => import('./pages/Schedule'))
 const Notes = lazy(() => import('./pages/Notes'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
