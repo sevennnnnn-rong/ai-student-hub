@@ -1,9 +1,9 @@
-import os
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 from app.database import engine, Base
 from app.models import Task, PomodoroSession, Course, Note, Conversation, ConversationMessage
 from app.api import tasks, pomodoro, schedule, notes, ai, conversations, notifications
@@ -12,6 +12,7 @@ from app.services.agents import agent_registry
 from app.services.agents.claude_agent import ClaudeAgent
 from app.services.agents.codex_agent import CodexAgent
 from app.services.agents.doubao_agent import DoubaoAgent
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="AI Student Hub",
+    title="气象台Hub",
     description="AI驱动的大学生效率助手",
     version="1.0.0",
     lifespan=lifespan
@@ -36,7 +37,7 @@ app = FastAPI(
 # CORS配置
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001").split(","),
+    allow_origins=settings.cors_origins.split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -79,10 +80,16 @@ app.include_router(notifications.router, prefix="/api/notifications", tags=["通
 @app.get("/")
 def read_root():
     """根路径"""
-    return {"message": "AI Student Hub API", "version": "1.0.0"}
+    return {"message": "气象台Hub API", "version": "1.0.0"}
 
 
 @app.get("/health")
 def health_check():
     """健康检查"""
-    return {"status": "ok"}
+    db_status = "ok"
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception:
+        db_status = "error"
+    return {"status": "ok", "db": db_status}

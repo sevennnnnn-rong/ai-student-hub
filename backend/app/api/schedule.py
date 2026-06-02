@@ -17,12 +17,12 @@ class ImportPreviewRequest(BaseModel):
 
 
 @router.get("/")
-def get_courses(semester: str = None, db: Session = Depends(get_db)):
+def get_courses(semester: str = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """获取课程列表"""
     query = db.query(Course)
     if semester:
         query = query.filter(Course.semester == semester)
-    courses = query.order_by(Course.day_of_week, Course.start_time).all()
+    courses = query.order_by(Course.day_of_week, Course.start_time).offset(skip).limit(limit).all()
     return success_response([CourseResponse.model_validate(c).model_dump() for c in courses])
 
 
@@ -61,7 +61,7 @@ def delete_course(course_id: int, db: Session = Depends(get_db)):
 
     db.delete(course)
     db.commit()
-    return success_response(None, "课程删除成功", code=204)
+    return success_response(None, message="课程删除成功", code=204)
 
 
 @router.post("/import/preview")

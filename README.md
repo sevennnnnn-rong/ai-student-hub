@@ -1,81 +1,105 @@
-# AI Student Hub
+# 气象台Hub (AI Student Hub)
 
-AI驱动的大学生效率助手
-
-## 功能特性
-
-- **任务管理**: 创建、完成、删除任务，支持优先级和分类
-- **番茄钟**: 专注计时，关联任务，统计专注时长
-- **课程表**: 周视图展示，支持增删改查
-- **AI 助手**: 智能对话，自然语言创建任务
-- **笔记**: Markdown 编辑器，支持任务关联
+AI 驱动的大学生效率助手，支持桌面端和移动端同步使用。
 
 ## 技术栈
 
-- **前端**: Next.js 14 + React 18 + TailwindCSS + shadcn/ui
-- **后端**: Python FastAPI + SQLAlchemy
-- **数据库**: SQLite
-- **AI**: DeepSeek API
+- **桌面端**: Tauri 2.x + Rust
+- **前端**: React 19 + Vite 8 + Tailwind CSS v4 + TypeScript
+- **后端**: Python FastAPI + SQLAlchemy + SQLite
+- **同步服务**: Node.js + Express + sql.js + WebSocket
+
+## 功能模块
+
+- **任务管理**: 创建、编辑、筛选、排序任务，支持优先级和截止日期
+- **番茄钟**: 专注计时、热力图日历、每日目标、进度可视化
+- **课程表**: 周视图、ICS 文件导入、课程颜色标记
+- **AI 对话**: 多 Agent 支持（Claude、Codex、豆包），流式输出
+- **富文本笔记**: TipTap 编辑器、自动保存、Markdown 支持
+- **数据看板**: 今日概览、专注趋势、任务完成率图表
+- **多设备同步**: REST API + WebSocket 实时同步，离线队列
+- **PWA 支持**: 移动端可添加到主屏幕
 
 ## 快速开始
 
-### 前端启动
+### 环境要求
+
+- Python 3.10+
+- Node.js 18+
+- Rust（Tauri 构建需要）
+
+### 启动方式
+
+**方式一：使用启动脚本（推荐）**
 
 ```bash
-cd frontend
+start.bat
+```
+
+**方式二：手动启动**
+
+```bash
+# 后端
+cd backend
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+
+# 前端
+cd frontend-new
 npm install
 npm run dev
+
+# 同步服务
+cd sync-server
+npm install
+node server.js
 ```
 
-访问 http://localhost:3000
+### 访问地址
 
-### 后端启动
+- 前端: http://localhost:3000
+- 后端 API: http://localhost:8000/docs
+- 同步服务: http://localhost:3001
+
+## 构建桌面应用
 
 ```bash
-cd backend
-pip install -r requirements.txt
-cp .env.example .env  # 编辑 .env 填入 DeepSeek API Key
-uvicorn app.main:app --reload --port 8000
+cd frontend-new
+npm run build
+cd ../src-tauri
+cargo tauri build
 ```
-
-API 文档: http://localhost:8000/docs
 
 ## 项目结构
 
 ```
 ai-student-hub/
-├── frontend/          # Next.js 前端
-├── backend/           # FastAPI 后端
-├── docs/              # 项目文档
-│   ├── PLAN.md        # 项目总计划
-│   ├── architecture.md    # 架构设计
-│   ├── api-spec.md        # API 规范
-│   ├── database-schema.md # 数据库设计
-│   ├── tasks.md           # Trae 执行任务清单
-│   └── coding-standards.md # 代码规范
-└── README.md
+├── frontend-new/          # React 前端（Vite）
+│   ├── src/
+│   │   ├── pages/         # 页面组件
+│   │   ├── components/    # 通用组件
+│   │   ├── hooks/         # 自定义 Hooks
+│   │   └── lib/           # 工具函数和配置
+│   └── package.json
+├── backend/               # Python FastAPI 后端
+│   ├── app/
+│   │   ├── api/           # API 路由
+│   │   ├── models/        # 数据模型
+│   │   ├── schemas/       # Pydantic Schema
+│   │   └── services/      # 业务逻辑
+│   └── requirements.txt
+├── sync-server/           # Node.js 同步服务
+│   ├── server.js
+│   ├── sync-service.js
+│   └── ws-server.js
+├── src-tauri/             # Tauri 桌面端
+│   ├── src/
+│   └── tauri.conf.json
+└── start.bat              # 一键启动脚本
 ```
-
-## 文档说明
-
-- **PLAN.md**: 项目总计划，包含技术栈、目录结构、执行阶段
-- **architecture.md**: 架构详解，包含前后端架构、数据流
-- **api-spec.md**: API 接口规范，包含所有接口定义
-- **database-schema.md**: 数据库设计，包含表结构和模型
-- **tasks.md**: Trae 执行任务清单，按顺序执行
-- **coding-standards.md**: 代码规范，包含命名、注释、样式
-
-## 开发流程
-
-1. **指挥官 (Claude)**: 设计架构、制定计划、审查代码
-2. **执行者 (Trae)**: 按照 `tasks.md` 逐项执行
-
-## 环境要求
-
-- Node.js >= 18
-- Python >= 3.9
-- DeepSeek API Key (可选，AI 功能需要)
 
 ## 许可证
 
-MIT
+个人项目，仅供学习使用。

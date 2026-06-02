@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from typing import Literal, Optional
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.services.ai_service import ai_service
 from app.services.agents import agent_registry
 from app.models.conversation import Conversation, ConversationMessage
 from app.schemas.response import success_response
@@ -16,10 +15,6 @@ class ChatRequest(BaseModel):
     message: str
     conversation_id: Optional[int] = None
     agent: Literal["claude", "codex", "doubao"] = "claude"
-
-
-class ParseTaskRequest(BaseModel):
-    text: str
 
 
 @router.get("/agents")
@@ -125,29 +120,14 @@ async def chat_stream(request: ChatRequest, db: Session = Depends(get_db)):
 
         # 保存完整回复
         complete_response = "".join(full_response)
-        # 使用新的 Session 实例
-        from sqlalchemy.orm import sessionmaker
-        from app.database import engine
-        SessionLocal = sessionmaker(bind=engine)
-        db_session = SessionLocal()
-        try:
-            assistant_msg = ConversationMessage(
-                conversation_id=conversation_id,
-                role="assistant",
-                content=complete_response
-            )
-            db_session.add(assistant_msg)
-            db_session.commit()
-        finally:
-            db_session.close()
+        assistant_msg = ConversationMessage(
+            conversation_id=conversation_id,
+            role="assistant",
+            content=complete_response
+        )
+        db.add(assistant_msg)
+        db.commit()
 
         yield f"data: [DONE]\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")
-
-
-@router.post("/parse-task")
-async def parse_task(request: ParseTaskRequest):
-    """AI解析任务"""
-    result = await ai_service.parse_task(request.text)
-    return success_response(result, code=201)

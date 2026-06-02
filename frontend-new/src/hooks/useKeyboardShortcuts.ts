@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getThemeToggle, getFocusToggle } from './useTheme'
 
 const shortcuts: { key: string; ctrl?: boolean; shift?: boolean; action: string }[] = [
   { key: '1', ctrl: true, action: 'navigate:/' },
@@ -10,6 +11,10 @@ const shortcuts: { key: string; ctrl?: boolean; shift?: boolean; action: string 
   { key: '6', ctrl: true, action: 'navigate:/notes' },
   { key: '7', ctrl: true, action: 'navigate:/dashboard' },
   { key: ',', ctrl: true, action: 'navigate:/settings' },
+  // Theme toggle: Ctrl+Shift+T
+  { key: 't', ctrl: true, shift: true, action: 'toggle:theme' },
+  // Focus mode toggle: Ctrl+Shift+F
+  { key: 'f', ctrl: true, shift: true, action: 'toggle:focus' },
 ]
 
 export function useKeyboardShortcuts() {
@@ -32,6 +37,10 @@ export function useKeyboardShortcuts() {
           e.preventDefault()
           if (shortcut.action.startsWith('navigate:')) {
             navigate(shortcut.action.replace('navigate:', ''))
+          } else if (shortcut.action === 'toggle:theme') {
+            getThemeToggle()?.()
+          } else if (shortcut.action === 'toggle:focus') {
+            getFocusToggle()?.()
           }
           return
         }

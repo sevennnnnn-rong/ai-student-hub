@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTheme } from '../hooks/useTheme'
 
 interface Particle {
   x: number
@@ -12,6 +13,7 @@ interface Particle {
 
 export default function ParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { theme } = useTheme()
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -103,21 +105,23 @@ export default function ParticleBackground() {
       mouse.y = e.clientY
     }
 
+    const handleResize = () => { resize(); createParticles() }
+
     resize()
     createParticles()
     draw()
 
-    window.addEventListener('resize', () => { resize(); createParticles() })
+    window.addEventListener('resize', handleResize)
     window.addEventListener('mousemove', handleMouseMove)
 
     return () => {
       cancelAnimationFrame(animationId)
-      window.removeEventListener('resize', resize)
+      window.removeEventListener('resize', handleResize)
       window.removeEventListener('mousemove', handleMouseMove)
     }
   }, [])
 
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light'
+  const isLight = theme === 'light'
 
   return (
     <canvas

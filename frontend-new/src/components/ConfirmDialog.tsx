@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { AlertTriangle, Info, Trash2 } from 'lucide-react'
 import { cn } from '../lib/utils'
 
@@ -44,11 +44,46 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const cancelRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const previousFocus = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (open) {
+      previousFocus.current = document.activeElement as HTMLElement
+      setTimeout(() => cancelRef.current?.focus(), 50)
+    } else if (previousFocus.current) {
+      previousFocus.current.focus()
+      previousFocus.current = null
+    }
+  }, [open])
+
   useEffect(() => {
     if (!open) return
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel()
-      if (e.key === 'Enter') onConfirm()
+      if (e.key === 'Escape') {
+        onCancel()
+        return
+      }
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -61,8 +96,9 @@ export default function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" onClick={onCancel}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" />
       <div
+        ref={dialogRef}
         className="relative glass rounded-2xl p-6 w-96 max-w-[90vw] animate-scale-in shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -71,15 +107,15 @@ export default function ConfirmDialog({
             <Icon size={24} className={config.iconColor} />
           </div>
           <div>
-            <h3 className="font-bold text-lg">{title}</h3>
+            <h3 className="heading-lg">{title}</h3>
           </div>
         </div>
-        <p className="text-text-secondary text-sm mb-6 ml-16">{message}</p>
+        <p className="body-md mb-6 ml-16">{message}</p>
         <div className="flex gap-3 justify-end">
-          <button onClick={onCancel} className="btn-ghost text-sm">
+          <button ref={cancelRef} onClick={onCancel} className="btn btn-md btn-ghost rounded-xl">
             {cancelLabel}
           </button>
-          <button onClick={onConfirm} className={cn('px-4 py-2 rounded-xl text-sm font-medium text-white transition-all', config.confirmBg)}>
+          <button onClick={onConfirm} className={cn('btn btn-md rounded-xl font-medium text-white transition-all', config.confirmBg)}>
             {confirmLabel}
           </button>
         </div>

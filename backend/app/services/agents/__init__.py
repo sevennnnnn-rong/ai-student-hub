@@ -1,6 +1,7 @@
 """Agent 注册表"""
 from typing import Dict, List, Optional
 from app.services.agents.base_agent import BaseAgent
+from app.services.agents.cli_agent import CliAgent
 
 
 class AgentRegistry:

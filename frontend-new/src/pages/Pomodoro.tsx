@@ -1,12 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Play, Pause, RotateCcw, Coffee, Zap, Clock, TrendingUp, Volume2, VolumeX, Settings, Music, Trash2 } from 'lucide-react'
+import { Play, Pause, RotateCcw, Coffee, Zap, Clock, TrendingUp, Volume2, VolumeX, Settings, Trash2 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 
-const WORK_MIN = 25
-const BREAK_MIN = 5
-const LONG_BREAK_MIN = 15
 const CYCLE_LENGTH = 4
 
 interface Session {
@@ -85,7 +82,7 @@ function loadPomodoroState() {
     if (saved) {
       const data = JSON.parse(saved)
       return {
-        sessions: (data.sessions || []).map((s: any) => ({
+        sessions: (data.sessions || []).map((s: Session) => ({
           ...s,
           completedAt: new Date(s.completedAt),
         })),
@@ -118,6 +115,29 @@ export default function Pomodoro() {
   const audioCtxRef = useRef<AudioContext | null>(null)
   const { toast } = useToast()
   usePageTitle('番茄钟')
+
+  // Refs to avoid stale closures in timer callback
+  const sessionsRef = useRef(sessions)
+  const workMinRef = useRef(workMin)
+  const breakMinRef = useRef(breakMin)
+  const longBreakMinRef = useRef(longBreakMin)
+  const soundEnabledRef = useRef(soundEnabled)
+  const isBreakRef = useRef(isBreak)
+
+  // Keep refs in sync with state
+  useEffect(() => { sessionsRef.current = sessions }, [sessions])
+  useEffect(() => { workMinRef.current = workMin }, [workMin])
+  useEffect(() => { breakMinRef.current = breakMin }, [breakMin])
+  useEffect(() => { longBreakMinRef.current = longBreakMin }, [longBreakMin])
+  useEffect(() => { soundEnabledRef.current = soundEnabled }, [soundEnabled])
+  useEffect(() => { isBreakRef.current = isBreak }, [isBreak])
+
+  const reset = useCallback(() => {
+    setIsRunning(false)
+    setIsBreak(false)
+    setSeconds(workMin * 60)
+    if (intervalRef.current) clearInterval(intervalRef.current)
+  }, [workMin])
 
   // Keyboard shortcuts: Space to start/pause, R to reset
   useEffect(() => {
@@ -193,13 +213,6 @@ export default function Pomodoro() {
     .filter((s) => s.type === 'work')
     .reduce((acc, s) => acc + s.duration, 0)
 
-  const reset = useCallback(() => {
-    setIsRunning(false)
-    setIsBreak(false)
-    setSeconds(workMin * 60)
-    if (intervalRef.current) clearInterval(intervalRef.current)
-  }, [workMin])
-
   // Cycle indicator dots
   const cycleDots = Array.from({ length: CYCLE_LENGTH }).map((_, i) => {
     const workSessions = sessions.filter((s) => s.type === 'work').length
@@ -212,26 +225,38 @@ export default function Pomodoro() {
       intervalRef.current = setInterval(() => {
         setSeconds((prev) => {
           if (prev <= 1) {
-            const newIsBreak = !isBreak
+            const currentIsBreak = isBreakRef.current
+            const newIsBreak = !currentIsBreak
             setIsBreak(newIsBreak)
+            isBreakRef.current = newIsBreak
+
+            // Use refs to get latest values (avoids stale closure)
+            const currentSessions = sessionsRef.current
+            const currentWorkMin = workMinRef.current
+            const currentBreakMin = breakMinRef.current
+            const currentLongBreakMin = longBreakMinRef.current
+            const currentSoundEnabled = soundEnabledRef.current
 
             // Calculate if this should be a long break
-            const workCount = sessions.filter((s) => s.type === 'work').length + (isBreak ? 0 : 1)
-            const shouldLongBreak = !isBreak && workCount % CYCLE_LENGTH === 0 && workCount > 0
-            const breakDuration = shouldLongBreak ? longBreakMin : breakMin
+            const workCount = currentSessions.filter((s: Session) => s.type === 'work').length + (currentIsBreak ? 0 : 1)
+            const shouldLongBreak = !currentIsBreak && workCount % CYCLE_LENGTH === 0 && workCount > 0
+            const breakDuration = shouldLongBreak ? currentLongBreakMin : currentBreakMin
+
+            // Determine if current break is long break
+            const isLongBreakNow = currentIsBreak && currentSessions.filter((s: Session) => s.type === 'work').length % CYCLE_LENGTH === 0 && currentSessions.filter((s: Session) => s.type === 'work').length > 0
 
             // Record session
             const session: Session = {
               id: Date.now(),
-              type: isBreak ? 'break' : 'work',
-              duration: isBreak ? (isLongBreak ? longBreakMin : breakMin) : workMin,
+              type: currentIsBreak ? 'break' : 'work',
+              duration: currentIsBreak ? (isLongBreakNow ? currentLongBreakMin : currentBreakMin) : currentWorkMin,
               completedAt: new Date(),
             }
             setSessions((prevSessions) => [...prevSessions, session])
 
-            if (soundEnabled) playNotificationSound()
+            if (currentSoundEnabled) playNotificationSound()
 
-            if (!isBreak) {
+            if (!currentIsBreak) {
               if (shouldLongBreak) {
                 toast('专注完成！享受长休息吧', 'success')
               } else {
@@ -241,7 +266,8 @@ export default function Pomodoro() {
               toast('休息结束，继续加油！', 'info')
             }
 
-            return newIsBreak ? breakDuration * 60 : workMin * 60
+            return newIsBreak ? breakDuration * 60 : currentWorkMin * 60
+
           }
           return prev - 1
         })
@@ -255,7 +281,7 @@ export default function Pomodoro() {
       <div className="flex gap-12 items-start">
         {/* Main Timer */}
         <div className="flex flex-col items-center">
-          <h1 className="text-2xl font-bold mb-10">番茄钟</h1>
+          <h1 className="heading-xl mb-10">番茄钟</h1>
 
           {/* Timer Ring */}
           <div className="relative mb-10">
@@ -338,27 +364,31 @@ export default function Pomodoro() {
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-5">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="w-12 h-12 rounded-xl glass glass-hover flex items-center justify-center text-text-secondary hover:text-text-primary transition-all"
+              className="btn-icon-md rounded-xl glass glass-hover text-text-secondary hover:text-text-primary"
               title={soundEnabled ? '关闭声音' : '开启声音'}
+              aria-label={soundEnabled ? '关闭声音' : '开启声音'}
             >
               {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
             </button>
             <button
               onClick={() => setShowSettings(!showSettings)}
               className={cn(
-                'w-12 h-12 rounded-xl glass glass-hover flex items-center justify-center transition-all',
+                'btn-icon-md rounded-xl glass glass-hover transition-all',
                 showSettings ? 'text-accent-blue' : 'text-text-secondary hover:text-text-primary'
               )}
               title="设置时长"
+              aria-label="设置时长"
             >
               <Settings size={18} />
             </button>
             <button
               onClick={reset}
-              className="w-12 h-12 rounded-xl glass glass-hover flex items-center justify-center text-text-secondary hover:text-text-primary transition-all"
+              className="btn-icon-md rounded-xl glass glass-hover text-text-secondary hover:text-text-primary"
+              title="重置计时器"
+              aria-label="重置计时器"
             >
               <RotateCcw size={18} />
             </button>
@@ -370,6 +400,7 @@ export default function Pomodoro() {
                   ? 'bg-accent-danger/80 hover:bg-accent-danger'
                   : 'bg-gradient-to-br from-accent-blue to-blue-600 glow-blue'
               )}
+              aria-label={isRunning ? '暂停计时' : '开始计时'}
             >
               {isRunning ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
             </button>
@@ -380,7 +411,7 @@ export default function Pomodoro() {
             <div className="mt-4 glass rounded-xl p-4 w-64 animate-slide-up">
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-text-muted mb-1 block">专注时长（分钟）</label>
+                  <label className="text-sm text-text-muted mb-1 block">专注时长（分钟）</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="range"
@@ -395,7 +426,7 @@ export default function Pomodoro() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-text-muted mb-1 block">休息时长（分钟）</label>
+                  <label className="text-sm text-text-muted mb-1 block">休息时长（分钟）</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="range"
@@ -410,7 +441,7 @@ export default function Pomodoro() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-text-muted mb-1 block">长休息时长（分钟）</label>
+                  <label className="text-sm text-text-muted mb-1 block">长休息时长（分钟）</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="range"
@@ -423,10 +454,10 @@ export default function Pomodoro() {
                     />
                     <span className="text-sm font-mono w-8 text-right">{longBreakMin}</span>
                   </div>
-                  <p className="text-[10px] text-text-muted mt-1">每 {CYCLE_LENGTH} 个番茄后自动长休息</p>
+                  <p className="caption text-text-muted mt-1">每 {CYCLE_LENGTH} 个番茄后自动长休息</p>
                 </div>
                 <div>
-                  <label className="text-xs text-text-muted mb-1 block">每日目标（次）</label>
+                  <label className="text-sm text-text-muted mb-1 block">每日目标（次）</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="range"
@@ -441,7 +472,7 @@ export default function Pomodoro() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-text-muted mb-1 block">环境音效</label>
+                  <label className="text-sm text-text-muted mb-1 block">环境音效</label>
                   <div className="flex gap-1.5">
                     {(['none', 'rain', 'forest', 'ocean', 'white'] as AmbientSound[]).map((sound) => (
                       <button
@@ -464,7 +495,7 @@ export default function Pomodoro() {
                     reset()
                     setShowSettings(false)
                   }}
-                  className="w-full py-1.5 text-xs text-text-muted hover:text-text-primary transition-colors"
+                  className="w-full py-1.5 caption text-text-muted hover:text-text-primary transition-colors"
                 >
                   应用并重置
                 </button>
@@ -480,7 +511,7 @@ export default function Pomodoro() {
 
         {/* Session History */}
         <div className="w-72 glass rounded-2xl p-5">
-          <h3 className="font-medium mb-4 flex items-center gap-2">
+          <h3 className="heading-md mb-4 flex items-center gap-2">
             <Clock size={16} className="text-accent-blue" />
             今日统计
           </h3>
@@ -488,8 +519,8 @@ export default function Pomodoro() {
           {/* Daily Goal Progress */}
           <div className="mb-5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-text-muted">每日目标</span>
-              <span className="text-xs font-mono text-accent-blue">{totalWorkSessions}/{dailyGoal}</span>
+              <span className="text-sm text-text-muted">每日目标</span>
+              <span className="text-sm font-mono text-accent-blue">{totalWorkSessions}/{dailyGoal}</span>
             </div>
             <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
               <div
@@ -501,25 +532,25 @@ export default function Pomodoro() {
               />
             </div>
             {totalWorkSessions >= dailyGoal && (
-              <p className="text-[10px] text-accent-success mt-1">今日目标已达成！</p>
+              <p className="caption text-accent-success mt-1">今日目标已达成！</p>
             )}
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-2 gap-3 mb-5">
             <div className="bg-white/[0.03] rounded-xl p-3">
-              <div className="text-2xl font-bold">{totalWorkSessions}</div>
-              <div className="text-xs text-text-muted mt-0.5">完成次数</div>
+              <div className="text-2xl font-bold tracking-tight">{totalWorkSessions}</div>
+              <div className="body-sm mt-0.5">完成次数</div>
             </div>
             <div className="bg-white/[0.03] rounded-xl p-3">
-              <div className="text-2xl font-bold">{totalWorkMinutes}</div>
-              <div className="text-xs text-text-muted mt-0.5">专注分钟</div>
+              <div className="text-2xl font-bold tracking-tight">{totalWorkMinutes}</div>
+              <div className="body-sm mt-0.5">专注分钟</div>
             </div>
           </div>
 
           {/* Weekly Summary */}
           <div className="bg-white/[0.03] rounded-xl p-3 mb-5">
-            <div className="text-xs text-text-muted mb-2">本周统计</div>
+            <div className="text-sm text-text-muted mb-2">本周统计</div>
             <div className="grid grid-cols-3 gap-2 text-center">
               <div>
                 <div className="text-lg font-bold text-accent-blue">
@@ -529,7 +560,7 @@ export default function Pomodoro() {
                     return s.type === 'work' && s.completedAt >= weekAgo
                   }).length}
                 </div>
-                <div className="text-[10px] text-text-muted">本周专注</div>
+                <div className="caption text-text-muted">本周专注</div>
               </div>
               <div>
                 <div className="text-lg font-bold text-accent-purple">
@@ -539,7 +570,7 @@ export default function Pomodoro() {
                     return s.type === 'work' && s.completedAt >= weekAgo
                   }).reduce((acc, s) => acc + s.duration, 0)}
                 </div>
-                <div className="text-[10px] text-text-muted">本周分钟</div>
+                <div className="caption text-text-muted">本周分钟</div>
               </div>
               <div>
                 <div className="text-lg font-bold text-accent-amber">
@@ -549,7 +580,7 @@ export default function Pomodoro() {
                     return s.type === 'work' && s.completedAt >= weekAgo
                   }).length / 7 * 10) / 10 || 0}
                 </div>
-                <div className="text-[10px] text-text-muted">日均次数</div>
+                <div className="caption text-text-muted">日均次数</div>
               </div>
             </div>
           </div>
@@ -557,22 +588,22 @@ export default function Pomodoro() {
           {/* Session list */}
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
             {sessions.length === 0 ? (
-              <div className="text-center text-text-muted text-xs py-8">
+              <div className="text-center text-text-muted caption py-8">
                 <TrendingUp size={24} className="mx-auto mb-2 opacity-30" />
                 还没有完成的会话
               </div>
             ) : (
               <>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-text-muted">会话记录</span>
+                  <span className="caption text-text-muted">会话记录</span>
                   <button
                     onClick={() => { setSessions([]); toast('历史已清除', 'success') }}
-                    className="text-[10px] text-text-muted hover:text-accent-danger transition-colors flex items-center gap-1"
+                    className="caption text-text-muted hover:text-accent-danger transition-colors flex items-center gap-1"
                   >
-                    <Trash2 size={10} />清除
+                    <Trash2 size={12} />清除
                   </button>
                 </div>
-                {[...sessions].reverse().map((session, i) => {
+                {[...sessions].reverse().map((session) => {
                   const isToday = session.completedAt.toDateString() === new Date().toDateString()
                   return (
                     <div
@@ -587,16 +618,16 @@ export default function Pomodoro() {
                         session.type === 'work' ? 'bg-accent-blue' : 'bg-accent-success'
                       )} />
                       <div className="flex-1 min-w-0">
-                        <span className="text-xs">
+                        <span className="caption">
                           {session.type === 'work' ? '专注' : session.type === 'long_break' ? '长休息' : '休息'} {session.duration}分钟
                         </span>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="text-[10px] text-text-muted block">
+                        <span className="caption text-text-muted block">
                           {session.completedAt.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         {!isToday && (
-                          <span className="text-[9px] text-text-muted/50">
+                          <span className="caption text-text-muted/50">
                             {session.completedAt.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
                           </span>
                         )}

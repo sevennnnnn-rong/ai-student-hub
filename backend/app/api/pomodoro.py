@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
-from typing import List
+
 from datetime import datetime, timedelta
 from app.database import get_db
 from app.models.pomodoro import PomodoroSession, PomodoroSettings
@@ -41,16 +41,16 @@ def stop_pomodoro(session_id: int, data: PomodoroStop, db: Session = Depends(get
 
     db.commit()
     db.refresh(session)
-    return success_response(PomodoroResponse.model_validate(session).model_dump(), code=201)
+    return success_response(PomodoroResponse.model_validate(session).model_dump(), code=200)
 
 
 @router.get("/sessions")
-def get_sessions(task_id: int = None, db: Session = Depends(get_db)):
+def get_sessions(task_id: int = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """获取番茄钟记录"""
     query = db.query(PomodoroSession)
     if task_id:
         query = query.filter(PomodoroSession.task_id == task_id)
-    sessions = query.order_by(PomodoroSession.created_at.desc()).all()
+    sessions = query.order_by(PomodoroSession.created_at.desc()).offset(skip).limit(limit).all()
     return success_response([PomodoroResponse.model_validate(s).model_dump() for s in sessions])
 
 

@@ -10,6 +10,17 @@ const StudyTrendChart = lazy(() => import('../components/charts/StudyTrendChart'
 const FocusDistributionChart = lazy(() => import('../components/charts/FocusDistributionChart'))
 const TaskCompletionChart = lazy(() => import('../components/charts/TaskCompletionChart'))
 
+// Helper: compute trend between two values
+function getTrend(curr: number, prev: number): { trend: 'up' | 'down' | 'flat'; trendValue: string } {
+  if (prev === 0 && curr === 0) return { trend: 'flat', trendValue: '' }
+  if (prev === 0) return { trend: 'up', trendValue: '新增' }
+  const diff = curr - prev
+  const pct = Math.round(Math.abs(diff) / prev * 100)
+  if (diff > 0) return { trend: 'up', trendValue: `+${pct}%` }
+  if (diff < 0) return { trend: 'down', trendValue: `-${pct}%` }
+  return { trend: 'flat', trendValue: '' }
+}
+
 function isToday(dateStr: string): boolean {
   const d = new Date(dateStr)
   const now = new Date()
@@ -55,13 +66,13 @@ export default function Dashboard() {
     if (dailyStats.length === 0) return 0
     const sorted = [...dailyStats].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     let streak = 0
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const todayDate = new Date()
+    todayDate.setHours(0, 0, 0, 0)
 
     for (let i = 0; i < sorted.length; i++) {
       const statDate = new Date(sorted[i].date)
       statDate.setHours(0, 0, 0, 0)
-      const expectedDate = new Date(today)
+      const expectedDate = new Date(todayDate)
       expectedDate.setDate(expectedDate.getDate() - i)
 
       if (statDate.getTime() === expectedDate.getTime() && sorted[i].minutes > 0) {
@@ -83,17 +94,6 @@ export default function Dashboard() {
   const yesterdayStats = useMemo(() => dailyStats.find((d) => d.date === yesterday), [dailyStats, yesterday])
   const todayMinutes = todayStats?.minutes ?? 0
   const yesterdayMinutes = yesterdayStats?.minutes ?? 0
-
-  // Helper: compute trend between two values
-  const getTrend = (curr: number, prev: number): { trend: 'up' | 'down' | 'flat'; trendValue: string } => {
-    if (prev === 0 && curr === 0) return { trend: 'flat', trendValue: '' }
-    if (prev === 0) return { trend: 'up', trendValue: '新增' }
-    const diff = curr - prev
-    const pct = Math.round(Math.abs(diff) / prev * 100)
-    if (diff > 0) return { trend: 'up', trendValue: `+${pct}%` }
-    if (diff < 0) return { trend: 'down', trendValue: `-${pct}%` }
-    return { trend: 'flat', trendValue: '' }
-  }
 
   // Weekly heatmap: last 7 days with activity status
   const weeklyHeatmap = useMemo(() => {

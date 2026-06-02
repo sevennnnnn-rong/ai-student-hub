@@ -9,6 +9,7 @@ import {
   getSyncStatus,
   acknowledgeChanges,
   cleanupSyncLog,
+  loadDevices,
 } from './sync-service.js';
 import { initWebSocket } from './ws-server.js';
 
@@ -23,7 +24,7 @@ let wss;
 // ============================================================
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: (process.env.CORS_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000').split(','),
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
@@ -185,6 +186,8 @@ async function startServer() {
   try {
     await initDatabase();
     console.log('[Sync Server] Database initialized');
+
+    loadDevices();
 
     // Run initial sync_log cleanup
     cleanupSyncLog(30);

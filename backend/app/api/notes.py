@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+
 from app.database import get_db
 from app.models.note import Note
 from app.schemas.note import NoteCreate, NoteUpdate, NoteResponse
@@ -10,14 +10,14 @@ router = APIRouter()
 
 
 @router.get("/")
-def get_notes(task_id: int = None, keyword: str = None, db: Session = Depends(get_db)):
+def get_notes(task_id: int = None, keyword: str = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """获取笔记列表"""
     query = db.query(Note)
     if task_id:
         query = query.filter(Note.task_id == task_id)
     if keyword:
         query = query.filter(Note.title.contains(keyword) | Note.content.contains(keyword))
-    notes = query.order_by(Note.created_at.desc()).all()
+    notes = query.order_by(Note.created_at.desc()).offset(skip).limit(limit).all()
     return success_response([NoteResponse.model_validate(n).model_dump() for n in notes])
 
 
@@ -65,4 +65,4 @@ def delete_note(note_id: int, db: Session = Depends(get_db)):
 
     db.delete(note)
     db.commit()
-    return success_response(None, "笔记删除成功", code=204)
+    return success_response(None, message="笔记删除成功", code=204)

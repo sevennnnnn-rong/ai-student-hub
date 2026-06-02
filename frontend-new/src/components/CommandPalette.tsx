@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Home, MessageSquare, CheckSquare, Timer, Calendar, StickyNote, BarChart3, Settings, Brain, Code, Zap, Command } from 'lucide-react'
+import { Search, Home, MessageSquare, CheckSquare, Timer, Calendar, StickyNote, BarChart3, Settings, Command } from 'lucide-react'
 import { cn } from '../lib/utils'
+import { agents } from '../lib/agent-config'
+import { getThemeToggle } from '../hooks/useTheme'
 
 interface CommandItem {
   id: string
@@ -28,12 +30,17 @@ export default function CommandPalette() {
     { id: 'notes', label: '笔记', icon: StickyNote, action: () => navigate('/notes'), category: '导航' },
     { id: 'dashboard', label: '数据看板', icon: BarChart3, action: () => navigate('/dashboard'), category: '导航' },
     { id: 'settings', label: '设置', icon: Settings, action: () => navigate('/settings'), category: '导航' },
-    { id: 'chat-claude', label: '与 Claude 对话', description: '指挥官 — 战略规划、复杂推理', icon: Brain, action: () => navigate('/chat?agent=claude'), category: '快速操作' },
-    { id: 'chat-codex', label: '与 Codex 对话', description: '引擎 — 代码生成、技术实现', icon: Code, action: () => navigate('/chat?agent=codex'), category: '快速操作' },
-    { id: 'chat-doubao', label: '与 Doubao 对话', description: '苦力工 — 批量处理、数据整理', icon: Zap, action: () => navigate('/chat?agent=doubao'), category: '快速操作' },
+    ...agents.map((a) => ({
+      id: `chat-${a.id}`,
+      label: `与 ${a.name} 对话`,
+      description: a.description,
+      icon: a.icon,
+      action: () => navigate(`/chat?agent=${a.id}`),
+      category: '快速操作' as const,
+    })),
     { id: 'new-task', label: '新建任务', icon: CheckSquare, action: () => navigate('/tasks'), category: '快速操作' },
     { id: 'new-note', label: '新建笔记', icon: StickyNote, action: () => navigate('/notes'), category: '快速操作' },
-    { id: 'theme-toggle', label: '切换主题', description: '在深色和浅色模式之间切换', icon: Settings, action: () => { document.querySelector<HTMLElement>('[title*="切换"]')?.click() }, category: '系统' },
+    { id: 'theme-toggle', label: '切换主题', description: '在深色和浅色模式之间切换', icon: Settings, action: () => { getThemeToggle()?.() }, category: '系统' },
   ], [navigate])
 
   const filtered = useMemo(() => {
@@ -91,7 +98,7 @@ export default function CommandPalette() {
   return (
     <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[20vh]" onClick={() => setOpen(false)} role="dialog" aria-label="命令面板" aria-modal="true">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
       {/* Panel */}
       <div
@@ -109,7 +116,7 @@ export default function CommandPalette() {
             placeholder="输入命令或搜索..."
             className="flex-1 bg-transparent text-sm focus:outline-none text-text-primary placeholder-text-muted"
           />
-          <kbd className="text-[10px] text-text-muted bg-white/5 px-1.5 py-0.5 rounded border border-white/10">ESC</kbd>
+          <kbd className="caption text-text-muted bg-white/5 px-1.5 py-0.5 rounded border border-white/10">ESC</kbd>
         </div>
 
         {/* Results */}
@@ -123,7 +130,7 @@ export default function CommandPalette() {
                 if (items.length === 0) return null
                 return (
                   <div key={category}>
-                    <div className="text-[10px] text-text-muted uppercase tracking-wider px-3 py-1.5 font-medium">{category}</div>
+                    <div className="caption text-text-muted uppercase tracking-wider px-3 py-1.5 font-medium">{category}</div>
                     {items.map((cmd) => {
                       const globalIndex = filtered.indexOf(cmd)
                       return (
@@ -145,7 +152,7 @@ export default function CommandPalette() {
                               <div className="text-xs text-text-muted truncate">{cmd.description}</div>
                             )}
                           </div>
-                          <kbd className="text-[10px] text-text-muted opacity-0 group-hover:opacity-100">↵</kbd>
+                          <kbd className="caption text-text-muted opacity-0 group-hover:opacity-100">↵</kbd>
                         </button>
                       )
                     })}
@@ -157,7 +164,7 @@ export default function CommandPalette() {
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2 border-t border-border flex items-center gap-4 text-[10px] text-text-muted">
+        <div className="px-4 py-2 border-t border-border flex items-center gap-4 caption text-text-muted">
           <span className="flex items-center gap-1"><kbd className="bg-white/5 px-1 rounded">↑↓</kbd> 导航</span>
           <span className="flex items-center gap-1"><kbd className="bg-white/5 px-1 rounded">↵</kbd> 选择</span>
           <span className="flex items-center gap-1"><kbd className="bg-white/5 px-1 rounded">esc</kbd> 关闭</span>

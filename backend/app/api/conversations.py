@@ -14,8 +14,8 @@ class CreateConversationRequest(BaseModel):
 
 
 @router.get("")
-def get_conversations(db: Session = Depends(get_db)):
-    conversations = db.query(Conversation).order_by(Conversation.updated_at.desc()).all()
+def get_conversations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    conversations = db.query(Conversation).order_by(Conversation.updated_at.desc()).offset(skip).limit(limit).all()
     return success_response([{
         "id": c.id,
         "title": c.title,

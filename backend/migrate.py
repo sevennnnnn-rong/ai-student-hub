@@ -6,7 +6,7 @@ import sqlite3
 import os
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'app', 'student_hub.db')
+DB_PATH = os.path.join(os.path.dirname(__file__), 'student_hub.db')
 
 
 def migrate():

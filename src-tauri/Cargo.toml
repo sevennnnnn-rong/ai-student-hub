@@ -2,7 +2,7 @@
 name = "ai-student-hub"
 version = "0.1.0"
 description = "AI驱动的大学生效率助手"
-authors = ["AI Student Hub"]
+authors = ["气象台Hub"]
 edition = "2021"
 
 [lib]

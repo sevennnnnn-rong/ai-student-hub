@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { getDb, queryAll, queryOne, run, saveDatabase } from './db.js';
 
 // ============================================================
@@ -8,27 +7,48 @@ import { getDb, queryAll, queryOne, run, saveDatabase } from './db.js';
 const devices = new Map();
 const MAX_DEVICES = 1000;
 
+export function loadDevices() {
+  const rows = queryAll(`SELECT device_id, registered_at, last_seen FROM devices`);
+  for (const row of rows) {
+    devices.set(row.device_id, {
+      id: row.device_id,
+      registeredAt: row.registered_at,
+      lastSeen: row.last_seen,
+    });
+  }
+  console.log(`[sync] Loaded ${devices.size} devices from database`);
+}
+
 export function registerDevice(deviceId) {
   if (!devices.has(deviceId)) {
     if (devices.size >= MAX_DEVICES) {
       // Evict oldest (first inserted)
       const oldest = devices.keys().next().value;
       devices.delete(oldest);
+      run(`DELETE FROM devices WHERE device_id = ?`, [oldest]);
       console.log(`[sync] Evicted oldest device ${oldest} (limit: ${MAX_DEVICES})`);
     }
+    const now = new Date().toISOString();
     devices.set(deviceId, {
       id: deviceId,
-      registeredAt: new Date().toISOString(),
-      lastSeen: new Date().toISOString(),
+      registeredAt: now,
+      lastSeen: now,
     });
+
+    run(
+      `INSERT OR IGNORE INTO devices (device_id, registered_at, last_seen) VALUES (?, ?, ?)`,
+      [deviceId, now, now]
+    );
 
     run(
       `INSERT OR IGNORE INTO sync_log (device_id, action, entity_type, entity_id, timestamp, details)
        VALUES (?, 'register', 'device', NULL, ?, ?)`,
-      [deviceId, new Date().toISOString(), JSON.stringify({ action: 'device_registered' })]
+      [deviceId, now, JSON.stringify({ action: 'device_registered' })]
     );
   } else {
-    devices.get(deviceId).lastSeen = new Date().toISOString();
+    const now = new Date().toISOString();
+    devices.get(deviceId).lastSeen = now;
+    run(`UPDATE devices SET last_seen = ? WHERE device_id = ?`, [now, deviceId]);
   }
 
   return devices.get(deviceId);

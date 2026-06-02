@@ -1,28 +1,27 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Send, Brain, Code, Zap, Loader2, PanelLeftOpen, PanelLeftClose, Copy, Check, Trash2, Plus, RotateCcw, Download, Sparkles } from 'lucide-react'
+import { Send, Loader2, PanelLeftOpen, PanelLeftClose, Copy, Check, Trash2, Plus, RotateCcw, Download, Sparkles } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { chatApi, conversationApi, type Conversation, type ChatMessage } from '../lib/api'
 import { cn } from '../lib/utils'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
-
-const agentMeta: Record<string, { icon: typeof Brain; color: string; label: string; gradient: string }> = {
-  claude: { icon: Brain, color: 'text-blue-400', label: 'Claude · 指挥官', gradient: 'from-blue-500 to-cyan-400' },
-  codex: { icon: Code, color: 'text-purple-400', label: 'Codex · 引擎', gradient: 'from-purple-500 to-pink-400' },
-  doubao: { icon: Zap, color: 'text-amber-400', label: 'Doubao · 苦力工', gradient: 'from-amber-500 to-orange-400' },
-}
+import { agentMetaMap } from '../lib/agent-config'
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
   const { toast } = useToast()
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    toast('已复制到剪贴板', 'success')
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      toast('已复制到剪贴板', 'success')
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast('复制失败', 'error')
+    }
   }
 
   return (
@@ -38,7 +37,7 @@ function CopyButton({ text }: { text: string }) {
 export default function Chat() {
   const [searchParams, setSearchParams] = useSearchParams()
   const agent = searchParams.get('agent') || 'claude'
-  const meta = agentMeta[agent] || agentMeta.claude
+  const meta = agentMetaMap[agent] || agentMetaMap.claude
   usePageTitle(`AI 对话 · ${meta.label.split('·')[0].trim()}`)
   const AgentIcon = meta.icon
   const { toast } = useToast()
@@ -83,6 +82,41 @@ export default function Chat() {
     messagesEnd.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  const streamChat = async (content: string, assistantId: number, errorMsg: string) => {
+    try {
+      let fullResponse = ''
+      const assistantMsg: ChatMessage = {
+        id: assistantId,
+        role: 'assistant',
+        content: '',
+        created_at: new Date().toISOString(),
+      }
+      setMessages((prev) => [...prev, assistantMsg])
+
+      for await (const chunk of chatApi.stream(content, agent, activeConvId ?? undefined)) {
+        fullResponse += chunk
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId ? { ...m, content: fullResponse } : m
+          )
+        )
+      }
+      return true
+    } catch {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId
+            ? { ...m, content: errorMsg }
+            : m
+        )
+      )
+      toast(errorMsg.replace('⚠️ ', ''), 'error')
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSend = async () => {
     if (!input.trim() || loading) return
     const msg = input.trim()
@@ -105,43 +139,14 @@ export default function Chat() {
     const assistantId = Date.now() + 1
     assistantMsgIdRef.current = assistantId
 
-    try {
-      let fullResponse = ''
-      const assistantMsg: ChatMessage = {
-        id: assistantId,
-        role: 'assistant',
-        content: '',
-        created_at: new Date().toISOString(),
-      }
-      setMessages((prev) => [...prev, assistantMsg])
-
-      for await (const chunk of chatApi.stream(msg, agent, activeConvId ?? undefined)) {
-        fullResponse += chunk
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantId ? { ...m, content: fullResponse } : m
-          )
-        )
-      }
-
+    const ok = await streamChat(msg, assistantId, '⚠️ 请求失败，请检查 Agent 配置或网络连接')
+    if (ok) {
       // Refresh conversations list
       const convs = await conversationApi.list()
       setConversations(convs)
       if (!activeConvId && convs.length > 0) {
         setActiveConvId(convs[0].id)
       }
-    } catch (err) {
-      // Fix: use the captured assistantId instead of Date.now() + 1
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantId
-            ? { ...m, content: '⚠️ 请求失败，请检查 Agent 配置或网络连接' }
-            : m
-        )
-      )
-      toast('请求失败，请检查 Agent 配置', 'error')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -167,36 +172,7 @@ export default function Chat() {
     const newAssistantId = Date.now()
     assistantMsgIdRef.current = newAssistantId
 
-    try {
-      let fullResponse = ''
-      const assistantMsg: ChatMessage = {
-        id: newAssistantId,
-        role: 'assistant',
-        content: '',
-        created_at: new Date().toISOString(),
-      }
-      setMessages((prev) => [...prev, assistantMsg])
-
-      for await (const chunk of chatApi.stream(lastUserMsg.content, agent, activeConvId ?? undefined)) {
-        fullResponse += chunk
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === newAssistantId ? { ...m, content: fullResponse } : m
-          )
-        )
-      }
-    } catch {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === newAssistantId
-            ? { ...m, content: '⚠️ 重新生成失败' }
-            : m
-        )
-      )
-      toast('重新生成失败', 'error')
-    } finally {
-      setLoading(false)
-    }
+    await streamChat(lastUserMsg.content, newAssistantId, '⚠️ 重新生成失败')
   }
 
   const switchAgent = (newAgent: string) => {
@@ -234,18 +210,18 @@ export default function Chat() {
       )}>
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-text-secondary">对话列表</span>
-            <div className="flex items-center gap-1">
+            <span className="body-md font-medium">对话列表</span>
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={handleNewChat}
-                className="p-1.5 rounded-lg text-text-muted hover:text-accent-blue hover:bg-accent-blue/10 transition-all"
+                className="btn-icon-sm rounded-lg text-text-muted hover:text-accent-blue hover:bg-accent-blue/10"
                 title="新对话"
               >
                 <Plus size={14} />
               </button>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="md:hidden p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-panel-hover transition-all"
+                className="md:hidden btn-icon-sm rounded-lg text-text-muted hover:text-text-primary"
               >
                 <PanelLeftClose size={14} />
               </button>
@@ -253,12 +229,12 @@ export default function Chat() {
           </div>
           {/* Agent Switcher */}
           <div className="flex gap-1">
-            {Object.entries(agentMeta).map(([key, m]) => (
+            {Object.entries(agentMetaMap).map(([key, m]) => (
               <button
                 key={key}
                 onClick={() => switchAgent(key)}
                 className={cn(
-                  'flex-1 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
+                  'flex-1 btn btn-sm rounded-lg font-medium transition-all duration-200',
                   agent === key
                     ? 'bg-accent-blue/15 text-accent-blue shadow-sm'
                     : 'text-text-muted hover:text-text-secondary hover:bg-bg-panel-hover'
@@ -271,29 +247,29 @@ export default function Chat() {
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {conversations.length === 0 && (
-            <div className="text-center text-text-muted text-xs py-8">暂无对话</div>
+            <div className="text-center text-text-muted caption py-8">暂无对话</div>
           )}
           {conversations.map((conv) => (
             <div
               key={conv.id}
               onClick={() => setActiveConvId(conv.id)}
               className={cn(
-                'w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all group cursor-pointer',
+                'w-full text-left px-3 py-2.5 rounded-xl transition-all group cursor-pointer',
                 activeConvId === conv.id
                   ? 'bg-accent-blue/10 text-accent-blue'
                   : 'text-text-secondary hover:bg-bg-panel-hover'
               )}
             >
               <div className="flex items-center justify-between">
-                <div className="truncate flex-1">{conv.title}</div>
+                <div className="body-sm truncate flex-1 font-medium">{conv.title}</div>
                 <button
                   onClick={(e) => handleDeleteConv(conv.id, e)}
-                  className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-white/10 text-text-muted hover:text-accent-danger transition-all shrink-0 ml-2"
+                  className="opacity-0 group-hover:opacity-100 btn-icon-sm rounded-md hover:bg-white/10 text-text-muted hover:text-accent-danger shrink-0 ml-2"
                 >
                   <Trash2 size={12} />
                 </button>
               </div>
-              <div className="text-xs text-text-muted mt-0.5">{conv.message_count} 条消息</div>
+              <div className="caption mt-0.5">{conv.message_count} 条消息</div>
             </div>
           ))}
         </div>
@@ -312,9 +288,9 @@ export default function Chat() {
           <div className={cn('w-8 h-8 rounded-lg bg-gradient-to-br flex items-center justify-center', meta.gradient)}>
             <AgentIcon size={16} className="text-white" />
           </div>
-          <span className="font-medium">{meta.label}</span>
+          <span className="body-lg font-medium">{meta.label}</span>
           {messages.length > 0 && (
-            <span className="text-[10px] text-text-muted font-mono">{messages.length} 条</span>
+            <span className="caption font-mono">{messages.length} 条</span>
           )}
           <div className="flex-1" />
           {messages.length > 0 && (
@@ -339,7 +315,7 @@ export default function Chat() {
           {loading && (
             <div className="flex items-center gap-2 text-accent-blue">
               <Loader2 size={14} className="animate-spin" />
-              <span className="text-xs">思考中...</span>
+              <span className="caption">思考中...</span>
             </div>
           )}
         </div>
@@ -352,8 +328,8 @@ export default function Chat() {
                 <div className={cn('w-20 h-20 rounded-2xl bg-gradient-to-br mx-auto mb-5 flex items-center justify-center', meta.gradient, meta.color.replace('text-', 'shadow-'))}>
                   <AgentIcon size={36} className="text-white" />
                 </div>
-                <p className="text-lg font-medium mb-2">开始与 {meta.label.split('·')[0].trim()} 对话</p>
-                <p className="text-text-muted text-sm max-w-sm mb-6">
+                <p className="heading-lg mb-2">开始与 {meta.label.split('·')[0].trim()} 对话</p>
+                <p className="body-md max-w-sm mb-6">
                   {agent === 'claude' && '我可以帮你进行战略规划、复杂推理和多步任务编排'}
                   {agent === 'codex' && '我可以帮你生成代码、解决技术问题和执行工程任务'}
                   {agent === 'doubao' && '我可以帮你批量处理数据、整理信息和执行重复性任务'}
@@ -369,9 +345,9 @@ export default function Chat() {
                     <button
                       key={prompt}
                       onClick={() => setInput(prompt)}
-                      className="px-3 py-1.5 rounded-xl text-xs text-text-secondary bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all flex items-center gap-1.5"
+                      className="btn btn-sm rounded-xl text-text-secondary bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all"
                     >
-                      <Sparkles size={10} className="text-accent-amber" />
+                      <Sparkles size={11} className="text-accent-amber" />
                       {prompt}
                     </button>
                   ))}
@@ -389,7 +365,7 @@ export default function Chat() {
             >
               <div
                 className={cn(
-                  'px-4 py-3 rounded-2xl text-sm leading-relaxed',
+                  'px-4 py-3 rounded-2xl body-md leading-relaxed',
                   msg.role === 'user'
                     ? 'bg-accent-blue/15 text-text-primary rounded-br-md'
                     : 'bg-bg-panel text-text-primary rounded-bl-md'
@@ -431,7 +407,7 @@ export default function Chat() {
                 'flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity',
                 msg.role === 'user' ? 'justify-end' : 'justify-start'
               )}>
-                <span className="text-[10px] text-text-muted">
+                <span className="caption font-mono">
                   {new Date(msg.created_at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
                 </span>
                 <CopyButton text={msg.content} />
@@ -476,7 +452,7 @@ export default function Chat() {
               onClick={handleSend}
               disabled={!input.trim() || loading}
               className={cn(
-                'w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 shrink-0',
+                'btn-icon-md rounded-xl transition-all duration-200 shrink-0',
                 input.trim() && !loading
                   ? 'bg-accent-blue text-white hover:bg-accent-blue/80 glow-blue hover:scale-105 active:scale-95'
                   : 'bg-white/5 text-text-muted cursor-not-allowed'

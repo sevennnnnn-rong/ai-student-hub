@@ -1,4 +1,19 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+
+interface RawTask {
+  id: number
+  title: string
+  description?: string
+  priority: number
+  status: string
+  due_date?: string
+  created_at: string
+  updated_at: string
+}
+
+// Priority mapping: backend uses int (0-2), frontend uses string
+const priorityIntToString: Record<number, 'low' | 'medium' | 'high'> = { 0: 'low', 1: 'medium', 2: 'high' }
+const priorityStringToInt: Record<string, number> = { low: 0, medium: 1, high: 2 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -31,7 +46,8 @@ export const chatApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, agent, conversation_id: conversationId }),
     })
-    const reader = res.body!.getReader()
+    if (!res.body) throw new Error('No response body')
+    const reader = res.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
     while (true) {
@@ -66,12 +82,28 @@ export const conversationApi = {
 }
 
 // ===== Tasks =====
+function mapTaskPriority(task: RawTask): Task {
+  return {
+    ...task,
+    priority: priorityIntToString[task.priority] ?? 'medium',
+    status: task.status as Task['status'],
+  }
+}
+
 export const taskApi = {
-  getAll: () => request<Task[]>('/api/tasks'),
-  create: (task: Partial<Task>) =>
-    request<Task>('/api/tasks', { method: 'POST', body: JSON.stringify(task) }),
-  update: (id: number, task: Partial<Task>) =>
-    request<Task>(`/api/tasks/${id}`, { method: 'PUT', body: JSON.stringify(task) }),
+  getAll: () => request<RawTask[]>('/api/tasks').then((tasks) => tasks.map(mapTaskPriority)),
+  create: (task: Partial<Task>) => {
+    const { priority: p, ...rest } = task
+    const payload: Record<string, unknown> = { ...rest }
+    if (p != null) payload.priority = priorityStringToInt[p] ?? 1
+    return request<RawTask>('/api/tasks', { method: 'POST', body: JSON.stringify(payload) }).then(mapTaskPriority)
+  },
+  update: (id: number, task: Partial<Task>) => {
+    const { priority: p, ...rest } = task
+    const payload: Record<string, unknown> = { ...rest }
+    if (p != null) payload.priority = priorityStringToInt[p] ?? 1
+    return request<RawTask>(`/api/tasks/${id}`, { method: 'PUT', body: JSON.stringify(payload) }).then(mapTaskPriority)
+  },
   delete: (id: number) =>
     request<void>(`/api/tasks/${id}`, { method: 'DELETE' }),
 }

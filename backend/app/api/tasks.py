@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+
 from app.database import get_db
 from app.models.task import Task
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse
@@ -14,6 +14,8 @@ def get_tasks(
     status: str = None,
     category: str = None,
     priority: int = None,
+    skip: int = 0,
+    limit: int = 100,
     db: Session = Depends(get_db)
 ):
     """获取任务列表"""
@@ -26,7 +28,7 @@ def get_tasks(
     if priority is not None:
         query = query.filter(Task.priority == priority)
 
-    tasks = query.order_by(Task.created_at.desc()).all()
+    tasks = query.order_by(Task.created_at.desc()).offset(skip).limit(limit).all()
     return success_response([TaskResponse.model_validate(t).model_dump() for t in tasks])
 
 
@@ -74,4 +76,4 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
 
     db.delete(task)
     db.commit()
-    return success_response(None, "任务删除成功", code=204)
+    return success_response(None, message="任务删除成功", code=204)

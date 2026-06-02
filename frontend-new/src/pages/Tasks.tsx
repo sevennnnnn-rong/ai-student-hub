@@ -3,7 +3,7 @@ import { Plus, Trash2, CheckCircle, Circle, Clock, Edit2, X, Check, CheckSquare,
 import { taskApi, type Task } from '../lib/api'
 import { cn } from '../lib/utils'
 import { useToast } from '../components/Toast'
-import { EmptyState } from '../components/ui'
+import { EmptyState, GlassCard, Badge } from '../components/ui'
 import { ListSkeleton } from '../components/ui/LoadingStates'
 import { usePageTitle } from '../hooks/usePageTitle'
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -174,26 +174,26 @@ export default function Tasks() {
 
   return (
     <div className="max-w-3xl mx-auto animate-fade-in">
-      <h1 className="text-2xl font-bold mb-6">任务管理</h1>
+      <h1 className="heading-xl mb-6">任务管理</h1>
 
       {/* Add Task */}
-      <div className="glass rounded-2xl p-4 mb-6">
-        <div className="flex gap-3 items-center">
+      <GlassCard padding="md" className="mb-6">
+        <div className="flex gap-4 items-center">
           <input
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
             placeholder="添加新任务..."
-            className="flex-1 bg-transparent border-none text-sm text-text-primary placeholder-text-muted focus:outline-none"
+            className="flex-1 bg-transparent border-none body-md text-text-primary placeholder-text-muted focus:outline-none"
           />
           {/* Priority selector */}
-          <div className="flex gap-1">
+          <div className="flex gap-1.5">
             {(['low', 'medium', 'high'] as const).map((p) => (
               <button
                 key={p}
                 onClick={() => setNewPriority(p)}
                 className={cn(
-                  'w-7 h-7 rounded-lg text-xs font-medium transition-all',
+                  'btn btn-sm rounded-lg font-medium transition-all',
                   newPriority === p
                     ? priorityConfig[p].color
                     : 'text-text-muted hover:bg-bg-panel-hover'
@@ -205,7 +205,7 @@ export default function Tasks() {
           </div>
           <button
             onClick={() => setShowDescription(!showDescription)}
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-bg-panel-hover transition-all"
+            className="btn-icon-md rounded-xl text-text-muted hover:text-text-primary"
             title="添加描述"
           >
             {showDescription ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -214,7 +214,7 @@ export default function Tasks() {
             onClick={handleAdd}
             disabled={!newTitle.trim()}
             className={cn(
-              'w-9 h-9 rounded-xl flex items-center justify-center transition-all',
+              'btn-icon-md rounded-xl transition-all',
               newTitle.trim()
                 ? 'bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25'
                 : 'bg-white/5 text-text-muted cursor-not-allowed'
@@ -230,21 +230,20 @@ export default function Tasks() {
               onChange={(e) => setNewDescription(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
               placeholder="任务描述（可选）..."
-              className="w-full bg-transparent border-none text-xs text-text-secondary placeholder-text-muted focus:outline-none mt-2 pt-2 border-t border-border"
-              style={{ borderTop: '1px solid var(--color-border)' }}
+              className="w-full bg-transparent border-none body-sm text-text-secondary placeholder-text-muted focus:outline-none mt-2 pt-2 border-t border-border"
             />
-            <div className="flex items-center gap-2 mt-2 pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
-              <Calendar size={12} className="text-text-muted" />
+            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border">
+              <Calendar size={13} className="text-text-muted" />
               <input
                 type="date"
                 value={newDueDate}
                 onChange={(e) => setNewDueDate(e.target.value)}
-                className="bg-transparent border-none text-xs text-text-secondary focus:outline-none"
+                className="bg-transparent border-none caption text-text-secondary focus:outline-none"
               />
               {newDueDate && (
                 <button
                   onClick={() => setNewDueDate('')}
-                  className="text-text-muted hover:text-text-primary text-xs"
+                  className="text-text-muted hover:text-text-primary caption"
                 >
                   清除
                 </button>
@@ -252,37 +251,37 @@ export default function Tasks() {
             </div>
           </>
         )}
-      </div>
+      </GlassCard>
 
       {/* Filters */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-3 mb-4">
         {(['all', 'pending', 'done'] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+              'btn btn-sm rounded-lg font-medium transition-all',
               filter === f
                 ? 'bg-accent-blue/15 text-accent-blue'
                 : 'text-text-muted hover:text-text-secondary hover:bg-bg-panel-hover'
             )}
           >
             {f === 'all' ? '全部' : f === 'pending' ? '待办' : '已完成'}
-            <span className="ml-1.5 text-[10px] opacity-60">{counts[f]}</span>
+            <span className="ml-1 opacity-60">{counts[f]}</span>
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-white/[0.04] rounded-lg px-2 py-1.5 border border-border focus-within:border-accent-blue/30 transition-colors">
-            <Search size={12} className="text-text-muted shrink-0" />
+          <div className="flex items-center gap-1.5 bg-white/[0.04] rounded-lg px-2.5 py-1.5 border border-border focus-within:border-accent-blue/30 transition-colors">
+            <Search size={13} className="text-text-muted shrink-0" />
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="搜索任务..."
-              className="w-32 bg-transparent text-xs focus:outline-none text-text-primary placeholder-text-muted"
+              className="w-32 bg-transparent body-sm focus:outline-none text-text-primary placeholder-text-muted"
             />
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-text-muted">
-            <ArrowUpDown size={10} />
+          <div className="flex items-center gap-1 caption">
+            <ArrowUpDown size={12} />
             <span>按优先级排序</span>
           </div>
         </div>
@@ -290,16 +289,14 @@ export default function Tasks() {
           <button
             onClick={async () => {
               const doneTasks = tasks.filter((t) => t.status === 'done')
-              for (const t of doneTasks) {
-                try { await taskApi.delete(t.id) } catch {}
-              }
+              await Promise.all(doneTasks.map((t) => taskApi.delete(t.id).catch(() => {})))
               setTasks((prev) => prev.filter((t) => t.status !== 'done'))
               toast(`已清除 ${doneTasks.length} 个已完成任务`, 'success')
             }}
-            className="ml-auto px-3 py-1.5 rounded-lg text-xs font-medium text-text-muted hover:text-accent-danger hover:bg-accent-danger/10 transition-all flex items-center gap-1"
+            className="btn btn-sm rounded-lg caption text-text-muted hover:text-accent-danger hover:bg-accent-danger/10 transition-all"
             title="清除所有已完成任务"
           >
-            <Eraser size={12} />
+            <Eraser size={13} />
             清除已完成
           </button>
         )}
@@ -315,20 +312,22 @@ export default function Tasks() {
           description={filter === 'all' ? '添加你的第一个任务开始吧' : undefined}
         />
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {filtered.map((task) => {
             const StatusIcon = statusConfig[task.status].icon
             const isEditing = editingId === task.id
             return (
-              <div
+              <GlassCard
                 key={task.id}
+                rounded="rounded-xl"
+                padding="md"
                 draggable={!isEditing}
                 onDragStart={() => handleDragStart(task.id)}
                 onDragOver={(e) => handleDragOver(e, task.id)}
                 onDrop={() => handleDrop(task.id)}
                 onDragEnd={() => { setDragId(null); setDragOverId(null) }}
                 className={cn(
-                  'glass rounded-xl p-4 flex items-center gap-3 group hover:bg-bg-panel-hover transition-all stagger-item',
+                  'flex items-center gap-3 group hover:bg-bg-panel-hover transition-all stagger-item',
                   dragId === task.id && 'opacity-40 scale-[0.98]',
                   dragOverId === task.id && dragId !== task.id && 'border-accent-blue/50 ring-2 ring-accent-blue/20'
                 )}
@@ -363,7 +362,7 @@ export default function Tasks() {
                           if (e.key === 'Escape') setEditingId(null)
                         }}
                         autoFocus
-                        className="flex-1 bg-transparent border-b border-accent-blue/50 text-sm focus:outline-none py-0.5"
+                        className="flex-1 bg-transparent border-b border-accent-blue/50 text-base focus:outline-none py-0.5"
                       />
                       <button onClick={() => saveEdit(task.id)} className="text-accent-success hover:text-accent-success/80">
                         <Check size={16} />
@@ -380,7 +379,7 @@ export default function Tasks() {
                         if (e.key === 'Escape') setEditingId(null)
                       }}
                       placeholder="描述（可选）"
-                      className="w-full bg-transparent text-xs text-text-secondary placeholder-text-muted focus:outline-none"
+                      className="w-full bg-transparent text-sm text-text-secondary placeholder-text-muted focus:outline-none"
                     />
                     <div className="flex items-center gap-3">
                       <div className="flex gap-1">
@@ -389,7 +388,7 @@ export default function Tasks() {
                             key={p}
                             onClick={() => setEditPriority(p)}
                             className={cn(
-                              'px-1.5 py-0.5 rounded text-[10px] font-medium transition-all',
+                              'px-2 py-0.5 rounded caption font-medium transition-all',
                               editPriority === p
                                 ? priorityConfig[p].color
                                 : 'text-text-muted hover:bg-bg-panel-hover'
@@ -400,15 +399,15 @@ export default function Tasks() {
                         ))}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Calendar size={10} className="text-text-muted" />
+                        <Calendar size={12} className="text-text-muted" />
                         <input
                           type="date"
                           value={editDueDate}
                           onChange={(e) => setEditDueDate(e.target.value)}
-                          className="bg-transparent border-none text-[10px] text-text-secondary focus:outline-none"
+                          className="bg-transparent border-none caption text-text-secondary focus:outline-none"
                         />
                         {editDueDate && (
-                          <button onClick={() => setEditDueDate('')} className="text-text-muted hover:text-text-primary text-[10px]">清除</button>
+                          <button onClick={() => setEditDueDate('')} className="text-text-muted hover:text-text-primary caption">清除</button>
                         )}
                       </div>
                     </div>
@@ -417,21 +416,21 @@ export default function Tasks() {
                   <div className="flex-1 min-w-0">
                     <span
                       className={cn(
-                        'text-sm block',
+                        'body-lg block font-medium',
                         task.status === 'done' && 'line-through text-text-muted'
                       )}
                     >
                       {task.title}
                     </span>
                     {task.description && (
-                      <span className="text-xs text-text-muted block mt-0.5 truncate">
+                      <span className="body-sm block mt-0.5 truncate">
                         {task.description}
                       </span>
                     )}
                     {task.due_date && task.status !== 'done' && (
                       <span className={cn(
-                        'text-[10px] block mt-0.5',
-                        new Date(task.due_date) < new Date() ? 'text-accent-danger' : 'text-text-muted'
+                        'caption block mt-1',
+                        new Date(task.due_date) < new Date() ? 'text-accent-danger' : ''
                       )}>
                         {new Date(task.due_date) < new Date() ? '已过期' : '截止'} {task.due_date}
                       </span>
@@ -442,15 +441,9 @@ export default function Tasks() {
                 {/* Priority badge */}
                 {!isEditing && (
                   <div className="relative">
-                    <button
-                      className={cn(
-                        'px-2 py-0.5 rounded text-xs transition-all',
-                        priorityConfig[task.priority].color,
-                        'hover:opacity-80'
-                      )}
-                    >
+                    <Badge variant={task.priority === 'high' ? 'red' : task.priority === 'medium' ? 'amber' : 'green'} className="rounded-lg">
                       {priorityConfig[task.priority].label}
-                    </button>
+                    </Badge>
                   </div>
                 )}
 
@@ -459,19 +452,19 @@ export default function Tasks() {
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => startEdit(task)}
-                      className="p-1.5 rounded-lg text-text-muted hover:text-accent-blue hover:bg-accent-blue/10 transition-all"
+                      className="btn-icon-sm rounded-lg text-text-muted hover:text-accent-blue hover:bg-accent-blue/10"
                     >
                       <Edit2 size={14} />
                     </button>
                     <button
                       onClick={() => setDeleteId(task.id)}
-                      className="p-1.5 rounded-lg text-text-muted hover:text-accent-danger hover:bg-accent-danger/10 transition-all"
+                      className="btn-icon-sm rounded-lg text-text-muted hover:text-accent-danger hover:bg-accent-danger/10"
                     >
                       <Trash2 size={14} />
                     </button>
                   </div>
                 )}
-              </div>
+              </GlassCard>
             )
           })}
         </div>

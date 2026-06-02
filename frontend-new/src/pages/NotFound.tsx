@@ -10,7 +10,7 @@ export default function NotFound() {
       <p className="text-text-secondary mb-8">页面不存在</p>
       <button
         onClick={() => navigate('/')}
-        className="btn-primary flex items-center gap-2"
+        className="btn btn-primary rounded-xl flex items-center gap-2"
       >
         <Home size={16} />
         返回首页

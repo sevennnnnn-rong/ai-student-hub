@@ -8,6 +8,7 @@ interface Toast {
   id: number
   message: string
   type: ToastType
+  dismissing?: boolean
 }
 
 interface ToastContextType {
@@ -15,6 +16,15 @@ interface ToastContextType {
 }
 
 const ToastContext = createContext<ToastContextType>({ toast: () => {} })
+
+let audioCtx: AudioContext | null = null
+
+function getAudioContext(): AudioContext {
+  if (!audioCtx) {
+    audioCtx = new AudioContext()
+  }
+  return audioCtx
+}
 
 export function useToast() {
   return useContext(ToastContext)
@@ -39,7 +49,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const timersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
 
   const removeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
+    setToasts((prev) => prev.map((t) => t.id === id ? { ...t, dismissing: true } : t))
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id))
+    }, 200)
     const timer = timersRef.current.get(id)
     if (timer) {
       clearTimeout(timer)
@@ -56,7 +69,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     // Play sound if enabled
     if (localStorage.getItem('toast_sound') !== 'false') {
       try {
-        const ctx = new AudioContext()
+        const ctx = getAudioContext()
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
         osc.connect(gain)
@@ -79,7 +92,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 pointer-events-none" aria-live="polite" aria-atomic="false">
+      <div className="fixed bottom-20 right-6 md:bottom-6 z-[9999] flex flex-col gap-2 pointer-events-none" aria-live="polite" aria-atomic="false">
         {toasts.map((t) => {
           const Icon = icons[t.type]
           return (
@@ -88,15 +101,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               role="status"
               className={cn(
                 'pointer-events-auto glass px-4 py-3 rounded-xl border flex items-center gap-3 min-w-[280px] max-w-[400px]',
-                'animate-slide-up shadow-lg backdrop-blur-xl',
+                'shadow-lg backdrop-blur-xl',
+                t.dismissing ? 'animate-[fade-out_0.2s_ease-out_forwards]' : 'animate-slide-up',
                 colors[t.type]
               )}
             >
               <Icon size={18} className="shrink-0" />
-              <span className="text-sm flex-1 text-text-primary">{t.message}</span>
+              <span className="body-md flex-1 text-text-primary">{t.message}</span>
               <button
                 onClick={() => removeToast(t.id)}
-                className="text-text-muted hover:text-text-primary transition-colors shrink-0"
+                className="btn-icon-sm rounded-md text-text-muted hover:text-text-primary shrink-0"
+                aria-label="关闭"
               >
                 <X size={14} />
               </button>

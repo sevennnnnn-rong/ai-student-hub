@@ -87,18 +87,20 @@ export default function QuickNote() {
                   onClick={handleSave}
                   disabled={!content.trim() || saving}
                   className={cn(
-                    'p-1.5 rounded-lg transition-all',
+                    'btn-icon-sm transition-all',
                     content.trim() && !saving
                       ? 'text-accent-success hover:bg-accent-success/10'
                       : 'text-text-muted cursor-not-allowed'
                   )}
                   title="保存为笔记"
+                  aria-label="保存为笔记"
                 >
                   <Save size={14} />
                 </button>
                 <button
                   onClick={() => setOpen(false)}
-                  className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-panel-hover transition-all"
+                  className="btn-icon-sm text-text-muted hover:text-text-primary"
+                  aria-label="关闭快速笔记"
                 >
                   <X size={14} />
                 </button>
@@ -116,8 +118,8 @@ export default function QuickNote() {
 
             {/* Footer */}
             <div className="px-4 py-2 border-t border-border flex items-center justify-between">
-              <span className="text-[10px] text-text-muted">{content.length} 字</span>
-              <span className="text-[10px] text-text-muted">自动保存到本地</span>
+              <span className="caption text-text-muted">{content.length} 字</span>
+              <span className="caption text-text-muted">自动保存到本地</span>
             </div>
           </div>
         </div>

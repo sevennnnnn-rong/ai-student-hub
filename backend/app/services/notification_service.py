@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 scheduler = AsyncIOScheduler()
 
 
-async def check_task_reminders():
+async def check_task_reminders() -> None:
     """检查即将到期的任务并生成提醒"""
-    db = SessionLocal()
     try:
+        db = SessionLocal()
         now = datetime.now()
         reminder_threshold = now + timedelta(minutes=30)
 
@@ -45,7 +45,7 @@ async def check_task_reminders():
         db.close()
 
 
-def start_scheduler():
+def start_scheduler() -> None:
     """启动调度器"""
     scheduler.add_job(
         check_task_reminders,
@@ -57,7 +57,7 @@ def start_scheduler():
     logger.info("通知调度器已启动")
 
 
-def stop_scheduler():
+def stop_scheduler() -> None:
     """停止调度器"""
     if scheduler.running:
         scheduler.shutdown()

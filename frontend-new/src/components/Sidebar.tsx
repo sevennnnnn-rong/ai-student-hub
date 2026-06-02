@@ -1,43 +1,30 @@
-import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
-  Home, MessageSquare, CheckSquare, Timer,
-  Calendar, StickyNote, BarChart3, Settings,
+  Settings,
   Sun, Moon, Maximize2, Minimize2,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useTheme } from '../hooks/useTheme'
 import { useFocusMode } from '../hooks/useFocusMode'
+import { navItems } from '../lib/nav-config'
 
-const navItems = [
-  { to: '/', icon: Home, label: '首页' },
-  { to: '/chat', icon: MessageSquare, label: '对话' },
-  { to: '/tasks', icon: CheckSquare, label: '任务' },
-  { to: '/pomodoro', icon: Timer, label: '番茄钟' },
-  { to: '/schedule', icon: Calendar, label: '课程表' },
-  { to: '/notes', icon: StickyNote, label: '笔记' },
-  { to: '/dashboard', icon: BarChart3, label: '看板' },
-]
-
-function NavItem({ to, icon: Icon, label }: { to: string; icon: typeof Home; label: string }) {
-  const [hovered, setHovered] = useState(false)
-
+function NavItem({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) {
   return (
-    <div className="relative">
+    <div className="relative group">
       <NavLink
         to={to}
         end={to === '/'}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        aria-label={label}
         className={({ isActive }) =>
           cn(
-            'w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200',
+            'w-[42px] h-[42px] rounded-xl flex items-center justify-center transition-all duration-200',
             'hover:bg-bg-panel-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue',
             isActive && 'bg-accent-blue/15 text-accent-blue glow-blue'
           )
         }
       >
-        <Icon size={20} />
+        <Icon size={19} strokeWidth={1.8} />
       </NavLink>
       {/* Tooltip */}
       <div
@@ -47,7 +34,7 @@ function NavItem({ to, icon: Icon, label }: { to: string; icon: typeof Home; lab
           'px-3 py-1.5 rounded-lg whitespace-nowrap pointer-events-none',
           'border border-white/10 shadow-xl',
           'transition-all duration-200',
-          hovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-1'
+          'opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0'
         )}
       >
         {label}
@@ -77,7 +64,7 @@ export default function Sidebar() {
           if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
             e.preventDefault()
             const items = Array.from(e.currentTarget.querySelectorAll('a'))
-            const idx = items.indexOf(document.activeElement as HTMLElement)
+            const idx = items.indexOf(document.activeElement as HTMLAnchorElement)
             if (idx === -1) {
               items[e.key === 'ArrowDown' ? 0 : items.length - 1]?.focus()
             } else {
@@ -98,7 +85,8 @@ export default function Sidebar() {
       {/* Theme Toggle */}
       <button
         onClick={toggle}
-        className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 hover:bg-bg-panel-hover text-text-muted hover:text-text-primary"
+        className="btn-icon-md rounded-xl text-text-muted hover:text-text-primary"
+        aria-label={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
         title={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
       >
         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -107,7 +95,8 @@ export default function Sidebar() {
       {/* Focus Mode Toggle */}
       <button
         onClick={toggleFocus}
-        className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 hover:bg-bg-panel-hover text-text-muted hover:text-text-primary"
+        className="btn-icon-md rounded-xl text-text-muted hover:text-text-primary"
+        aria-label={focusMode ? '退出专注模式' : '进入专注模式'}
         title={focusMode ? '退出专注模式' : '进入专注模式'}
       >
         {focusMode ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
@@ -117,16 +106,16 @@ export default function Sidebar() {
       <div className="relative">
         <NavLink
           to="/settings"
-          onMouseEnter={() => {}}
+          aria-label="设置"
           className={({ isActive }) =>
             cn(
-              'w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200',
+              'w-[42px] h-[42px] rounded-xl flex items-center justify-center transition-all duration-200',
               'hover:bg-bg-panel-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue',
               isActive && 'bg-accent-purple/15 text-accent-purple glow-purple'
             )
           }
         >
-          <Settings size={20} />
+          <Settings size={19} strokeWidth={1.8} />
         </NavLink>
       </div>
     </aside>

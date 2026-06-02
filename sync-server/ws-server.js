@@ -5,6 +5,8 @@
  * 不自行监听端口，通过 initWebSocket(server) 接入已有的 HTTP server。
  */
 
+import { pushChanges } from './sync-service.js';
+
 const HEARTBEAT_INTERVAL = 30_000; // 30 秒心跳检测
 const CLIENT_HEARTBEAT_INTERVAL = 25_000; // 客户端应以 25 秒间隔发送 ping
 const MAX_CONNECTIONS = 100;
@@ -183,6 +185,16 @@ export function broadcastChanges(senderDeviceId, changes) {
  * @param {Array} changes
  */
 export function handlePush(deviceId, changes) {
+  // 持久化变更到数据库
+  try {
+    const result = pushChanges(deviceId, changes);
+    if (result.conflicts.length > 0) {
+      console.warn(`[ws] 设备 ${deviceId} push 产生 ${result.conflicts.length} 个冲突`);
+    }
+  } catch (err) {
+    console.error(`[ws] 持久化设备 ${deviceId} 的变更失败:`, err.message);
+  }
+
   // 将变更广播给该设备的其他连接以及所有其他设备
   for (const [did, clients] of deviceClients) {
     if (did === deviceId) continue;

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
-import { ArrowUp } from 'lucide-react'
+import { ArrowUp, Search, Settings } from 'lucide-react'
 import Sidebar from './Sidebar'
 import MobileNav from './MobileNav'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
@@ -10,6 +10,7 @@ import { cn } from '../lib/utils'
 
 export default function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
   const mainRef = useRef<HTMLDivElement>(null)
   const { focusMode } = useFocusMode()
   const [showScrollTop, setShowScrollTop] = useState(false)
@@ -41,10 +42,36 @@ export default function Layout() {
         <Sidebar />
       </div>
 
-      {/* Main Content */}
-      <main ref={mainRef} className="flex-1 h-full overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
-        <Outlet />
-      </main>
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        {/* Mobile Header */}
+        <header className="md:hidden flex items-center justify-between px-4 py-3 shrink-0 border-b border-border bg-bg-primary/80 backdrop-blur-lg z-30">
+          <h1 className="heading-md gradient-text">气象台Hub</h1>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => {
+                const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true })
+                window.dispatchEvent(event)
+              }}
+              className="btn-icon-sm rounded-lg text-text-muted hover:text-text-primary"
+              aria-label="搜索"
+            >
+              <Search size={18} />
+            </button>
+            <button
+              onClick={() => navigate('/settings')}
+              className="btn-icon-sm rounded-lg text-text-muted hover:text-text-primary"
+              aria-label="设置"
+            >
+              <Settings size={18} />
+            </button>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
+          <Outlet />
+        </main>
+      </div>
 
       {/* Mobile Bottom Nav */}
       {!focusMode && <MobileNav />}

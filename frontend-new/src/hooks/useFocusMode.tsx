@@ -1,4 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react'
+import { registerFocusToggle } from './useTheme'
 
 const FocusModeContext = createContext<{
   focusMode: boolean
@@ -28,6 +29,9 @@ export function FocusModeProvider({ children }: { children: React.ReactNode }) {
   }, [focusMode])
 
   const toggle = () => setFocusMode((f) => !f)
+
+  // Register toggle for keyboard shortcuts
+  useEffect(() => { registerFocusToggle(toggle) }, [toggle])
 
   return (
     <FocusModeContext.Provider value={{ focusMode, toggle }}>

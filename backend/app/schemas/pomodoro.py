@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 
@@ -20,17 +20,17 @@ class PomodoroResponse(BaseModel):
     """番茄钟响应"""
     id: int
     task_id: Optional[int]
-    start_time: str
-    end_time: Optional[str]
+    start_time: datetime
+    end_time: Optional[datetime]
     duration_minutes: Optional[int]
     planned_duration: int
     completed: bool
     notes: Optional[str]
     tags: Optional[str]
     created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PomodoroSettingsResponse(BaseModel):
@@ -41,8 +41,7 @@ class PomodoroSettingsResponse(BaseModel):
     daily_goal: int
     long_break_interval: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PomodoroSettingsUpdate(BaseModel):

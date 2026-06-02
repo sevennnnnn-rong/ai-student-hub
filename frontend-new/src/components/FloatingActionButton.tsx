@@ -15,7 +15,7 @@ export default function FloatingActionButton() {
   const navigate = useNavigate()
 
   return (
-    <div className="fixed bottom-24 right-6 z-40 md:bottom-8 md:right-8">
+    <div className="fixed bottom-36 right-6 z-40 md:bottom-8 md:right-8">
       {/* Action items */}
       {open && (
         <div className="absolute bottom-16 right-0 space-y-2 animate-slide-up">
@@ -36,7 +36,7 @@ export default function FloatingActionButton() {
               <action.icon size={16} />
               <div className="text-left">
                 <div className="text-sm font-medium">{action.label}</div>
-                <div className="text-[10px] opacity-70">{action.desc}</div>
+                <div className="caption opacity-70">{action.desc}</div>
               </div>
             </button>
           ))}
@@ -46,6 +46,8 @@ export default function FloatingActionButton() {
       {/* Main button */}
       <button
         onClick={() => setOpen(!open)}
+        aria-label="快速操作"
+        aria-expanded={open}
         className={cn(
           'w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-xl',
           'transition-all duration-300 hover:scale-105 active:scale-95',

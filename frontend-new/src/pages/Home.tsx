@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
-import { Brain, Code, Zap, ArrowRight, Sparkles, MessageSquare, CheckSquare, Timer, StickyNote, Command, Calendar } from 'lucide-react'
+import { ArrowRight, Sparkles, MessageSquare, CheckSquare, Timer, StickyNote, Command, Calendar } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { agents } from '../lib/agent-config'
 
 const quotes = [
   { text: '学而不思则罔，思而不学则殆。', author: '孔子' },
@@ -28,42 +29,6 @@ function getDateString() {
   const weekdays = ['日', '一', '二', '三', '四', '五', '六']
   return `${now.getMonth() + 1}月${now.getDate()}日 周${weekdays[now.getDay()]}`
 }
-
-const agents = [
-  {
-    id: 'claude',
-    name: 'Claude',
-    role: '指挥官',
-    desc: '战略规划、复杂推理、多步任务编排',
-    icon: Brain,
-    gradient: 'from-blue-500 to-cyan-400',
-    glow: 'glow-blue',
-    borderColor: 'hover:border-blue-400/40',
-    features: ['深度思考', '任务拆解', '创意写作'],
-  },
-  {
-    id: 'codex',
-    name: 'Codex',
-    role: '引擎',
-    desc: '代码生成、技术实现、工程执行',
-    icon: Code,
-    gradient: 'from-purple-500 to-pink-400',
-    glow: 'glow-purple',
-    borderColor: 'hover:border-purple-400/40',
-    features: ['代码生成', 'Bug修复', '架构设计'],
-  },
-  {
-    id: 'doubao',
-    name: 'Doubao',
-    role: '苦力工',
-    desc: '批量处理、数据整理、重复性任务',
-    icon: Zap,
-    gradient: 'from-amber-500 to-orange-400',
-    glow: 'glow-amber',
-    borderColor: 'hover:border-amber-400/40',
-    features: ['数据处理', '文本整理', '批量操作'],
-  },
-]
 
 const quickActions = [
   { icon: MessageSquare, label: 'AI 对话', desc: '与 AI 搭档交流', path: '/chat', color: 'bg-accent-blue/15 text-accent-blue' },
@@ -97,25 +62,25 @@ export default function Home() {
 
       {/* Title */}
       <div className="text-center mb-10 relative z-10">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Sparkles size={20} className="text-accent-amber" />
-          <span className="text-sm text-text-muted font-medium tracking-wider uppercase">AI-Powered Student Hub</span>
-          <Sparkles size={20} className="text-accent-amber" />
+        <div className="flex items-center justify-center gap-2 mb-5">
+          <Sparkles size={16} className="text-accent-amber" />
+          <span className="caption tracking-widest uppercase">AI-Powered 气象台 Hub</span>
+          <Sparkles size={16} className="text-accent-amber" />
         </div>
-        <h1 className="text-5xl font-bold mb-4">
-          <span className="gradient-text">AI Student Hub</span>
+        <h1 className="text-6xl font-bold mb-5 tracking-tight">
+          <span className="gradient-text">气象台Hub</span>
         </h1>
         <div className="flex items-center justify-center gap-2 mb-2">
-          <Calendar size={14} className="text-text-muted" />
-          <p className="text-text-muted text-sm">{getDateString()}</p>
+          <Calendar size={13} className="text-text-muted" />
+          <p className="body-sm">{getDateString()}</p>
         </div>
-        <p className="text-text-secondary text-lg mb-3">{getGreeting()}</p>
+        <p className="body-lg mb-4">{getGreeting()}</p>
         {/* Daily Quote */}
-        <div className="glass rounded-xl px-5 py-3 inline-block max-w-md mx-auto">
-          <p className="text-sm text-text-secondary italic">"{getDailyQuote().text}"</p>
-          <p className="text-xs text-text-muted mt-1">—— {getDailyQuote().author}</p>
+        <div className="glass rounded-xl px-6 py-3.5 inline-block max-w-md mx-auto">
+          <p className="text-sm text-text-secondary italic leading-relaxed">"{getDailyQuote().text}"</p>
+          <p className="caption mt-1.5">—— {getDailyQuote().author}</p>
         </div>
-        <p className="text-text-muted text-sm mt-3">选择你的 AI 搭档，开始高效协作</p>
+        <p className="body-sm mt-4">选择你的 AI 搭档，开始高效协作</p>
       </div>
 
       {/* Agent Cards */}
@@ -141,22 +106,22 @@ export default function Home() {
             </div>
 
             {/* Role tag */}
-            <div className="text-[10px] font-mono uppercase tracking-wider mb-1 text-text-muted">
+            <div className="caption font-mono uppercase tracking-widest mb-1.5">
               {agent.role}
             </div>
 
             {/* Name */}
-            <h2 className="text-lg font-bold mb-1.5">{agent.name}</h2>
+            <h2 className="heading-lg mb-2">{agent.name}</h2>
 
             {/* Description */}
-            <p className="text-text-secondary text-sm leading-relaxed mb-3">
+            <p className="body-md leading-relaxed mb-4">
               {agent.desc}
             </p>
 
             {/* Feature tags */}
-            <div className="flex flex-wrap gap-1.5 mb-4">
+            <div className="flex flex-wrap gap-1.5 mb-5">
               {agent.features.map((f) => (
-                <span key={f} className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-text-muted border border-white/5">
+                <span key={f} className="caption px-2.5 py-1 rounded-full bg-white/5 text-text-muted border border-white/5">
                   {f}
                 </span>
               ))}
@@ -173,27 +138,27 @@ export default function Home() {
 
       {/* Quick Actions */}
       <div className="w-full max-w-4xl px-4 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {quickActions.map((action) => (
             <button
               key={action.path}
               onClick={() => navigate(action.path)}
               className="glass glass-hover p-4 rounded-xl text-left transition-all duration-200 group stagger-item"
             >
-              <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center mb-3', action.color)}>
+              <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center mb-3', action.color)}>
                 <action.icon size={20} />
               </div>
-              <div className="text-sm font-medium mb-0.5">{action.label}</div>
-              <div className="text-xs text-text-muted">{action.desc}</div>
+              <div className="body-md font-medium mb-0.5">{action.label}</div>
+              <div className="caption">{action.desc}</div>
             </button>
           ))}
         </div>
       </div>
 
       {/* Keyboard shortcut hint */}
-      <div className="mt-8 flex items-center gap-2 text-text-muted text-xs relative z-10">
-        <Command size={12} />
-        <span>按 <kbd className="bg-white/5 px-1.5 py-0.5 rounded border border-white/10 text-[10px]">Ctrl+K</kbd> 打开命令面板</span>
+      <div className="mt-8 flex items-center gap-2 relative z-10">
+        <Command size={13} className="text-text-muted" />
+        <span className="body-sm">按 <kbd className="bg-white/5 px-2 py-0.5 rounded-md border border-white/10 caption font-mono">Ctrl+K</kbd> 打开命令面板</span>
       </div>
     </div>
   )

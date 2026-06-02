@@ -1,7 +1,7 @@
 """ICS 文件解析器"""
 import re
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional
+from typing import List, Dict
 from icalendar import Calendar
 
 
@@ -41,7 +41,7 @@ def parse_ics_file(file_content: str) -> List[Dict]:
                     continue
 
                 # 如果是 date 对象，跳过（全天事件）
-                if isinstance(start_dt, datetime) == False:
+                if not isinstance(start_dt, datetime):
                     continue
 
                 # 获取星期几（1-7，1=周一）
@@ -105,7 +105,7 @@ def generate_color(name: str) -> str:
     return colors[hash_value % len(colors)]
 
 
-def parse_time_range(time_str: str) -> tuple:
+def parse_time_range(time_str: str) -> tuple[str, str]:
     """
     解析时间范围字符串，如 "8:00-9:30" 或 "08:00-09:30"
 

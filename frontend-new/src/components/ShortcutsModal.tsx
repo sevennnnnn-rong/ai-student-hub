@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { X, Keyboard } from 'lucide-react'
-import { cn } from '../lib/utils'
 
 const shortcuts = [
   { category: '导航', items: [
@@ -37,6 +36,7 @@ export default function ShortcutsModal() {
       if (e.ctrlKey && e.key === '/') {
         e.preventDefault()
         setOpen((prev) => !prev)
+        return
       }
       if (e.key === 'Escape' && open) {
         setOpen(false)
@@ -50,7 +50,7 @@ export default function ShortcutsModal() {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" onClick={() => setOpen(false)}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div
         className="relative w-full max-w-md glass rounded-2xl shadow-2xl border border-white/10 overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
@@ -63,7 +63,8 @@ export default function ShortcutsModal() {
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-panel-hover transition-all"
+            className="btn-icon-sm text-text-muted hover:text-text-primary"
+            aria-label="关闭快捷键面板"
           >
             <X size={16} />
           </button>
@@ -73,7 +74,7 @@ export default function ShortcutsModal() {
         <div className="p-5 space-y-5 max-h-[60vh] overflow-y-auto">
           {shortcuts.map((group) => (
             <div key={group.category}>
-              <h3 className="text-xs text-text-muted uppercase tracking-wider mb-2 font-medium">{group.category}</h3>
+              <h3 className="caption text-text-muted uppercase tracking-wider mb-2 font-medium">{group.category}</h3>
               <div className="space-y-1.5">
                 {group.items.map((item) => (
                   <div key={item.action} className="flex items-center justify-between py-1.5">
@@ -82,7 +83,7 @@ export default function ShortcutsModal() {
                       {item.keys.map((key) => (
                         <kbd
                           key={key}
-                          className="text-[10px] text-text-muted bg-white/5 px-1.5 py-0.5 rounded border border-white/10 min-w-[24px] text-center"
+                          className="caption text-text-muted bg-white/5 px-1.5 py-0.5 rounded border border-white/10 min-w-[24px] text-center"
                         >
                           {key}
                         </kbd>
@@ -96,7 +97,7 @@ export default function ShortcutsModal() {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-border text-[10px] text-text-muted">
+        <div className="px-5 py-3 border-t border-border caption text-text-muted">
           按 <kbd className="bg-white/5 px-1 rounded">Ctrl</kbd> + <kbd className="bg-white/5 px-1 rounded">/</kbd> 随时打开此面板
         </div>
       </div>

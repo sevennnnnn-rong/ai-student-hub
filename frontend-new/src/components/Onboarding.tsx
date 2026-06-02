@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Brain, Code, Zap, CheckSquare, Timer, StickyNote, ArrowRight, X, Sparkles } from 'lucide-react'
+import { Brain, CheckSquare, Timer, StickyNote, ArrowRight, X, Sparkles } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 const steps = [
   {
     icon: Sparkles,
-    title: '欢迎使用 AI Student Hub',
+    title: '欢迎使用 气象台Hub',
     description: '你的 AI 驱动学习助手，让学习更智能、更高效。',
     color: 'from-accent-blue to-accent-purple',
   },
@@ -47,7 +47,7 @@ export default function Onboarding() {
 
   return (
     <div className="fixed inset-0 z-[9998] flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div className="relative glass rounded-3xl p-8 w-[480px] max-w-[90vw] animate-scale-in shadow-2xl">
         {/* Close button */}
         <button
@@ -55,7 +55,8 @@ export default function Onboarding() {
             localStorage.setItem('onboarding_done', 'true')
             setDismissed(true)
           }}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/10 transition-all"
+          className="absolute top-4 right-4 btn-icon-sm text-text-muted hover:text-text-primary"
+          aria-label="关闭引导"
         >
           <X size={16} />
         </button>

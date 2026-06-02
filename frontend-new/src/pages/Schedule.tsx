@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Plus, X, Calendar, Clock, ChevronRight } from 'lucide-react'
 import { scheduleApi, type Course } from '../lib/api'
 import { cn } from '../lib/utils'
@@ -30,19 +30,22 @@ export default function Schedule() {
   }, [])
 
   // Build grid
-  const grid = new Map<string, Course[]>()
-  for (const c of courses) {
-    const startH = parseInt(c.start_time.split(':')[0], 10)
-    const endH = parseInt(c.end_time.split(':')[0], 10)
-    const endM = parseInt(c.end_time.split(':')[1] || '0', 10)
-    const adjusted = endM > 0 ? endH + 1 : endH
-    for (let h = startH; h < adjusted; h++) {
-      const key = `${c.day_of_week}-${h}`
-      const existing = grid.get(key)
-      if (existing) existing.push(c)
-      else grid.set(key, [c])
+  const grid = useMemo(() => {
+    const map = new Map<string, Course[]>()
+    for (const c of courses) {
+      const startH = parseInt(c.start_time.split(':')[0], 10)
+      const endH = parseInt(c.end_time.split(':')[0], 10)
+      const endM = parseInt(c.end_time.split(':')[1] || '0', 10)
+      const adjusted = endM > 0 ? endH + 1 : endH
+      for (let h = startH; h < adjusted; h++) {
+        const key = `${c.day_of_week}-${h}`
+        const existing = map.get(key)
+        if (existing) existing.push(c)
+        else map.set(key, [c])
+      }
     }
-  }
+    return map
+  }, [courses])
 
   const handleCreate = async () => {
     if (!form.name.trim()) return
@@ -84,7 +87,7 @@ export default function Schedule() {
         <button
           onClick={() => setShowForm(!showForm)}
           className={cn(
-            'px-3 py-1.5 rounded-xl text-sm font-medium flex items-center gap-1.5 transition-all',
+            'btn btn-sm rounded-xl font-medium flex items-center gap-1.5 transition-all',
             showForm
               ? 'bg-accent-danger/15 text-accent-danger'
               : 'bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25'
@@ -114,12 +117,12 @@ export default function Schedule() {
               <Clock size={14} className="text-accent-blue" />
               <span className="text-sm font-medium">今日课程 ({todayCourses.length})</span>
               {currentClass && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent-success/15 text-accent-success font-medium">
+                <span className="caption px-2 py-0.5 rounded-full bg-accent-success/15 text-accent-success font-medium">
                   正在上课
                 </span>
               )}
               {!currentClass && nextClass && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent-amber/15 text-accent-amber font-medium flex items-center gap-1">
+                <span className="caption px-2 py-0.5 rounded-full bg-accent-amber/15 text-accent-amber font-medium flex items-center gap-1">
                   下一节: {nextClass.name} {nextClass.start_time}
                   <ChevronRight size={10} />
                 </span>
@@ -176,12 +179,14 @@ export default function Schedule() {
                 <button key={c} onClick={() => setForm({ ...form, color: c })}
                   className={cn('w-7 h-7 rounded-full border-2 transition-all hover:scale-110',
                     form.color === c ? 'border-white scale-110' : 'border-transparent'
-                  )} style={{ background: c }} />
+                  )} style={{ background: c }}
+                  aria-label={`选择颜色 ${c}`}
+                  aria-pressed={form.color === c} />
               ))}
             </div>
             <div className="flex-1" />
             <button onClick={handleCreate}
-              className="btn-primary flex items-center gap-2">
+              className="btn btn-primary rounded-xl flex items-center gap-2">
               <Plus size={14} />
               保存
             </button>
@@ -205,7 +210,7 @@ export default function Schedule() {
             <div className="flex items-center mb-2">
               <div className="w-16 shrink-0" />
               {timeSlots.map((h) => (
-                <div key={h} className="flex-1 text-center text-[10px] text-text-muted font-mono">
+                <div key={h} className="flex-1 text-center caption text-text-muted font-mono">
                   {String(h).padStart(2, '0')}:00
                 </div>
               ))}
@@ -241,7 +246,7 @@ export default function Schedule() {
                     isToday ? 'text-accent-blue' : 'text-text-secondary'
                   )}>
                     {label}
-                    {isToday && <span className="ml-1 text-[9px] text-accent-blue">(今天)</span>}
+                    {isToday && <span className="ml-1 caption text-accent-blue">(今天)</span>}
                   </div>
                   {timeSlots.map((h) => {
                     const cell = grid.get(`${day}-${h}`)
@@ -253,7 +258,7 @@ export default function Schedule() {
                             style={{ background: cell[0].color || defaultColors[0] }}
                             onClick={() => setSelectedCourse(cell[0])}
                           >
-                            <span className="text-[10px] font-bold text-white drop-shadow-sm truncate px-1">
+                            <span className="caption font-bold text-white drop-shadow-sm truncate px-1">
                               {cell[0].name.slice(0, 4)}
                             </span>
                           </div>
@@ -265,14 +270,14 @@ export default function Schedule() {
                           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-20">
                             <div className="glass px-3 py-2 rounded-xl shadow-xl border border-white/10">
                               <div className="text-xs font-bold text-text-primary">{cell[0].name}</div>
-                              <div className="text-[10px] text-text-muted mt-0.5">
+                              <div className="caption text-text-muted mt-0.5">
                                 {cell[0].start_time} - {cell[0].end_time}
                               </div>
                               {cell[0].teacher && (
-                                <div className="text-[10px] text-text-muted">{cell[0].teacher}</div>
+                                <div className="caption text-text-muted">{cell[0].teacher}</div>
                               )}
                               {cell[0].location && (
-                                <div className="text-[10px] text-text-muted">{cell[0].location}</div>
+                                <div className="caption text-text-muted">{cell[0].location}</div>
                               )}
                             </div>
                           </div>
@@ -327,8 +332,8 @@ export default function Schedule() {
               )}
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setSelectedCourse(null)} className="flex-1 btn-ghost text-sm">关闭</button>
-              <button onClick={() => handleDelete(selectedCourse.id)} className="flex-1 btn-primary bg-accent-danger/80 hover:bg-accent-danger text-sm">删除课程</button>
+              <button onClick={() => setSelectedCourse(null)} className="flex-1 btn btn-ghost rounded-xl text-sm">关闭</button>
+              <button onClick={() => handleDelete(selectedCourse.id)} className="flex-1 btn btn-primary rounded-xl bg-accent-danger/80 hover:bg-accent-danger text-sm">删除课程</button>
             </div>
           </div>
         </div>

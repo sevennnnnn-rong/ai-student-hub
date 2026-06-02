@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Plus, Trash2, Search, Eye, Edit3, FileText, Download, Tag, Bold, Italic, Code, List, Link, Image, ArrowLeft } from 'lucide-react'
+import { Plus, Trash2, Search, Eye, Edit3, FileText, Download, Bold, Italic, Code, List, Link, ArrowLeft } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { noteApi, type Note } from '../lib/api'
@@ -47,6 +47,11 @@ export default function Notes() {
     }, 300)
     return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current) }
   }, [searchKeyword])
+
+  // Cleanup save timer on unmount
+  useEffect(() => {
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
+  }, [])
 
   useEffect(() => {
     noteApi.getAll(keyword).then(setNotes).catch(() => {}).finally(() => setLoading(false))
@@ -146,10 +151,11 @@ export default function Notes() {
             <div className="flex-1 flex items-center gap-2 bg-white/[0.04] rounded-lg px-2 border border-border focus-within:border-accent-blue/30 transition-colors">
               <Search size={14} className="text-text-muted shrink-0" />
               <input value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)}
-                placeholder="搜索..." className="w-full bg-transparent text-xs py-2 focus:outline-none text-text-primary placeholder-text-muted" />
+                placeholder="搜索..." className="w-full bg-transparent caption py-2 focus:outline-none text-text-primary placeholder-text-muted" />
             </div>
             <button onClick={handleCreate}
-              className="w-8 h-8 rounded-lg bg-accent-blue/15 text-accent-blue flex items-center justify-center hover:bg-accent-blue/25 transition-all shrink-0">
+              className="btn-icon-sm bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25 transition-all shrink-0"
+              aria-label="新建笔记">
               <Plus size={14} />
             </button>
           </div>
@@ -160,7 +166,7 @@ export default function Notes() {
                 key={folder}
                 onClick={() => setActiveFolder(folder)}
                 className={cn(
-                  'px-2 py-1 rounded-lg text-[10px] font-medium whitespace-nowrap transition-all',
+                  'px-2 py-1 rounded-lg caption font-medium whitespace-nowrap transition-all',
                   activeFolder === folder
                     ? 'bg-accent-blue/15 text-accent-blue'
                     : 'text-text-muted hover:text-text-secondary hover:bg-bg-panel-hover'
@@ -175,7 +181,7 @@ export default function Notes() {
           {loading ? (
             <ListSkeleton count={3} />
           ) : filteredNotes.length === 0 && (
-            <div className="text-center text-text-muted text-xs py-8">
+            <div className="text-center text-text-muted caption py-8">
               {activeFolder === '全部' ? '暂无笔记' : `暂无"${activeFolder}"笔记`}
             </div>
           )}
@@ -191,7 +197,8 @@ export default function Notes() {
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); setDeleteId(note.id) }}
-                  className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-white/10 text-text-muted hover:text-accent-danger transition-all"
+                  className="opacity-0 group-hover:opacity-100 btn-icon-sm text-text-muted hover:text-accent-danger"
+                  aria-label="删除笔记"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -206,7 +213,7 @@ export default function Notes() {
                 return (
                   <div className="flex gap-1 mt-1 flex-wrap">
                     {tags.slice(0, 3).map((tag) => (
-                      <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded bg-accent-blue/10 text-accent-blue">
+                      <span key={tag} className="caption px-1.5 py-0.5 rounded bg-accent-blue/10 text-accent-blue">
                         {tag}
                       </span>
                     ))}
@@ -229,15 +236,16 @@ export default function Notes() {
             <div className="px-4 py-2.5 border-b border-border flex items-center gap-3">
               <button
                 onClick={() => { setActiveId(null); setEditTitle(''); setEditContent('') }}
-                className="md:hidden p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-panel-hover transition-all"
+                className="md:hidden btn-icon-sm text-text-muted hover:text-text-primary"
+                aria-label="返回笔记列表"
               >
                 <ArrowLeft size={18} />
               </button>
               <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} onBlur={handleSave}
-                className="flex-1 bg-transparent text-lg font-bold focus:outline-none text-text-primary" />
+                className="flex-1 bg-transparent heading-lg focus:outline-none text-text-primary" />
               {/* Markdown formatting buttons */}
               {!preview && (
-                <div className="flex items-center gap-1 mr-2">
+                <div className="flex items-center gap-1.5 mr-2">
                   {[
                     { icon: Bold, action: '**', title: '粗体' },
                     { icon: Italic, action: '_', title: '斜体' },
@@ -260,8 +268,9 @@ export default function Notes() {
                           ta.focus()
                         }, 0)
                       }}
-                      className="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-white/10 transition-all"
+                      className="btn-icon-sm text-text-muted hover:text-text-primary"
                       title={title}
+                      aria-label={title}
                     >
                       <Icon size={14} />
                     </button>
@@ -269,13 +278,13 @@ export default function Notes() {
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-text-muted font-mono" title="字数">
+                <span className="caption font-mono" title="字数">
                   {editContent.length} 字
                 </span>
-                <span className="text-[10px] text-text-muted font-mono" title="预计阅读时间">
+                <span className="caption font-mono" title="预计阅读时间">
                   ~{Math.max(1, Math.ceil(editContent.length / 500))} 分钟
                 </span>
-                {saving && <span className="text-xs text-text-muted">保存中...</span>}
+                {saving && <span className="caption text-text-muted">保存中...</span>}
                 <button
                   onClick={() => {
                     const blob = new Blob([`# ${editTitle}\n\n${editContent}`], { type: 'text/markdown' })
@@ -287,20 +296,22 @@ export default function Notes() {
                     URL.revokeObjectURL(url)
                     toast('笔记已导出', 'success')
                   }}
-                  className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-panel-hover transition-all"
+                  className="btn-icon-sm text-text-muted hover:text-text-primary"
                   title="导出为 Markdown"
+                  aria-label="导出为 Markdown"
                 >
                   <Download size={16} />
                 </button>
                 <button
                   onClick={() => setPreview(!preview)}
                   className={cn(
-                    'p-1.5 rounded-lg transition-all',
+                    'btn-icon-sm transition-all',
                     preview
                       ? 'bg-accent-blue/15 text-accent-blue'
-                      : 'text-text-muted hover:text-text-primary hover:bg-bg-panel-hover'
+                      : 'text-text-muted hover:text-text-primary'
                   )}
                   title={preview ? '编辑模式' : '预览模式'}
+                  aria-label={preview ? '切换到编辑模式' : '切换到预览模式'}
                 >
                   {preview ? <Edit3 size={16} /> : <Eye size={16} />}
                 </button>

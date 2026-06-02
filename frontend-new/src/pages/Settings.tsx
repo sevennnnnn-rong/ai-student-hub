@@ -1,50 +1,31 @@
 import { useState } from 'react'
-import { Brain, Code, Zap, Save, Wifi, WifiOff, Check, AlertCircle, Info, Download, Upload, Sun, Moon, Trash2 } from 'lucide-react'
+import { Save, Wifi, WifiOff, Check, AlertCircle, Info, Download, Upload, Sun, Moon, Trash2 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useToast } from '../components/Toast'
+import { API_BASE } from '../lib/api'
 import { GlassCard } from '../components/ui'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useTheme } from '../hooks/useTheme'
+import { agents } from '../lib/agent-config'
 
-const agentConfigs = [
-  {
-    id: 'claude',
-    name: 'Claude',
-    icon: Brain,
-    color: 'text-blue-400',
-    gradient: 'from-blue-500 to-cyan-400',
-    description: '指挥官 — 战略规划、复杂推理、多步任务编排',
-    fields: [
-      { key: 'cli_path', label: 'CLI 路径', placeholder: 'claude', type: 'text', hint: 'Claude Code CLI 的可执行文件路径' },
-      { key: 'model', label: '模型', placeholder: 'claude-sonnet-4-20250514', type: 'text', hint: '使用的 Claude 模型版本' },
-    ],
-  },
-  {
-    id: 'codex',
-    name: 'Codex',
-    icon: Code,
-    color: 'text-purple-400',
-    gradient: 'from-purple-500 to-pink-400',
-    description: '引擎 — 代码生成、技术实现、工程执行',
-    fields: [
-      { key: 'cli_path', label: 'CLI 路径', placeholder: 'codex', type: 'text', hint: 'Codex CLI 的可执行文件路径' },
-      { key: 'model', label: '模型', placeholder: 'codex-latest', type: 'text', hint: '使用的 Codex 模型版本' },
-    ],
-  },
-  {
-    id: 'doubao',
-    name: 'Doubao',
-    icon: Zap,
-    color: 'text-amber-400',
-    gradient: 'from-amber-500 to-orange-400',
-    description: '苦力工 — 批量处理、数据整理、重复性任务',
-    fields: [
-      { key: 'api_key', label: 'API Key', placeholder: 'ark-...', type: 'password', hint: '火山引擎 API Key' },
-      { key: 'model', label: '模型', placeholder: 'doubao-1.5-pro-256k', type: 'text', hint: '豆包模型 ID' },
-      { key: 'endpoint', label: 'API 地址', placeholder: 'https://ark.cn-beijing.volces.com/api/v3', type: 'text', hint: 'API 端点地址' },
-    ],
-  },
-]
+const agentConfigs = agents.map((a) => ({
+  ...a,
+  fields: a.id === 'claude'
+    ? [
+        { key: 'cli_path', label: 'CLI 路径', placeholder: 'claude', type: 'text', hint: 'Claude Code CLI 的可执行文件路径' },
+        { key: 'model', label: '模型', placeholder: 'claude-sonnet-4-20250514', type: 'text', hint: '使用的 Claude 模型版本' },
+      ]
+    : a.id === 'codex'
+    ? [
+        { key: 'cli_path', label: 'CLI 路径', placeholder: 'codex', type: 'text', hint: 'Codex CLI 的可执行文件路径' },
+        { key: 'model', label: '模型', placeholder: 'codex-latest', type: 'text', hint: '使用的 Codex 模型版本' },
+      ]
+    : [
+        { key: 'api_key', label: 'API Key', placeholder: 'ark-...', type: 'password', hint: '火山引擎 API Key' },
+        { key: 'model', label: '模型', placeholder: 'doubao-1.5-pro-256k', type: 'text', hint: '豆包模型 ID' },
+        { key: 'endpoint', label: 'API 地址', placeholder: 'https://ark.cn-beijing.volces.com/api/v3', type: 'text', hint: 'API 端点地址' },
+      ],
+}))
 
 type AgentStatus = 'unknown' | 'checking' | 'connected' | 'error'
 
@@ -57,7 +38,7 @@ function ThemeToggle() {
           {theme === 'dark' ? <Moon size={18} className="text-accent-blue" /> : <Sun size={18} className="text-accent-amber" />}
           <div>
             <h3 className="font-medium text-sm">外观主题</h3>
-            <p className="text-xs text-text-muted">{theme === 'dark' ? '深色模式' : '浅色模式'}</p>
+            <p className="caption text-text-muted">{theme === 'dark' ? '深色模式' : '浅色模式'}</p>
           </div>
         </div>
         <button
@@ -108,6 +89,9 @@ function ThemeToggle() {
 
 export default function Settings() {
   usePageTitle('设置')
+  const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>(() =>
+    (localStorage.getItem('app_font_size') as 'small' | 'medium' | 'large') || 'medium'
+  )
   const [configs, setConfigs] = useState<Record<string, Record<string, string>>>(() => {
     const initial: Record<string, Record<string, string>> = {}
     for (const agent of agentConfigs) {
@@ -140,7 +124,7 @@ export default function Settings() {
   const checkAgent = async (agentId: string) => {
     setStatuses((prev) => ({ ...prev, [agentId]: 'checking' }))
     try {
-      const res = await fetch('http://localhost:8000/api/ai/agents')
+      const res = await fetch(`${API_BASE}/api/ai/agents`)
       if (res.ok) {
         setStatuses((prev) => ({ ...prev, [agentId]: 'connected' }))
       } else {
@@ -154,7 +138,7 @@ export default function Settings() {
   const checkAllAgents = async () => {
     setStatuses({ claude: 'checking', codex: 'checking', doubao: 'checking' })
     try {
-      const res = await fetch('http://localhost:8000/api/ai/agents')
+      const res = await fetch(`${API_BASE}/api/ai/agents`)
       if (res.ok) {
         setStatuses({ claude: 'connected', codex: 'connected', doubao: 'connected' })
         toast('所有 Agent 连接正常', 'success')
@@ -179,21 +163,21 @@ export default function Settings() {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">设置</h1>
-        <div className="flex items-center gap-2">
+        <h1 className="heading-xl">设置</h1>
+        <div className="flex items-center gap-3">
           <button
             onClick={checkAllAgents}
-            className="px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-2 bg-white/5 text-text-secondary hover:bg-white/10 transition-all"
+            className="btn btn-md rounded-xl bg-white/5 text-text-secondary hover:bg-white/10"
           >
-            <Wifi size={14} />
+            <Wifi size={15} />
             检测连接
           </button>
           <button onClick={handleSave}
             className={cn(
-              'px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all',
+              'btn btn-md rounded-xl transition-all',
               saved ? 'bg-accent-success/15 text-accent-success' : 'bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25'
             )}>
-            <Save size={14} />
+            <Save size={15} />
             {saved ? '已保存' : '保存配置'}
           </button>
         </div>
@@ -205,7 +189,7 @@ export default function Settings() {
           <Info size={18} className="text-accent-blue shrink-0 mt-0.5" />
           <div className="text-sm text-text-secondary">
             <p className="mb-1">配置保存在浏览器本地存储中。确保后端服务已启动（默认端口 8000）。</p>
-            <p className="text-text-muted text-xs">Claude 和 Codex 通过本地 CLI 调用，Doubao 通过 HTTP API 调用。</p>
+            <p className="text-text-muted caption">Claude 和 Codex 通过本地 CLI 调用，Doubao 通过 HTTP API 调用。</p>
           </div>
         </div>
       </GlassCard>
@@ -215,13 +199,13 @@ export default function Settings() {
 
       {/* Personalization */}
       <GlassCard padding="md" className="mb-6">
-        <h3 className="font-medium text-sm mb-4">个性化</h3>
+        <h3 className="heading-md mb-4">个性化</h3>
         <div className="space-y-4">
           {/* Font Size */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm">字体大小</p>
-              <p className="text-xs text-text-muted">调整界面文字大小</p>
+              <p className="body-lg">字体大小</p>
+              <p className="caption">调整界面文字大小</p>
             </div>
             <div className="flex gap-1">
               {(['small', 'medium', 'large'] as const).map((size) => (
@@ -233,10 +217,11 @@ export default function Settings() {
                     else if (size === 'large') root.style.fontSize = '18px'
                     else root.style.fontSize = '16px'
                     localStorage.setItem('app_font_size', size)
+                    setFontSize(size)
                   }}
                   className={cn(
-                    'px-3 py-1 rounded-lg text-xs font-medium transition-all',
-                    (localStorage.getItem('app_font_size') || 'medium') === size
+                    'btn btn-sm rounded-lg font-medium transition-all',
+                    fontSize === size
                       ? 'bg-accent-blue/15 text-accent-blue'
                       : 'text-text-muted hover:bg-bg-panel-hover'
                   )}
@@ -249,8 +234,8 @@ export default function Settings() {
           {/* Compact Mode */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm">紧凑模式</p>
-              <p className="text-xs text-text-muted">减小间距，显示更多内容</p>
+              <p className="body-lg">紧凑模式</p>
+              <p className="caption">减小间距，显示更多内容</p>
             </div>
             <button
               onClick={() => {
@@ -284,14 +269,14 @@ export default function Settings() {
                 </div>
                 <div>
                   <h2 className="font-bold">{agent.name}</h2>
-                  <p className="text-xs text-text-muted">{agent.description}</p>
+                  <p className="caption text-text-muted">{agent.description}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 {statusIcon(statuses[agent.id])}
                 <button
                   onClick={() => checkAgent(agent.id)}
-                  className="text-xs text-text-muted hover:text-text-primary transition-colors"
+                  className="caption text-text-muted hover:text-text-primary transition-colors"
                 >
                   检测
                 </button>
@@ -300,7 +285,7 @@ export default function Settings() {
             <div className="space-y-3">
               {agent.fields.map((field) => (
                 <div key={field.key}>
-                  <label className="text-xs text-text-secondary mb-1 block">{field.label}</label>
+                  <label className="caption text-text-secondary mb-1 block">{field.label}</label>
                   <input
                     type={field.type}
                     value={configs[agent.id][field.key] || ''}
@@ -312,7 +297,7 @@ export default function Settings() {
                     className="input-glass"
                   />
                   {field.hint && (
-                    <p className="text-[10px] text-text-muted mt-1">{field.hint}</p>
+                    <p className="caption text-text-muted mt-1">{field.hint}</p>
                   )}
                 </div>
               ))}
@@ -323,9 +308,9 @@ export default function Settings() {
 
       {/* Data Management */}
       <div className="mt-8">
-        <h2 className="text-lg font-bold mb-4">数据管理</h2>
+        <h2 className="heading-lg mb-4">数据管理</h2>
         <GlassCard padding="md">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => {
                 const data = {
@@ -337,12 +322,12 @@ export default function Settings() {
                 const url = URL.createObjectURL(blob)
                 const a = document.createElement('a')
                 a.href = url
-                a.download = `ai-student-hub-config-${new Date().toISOString().slice(0, 10)}.json`
+                a.download = `qixiangtai-hub-config-${new Date().toISOString().slice(0, 10)}.json`
                 a.click()
                 URL.revokeObjectURL(url)
                 toast('配置已导出', 'success')
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 text-text-secondary hover:bg-white/10 transition-all text-sm"
+              className="btn btn-md rounded-xl bg-white/5 text-text-secondary hover:bg-white/10"
             >
               <Download size={16} />
               导出配置
@@ -370,7 +355,7 @@ export default function Settings() {
                 }
                 input.click()
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 text-text-secondary hover:bg-white/10 transition-all text-sm"
+              className="btn btn-md rounded-xl bg-white/5 text-text-secondary hover:bg-white/10"
             >
               <Upload size={16} />
               导入配置
@@ -381,7 +366,7 @@ export default function Settings() {
 
       {/* Keyboard Shortcuts */}
       <div className="mt-8">
-        <h2 className="text-lg font-bold mb-4">快捷键</h2>
+        <h2 className="heading-lg mb-4">快捷键</h2>
         <GlassCard padding="md">
           <div className="grid grid-cols-2 gap-3 text-sm">
             {[
@@ -406,12 +391,12 @@ export default function Settings() {
 
       {/* Data Clear */}
       <div className="mt-8">
-        <h2 className="text-lg font-bold mb-4">数据管理</h2>
+        <h2 className="heading-lg mb-4">数据管理</h2>
         <GlassCard padding="md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">清除所有本地数据</p>
-              <p className="text-xs text-text-muted mt-0.5">清除 localStorage 中的所有应用数据，此操作不可撤销</p>
+              <p className="body-lg font-medium">清除所有本地数据</p>
+              <p className="caption mt-0.5">清除 localStorage 中的所有应用数据，此操作不可撤销</p>
             </div>
             <button
               onClick={() => {
@@ -421,9 +406,9 @@ export default function Settings() {
                   setTimeout(() => window.location.reload(), 1000)
                 }
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-danger/15 text-accent-danger hover:bg-accent-danger/25 transition-all text-sm"
+              className="btn btn-md rounded-xl bg-accent-danger/15 text-accent-danger hover:bg-accent-danger/25"
             >
-              <Trash2 size={14} />
+              <Trash2 size={15} />
               清除数据
             </button>
           </div>
@@ -432,12 +417,12 @@ export default function Settings() {
 
       {/* About */}
       <div className="mt-8 mb-8">
-        <h2 className="text-lg font-bold mb-4">关于</h2>
+        <h2 className="heading-lg mb-4">关于</h2>
         <GlassCard padding="md">
           <div className="text-sm space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-text-secondary">应用名称</span>
-              <span className="font-medium gradient-text">AI Student Hub</span>
+              <span className="font-medium gradient-text">气象台Hub</span>
             </div>
             <div className="flex justify-between">
               <span className="text-text-secondary">版本</span>
@@ -452,7 +437,7 @@ export default function Settings() {
               <span className="text-text-muted">TailwindCSS 4 + Liquid Glass</span>
             </div>
             <div className="pt-2 border-t border-border">
-              <p className="text-xs text-text-muted text-center">
+              <p className="caption text-text-muted text-center">
                 AI 驱动的学生效率工具集 · 让学习更智能
               </p>
             </div>

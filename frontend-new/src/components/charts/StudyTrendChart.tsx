@@ -1,12 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-
-const tooltipStyle = {
-  backgroundColor: 'rgba(18, 18, 30, 0.9)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: 12,
-  color: '#f3f4f6',
-  backdropFilter: 'blur(12px)',
-}
+import { tooltipStyle } from '../../lib/chart-config'
 
 export default function StudyTrendChart({ data }: { data: { date: string; minutes: number }[] }) {
   return (
@@ -14,7 +7,7 @@ export default function StudyTrendChart({ data }: { data: { date: string; minute
       <LineChart data={data}>
         <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
         <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-        <Tooltip contentStyle={tooltipStyle} />
+        <Tooltip {...tooltipStyle} />
         <Line
           type="monotone"
           dataKey="minutes"

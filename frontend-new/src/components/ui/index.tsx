@@ -6,12 +6,13 @@ interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean
   active?: boolean
   padding?: 'sm' | 'md' | 'lg' | 'none'
+  rounded?: string
 }
 
 const paddingMap = { sm: 'p-3', md: 'p-5', lg: 'p-8', none: '' }
 
 export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
-  ({ className, hover, active, padding = 'md', children, ...props }, ref) => (
+  ({ className, hover, active, padding = 'md', rounded = 'rounded-xl', children, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
@@ -19,6 +20,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
         hover && 'glass-hover',
         active && 'glass-active',
         paddingMap[padding],
+        rounded,
         className
       )}
       {...props}
@@ -67,7 +69,7 @@ const badgeColors = {
 
 export function Badge({ variant = 'default', children, className }: BadgeProps) {
   return (
-    <span className={cn('px-2.5 py-0.5 rounded-full text-xs font-medium', badgeColors[variant], className)}>
+    <span className={cn('px-2.5 py-0.5 rounded-full caption font-medium', badgeColors[variant], className)}>
       {children}
     </span>
   )
@@ -82,9 +84,11 @@ interface StatCardProps {
   color?: string
   glow?: string
   className?: string
+  trend?: 'up' | 'down' | 'flat'
+  trendValue?: string
 }
 
-export function StatCard({ icon, label, value, sub, color = 'bg-accent-blue', glow, className }: StatCardProps) {
+export function StatCard({ icon, label, value, sub, color = 'bg-accent-blue', glow, className, trend, trendValue }: StatCardProps) {
   return (
     <GlassCard hover className={cn('stagger-item', className)}>
       <div className="flex items-center justify-between mb-3">
@@ -93,41 +97,19 @@ export function StatCard({ icon, label, value, sub, color = 'bg-accent-blue', gl
           <span className="text-white">{icon}</span>
         </div>
       </div>
-      <div className="text-3xl font-bold tracking-tight">{value}</div>
+      <div className="flex items-baseline gap-2">
+        <div className="text-3xl font-bold tracking-tight">{value}</div>
+        {trend && trend !== 'flat' && (
+          <span className={cn(
+            'text-xs font-medium px-1.5 py-0.5 rounded-md',
+            trend === 'up' ? 'text-accent-success bg-accent-success/10' : 'text-accent-danger bg-accent-danger/10'
+          )}>
+            {trend === 'up' ? '↑' : '↓'}{trendValue}
+          </span>
+        )}
+      </div>
       {sub && <p className="text-xs text-text-muted mt-1">{sub}</p>}
     </GlassCard>
   )
 }
 
-// ===== FilterTabs =====
-interface FilterTab {
-  key: string
-  label: string
-}
-
-interface FilterTabsProps {
-  tabs: FilterTab[]
-  active: string
-  onChange: (key: string) => void
-}
-
-export function FilterTabs({ tabs, active, onChange }: FilterTabsProps) {
-  return (
-    <div className="flex gap-1 p-1 bg-white/[0.03] rounded-xl">
-      {tabs.map((tab) => (
-        <button
-          key={tab.key}
-          onClick={() => onChange(tab.key)}
-          className={cn(
-            'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
-            active === tab.key
-              ? 'bg-accent-blue/15 text-accent-blue shadow-sm'
-              : 'text-text-muted hover:text-text-secondary'
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
-  )
-}

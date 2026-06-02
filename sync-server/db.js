@@ -2,7 +2,6 @@ import initSqlJs from 'sql.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
-import { writeFile } from 'fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,6 +46,17 @@ async function initDatabase() {
     );
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS devices (
+      device_id TEXT PRIMARY KEY,
+      registered_at TEXT NOT NULL,
+      last_seen TEXT NOT NULL
+    );
+  `);
+
+  db.run(`CREATE INDEX IF NOT EXISTS ix_sync_entity ON sync_metadata(entity_type, entity_id)`);
+  db.run(`CREATE INDEX IF NOT EXISTS ix_sync_log_ts ON sync_log(timestamp)`);
+
   saveDatabase();
   return db;
 }
@@ -60,11 +70,13 @@ function getDb() {
 
 function saveDatabase() {
   if (!db) return;
-  const data = db.export();
-  const buffer = Buffer.from(data);
-  writeFile(DB_PATH, buffer).catch(err => {
+  try {
+    const data = db.export();
+    const buffer = Buffer.from(data);
+    fs.writeFileSync(DB_PATH, buffer);
+  } catch (err) {
     console.error('[DB] Failed to save:', err);
-  });
+  }
 }
 
 function closeDatabase() {

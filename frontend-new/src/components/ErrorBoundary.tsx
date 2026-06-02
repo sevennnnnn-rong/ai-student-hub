@@ -37,7 +37,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                   this.setState({ hasError: false, error: null })
                   window.location.href = '/'
                 }}
-                className="btn-ghost inline-flex items-center gap-2"
+                className="btn btn-ghost rounded-xl inline-flex items-center gap-2"
               >
                 <Home size={14} />
                 返回首页
@@ -47,7 +47,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                   this.setState({ hasError: false, error: null })
                   window.location.reload()
                 }}
-                className="btn-primary inline-flex items-center gap-2"
+                className="btn btn-primary rounded-xl inline-flex items-center gap-2"
               >
                 <RefreshCw size={14} />
                 重新加载
