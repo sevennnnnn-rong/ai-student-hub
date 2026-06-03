@@ -6,7 +6,7 @@
   "build": {
     "frontendDist": "../frontend-new/dist",
     "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "cmd /c \"cd ..\\backend && ..\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --port 8000 &\" && cmd /c \"cd ..\\netease-service && node server.js &\" && cmd /c \"cd ..\\frontend-new && npm run dev\"",
+    "beforeDevCommand": "cmd /c \"cd ..\\backend && ..\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --port 8000 &\" && cmd /c \"cd ..\\frontend-new && npm run dev\"",
     "beforeBuildCommand": ""
   },
   "app": {
@@ -23,7 +23,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' http://localhost:3001 http://localhost:3002 http://localhost:8000 http://localhost:8080 ws://localhost:3001; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src 'self' https: http:"
+      "csp": "default-src 'self'; connect-src 'self' http://localhost:3001 http://localhost:8000 http://localhost:8080 ws://localhost:3001; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src 'self' https: http:"
     },
     "trayIcon": {
       "iconPath": "icons/icon.png",

@@ -402,7 +402,7 @@ export default function Settings() {
               onClick={() => {
                 if (confirm('确定要清除所有本地数据吗？此操作不可撤销。')) {
                   // Only clear app-specific keys, not all localStorage
-                  const appPrefixes = ['cloudtime_', 'quick_note', 'theme', 'onboarding_', 'agentConfigs']
+                  const appPrefixes = ['quick_note', 'theme', 'onboarding_', 'agentConfigs']
                   const keysToRemove: string[] = []
                   for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i)

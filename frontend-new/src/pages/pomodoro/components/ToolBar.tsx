@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { Wind, ListTodo, BarChart3, Volume2, Settings, Clock, X, Music, Cloud } from 'lucide-react'
+import { Wind, ListTodo, BarChart3, Volume2, Settings, Clock, X, Music } from 'lucide-react'
 import { cn } from '../../../lib/utils'
 import BreathingGuide from './BreathingGuide'
 import QuickTodo from './QuickTodo'
@@ -9,9 +9,8 @@ import MotivationalQuote from './MotivationalQuote'
 import PomodoroSettings from './PomodoroSettings'
 import SittingReminder from './SittingReminder'
 import SoundMixer from '../audio/SoundMixer'
-import CloudTime from './CloudTime'
 
-type PanelId = 'breathing' | 'todo' | 'stats' | 'volume' | 'settings' | 'reminder' | 'quote' | 'sound' | 'cloudtime' | null
+type PanelId = 'breathing' | 'todo' | 'stats' | 'volume' | 'settings' | 'reminder' | 'quote' | 'sound' | null
 
 interface Session {
   id: number
@@ -47,7 +46,6 @@ const TOOLS: ToolItem[] = [
   { id: 'todo', icon: ListTodo, label: '快速待办', color: 'text-accent-success' },
   { id: 'stats', icon: BarChart3, label: '专注统计', color: 'text-accent-purple' },
   { id: 'sound', icon: Music, label: '白噪音', color: 'text-accent-cyan' },
-  { id: 'cloudtime', icon: Cloud, label: '云音乐', color: 'text-accent-pink' },
   { id: 'volume', icon: Volume2, label: '音量控制', color: 'text-accent-amber' },
   { id: 'quote', icon: null as any, label: '座右铭', color: 'text-accent-pink' },
   { id: 'settings', icon: Settings, label: '设置', color: 'text-text-secondary' },
@@ -91,8 +89,6 @@ export default function ToolBar({
         return <FocusStats sessions={sessions} dailyGoal={dailyGoal} />
       case 'sound':
         return <SoundMixer isOpen={true} onToggle={closePanel} />
-      case 'cloudtime':
-        return <CloudTime />
       case 'volume':
         return (
           <VolumeControl
