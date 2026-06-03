@@ -202,42 +202,42 @@ export default function Chat() {
   }
 
   return (
-    <div className="h-full flex gap-4 animate-fade-in">
+    <div className="h-full flex gap-5 animate-fade-in">
       {/* Conversation Sidebar */}
       <div className={cn(
-        'w-64 shrink-0 glass rounded-2xl flex flex-col overflow-hidden transition-all duration-300',
-        sidebarOpen ? 'block' : 'hidden md:block'
+        'w-72 shrink-0 glass rounded-3xl flex flex-col overflow-hidden transition-all duration-300',
+        sidebarOpen ? 'flex' : 'hidden md:flex'
       )}>
-        <div className="p-4 border-b border-border">
-          <div className="flex items-center justify-between mb-3">
-            <span className="body-md font-medium">对话列表</span>
-            <div className="flex items-center gap-1.5">
+        <div className="p-5 border-b border-border">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-base font-medium">对话列表</span>
+            <div className="flex items-center gap-2">
               <button
                 onClick={handleNewChat}
-                className="btn-icon-sm rounded-lg text-text-muted hover:text-accent-blue hover:bg-accent-blue/10"
+                className="glass p-2 rounded-xl text-text-muted hover:text-accent-blue transition-all"
                 title="新对话"
               >
                 <Plus size={14} />
               </button>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="md:hidden btn-icon-sm rounded-lg text-text-muted hover:text-text-primary"
+                className="md:hidden glass p-2 rounded-xl text-text-muted hover:text-text-primary transition-all"
               >
                 <PanelLeftClose size={14} />
               </button>
             </div>
           </div>
           {/* Agent Switcher */}
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             {Object.entries(agentMetaMap).map(([key, m]) => (
               <button
                 key={key}
                 onClick={() => switchAgent(key)}
                 className={cn(
-                  'flex-1 btn btn-sm rounded-lg font-medium transition-all duration-200',
+                  'flex-1 glass px-3 py-2 rounded-xl font-medium text-sm transition-all duration-200',
                   agent === key
-                    ? 'bg-accent-blue/15 text-accent-blue shadow-sm'
-                    : 'text-text-muted hover:text-text-secondary hover:bg-bg-panel-hover'
+                    ? 'bg-accent-blue/20 text-accent-blue border border-accent-blue/30'
+                    : 'text-text-muted hover:text-text-secondary hover:bg-white/[0.05]'
                 )}
               >
                 {m.label.split('·')[0].trim()}
@@ -245,7 +245,7 @@ export default function Chat() {
             ))}
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+        <div className="flex-1 overflow-y-auto p-3 space-y-1">
           {conversations.length === 0 && (
             <div className="text-center text-text-muted caption py-8">暂无对话</div>
           )}
@@ -254,43 +254,43 @@ export default function Chat() {
               key={conv.id}
               onClick={() => setActiveConvId(conv.id)}
               className={cn(
-                'w-full text-left px-3 py-2.5 rounded-xl transition-all group cursor-pointer',
+                'w-full text-left px-4 py-3 rounded-2xl transition-all group cursor-pointer',
                 activeConvId === conv.id
-                  ? 'bg-accent-blue/10 text-accent-blue'
-                  : 'text-text-secondary hover:bg-bg-panel-hover'
+                  ? 'glass bg-accent-blue/10 text-accent-blue border border-accent-blue/20'
+                  : 'text-text-secondary hover:bg-white/[0.05]'
               )}
             >
               <div className="flex items-center justify-between">
-                <div className="body-sm truncate flex-1 font-medium">{conv.title}</div>
+                <div className="text-sm truncate flex-1 font-medium">{conv.title}</div>
                 <button
                   onClick={(e) => handleDeleteConv(conv.id, e)}
-                  className="opacity-0 group-hover:opacity-100 btn-icon-sm rounded-md hover:bg-white/10 text-text-muted hover:text-accent-danger shrink-0 ml-2"
+                  className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-white/10 text-text-muted hover:text-accent-danger shrink-0 ml-2 transition-all"
                 >
                   <Trash2 size={12} />
                 </button>
               </div>
-              <div className="caption mt-0.5">{conv.message_count} 条消息</div>
+              <div className="caption mt-1">{conv.message_count} 条消息</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col glass rounded-2xl overflow-hidden">
+      <div className="flex-1 flex flex-col glass rounded-3xl overflow-hidden">
         {/* Header */}
-        <div className="h-14 px-4 flex items-center gap-3 border-b border-border shrink-0">
+        <div className="h-16 px-5 flex items-center gap-3 border-b border-border shrink-0">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="md:hidden text-text-muted hover:text-text-primary transition-colors"
           >
             <PanelLeftOpen size={18} />
           </button>
-          <div className={cn('w-8 h-8 rounded-lg bg-gradient-to-br flex items-center justify-center', meta.gradient)}>
-            <AgentIcon size={16} className="text-white" />
+          <div className={cn('w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center', meta.gradient)}>
+            <AgentIcon size={20} className="text-white" />
           </div>
-          <span className="body-lg font-medium">{meta.label}</span>
+          <span className="text-lg font-medium">{meta.label}</span>
           {messages.length > 0 && (
-            <span className="caption font-mono">{messages.length} 条</span>
+            <span className="caption font-mono text-text-muted">{messages.length} 条</span>
           )}
           <div className="flex-1" />
           {messages.length > 0 && (
@@ -306,7 +306,7 @@ export default function Chat() {
                 URL.revokeObjectURL(url)
                 toast('对话已导出', 'success')
               }}
-              className="text-text-muted hover:text-text-primary transition-colors"
+              className="glass p-2 rounded-xl text-text-muted hover:text-text-primary transition-all"
               title="导出对话"
             >
               <Download size={16} />
@@ -321,21 +321,21 @@ export default function Chat() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {messages.length === 0 && (
             <div className="h-full flex items-center justify-center">
               <div className="text-center animate-scale-in">
-                <div className={cn('w-20 h-20 rounded-2xl bg-gradient-to-br mx-auto mb-5 flex items-center justify-center', meta.gradient, meta.color.replace('text-', 'shadow-'))}>
-                  <AgentIcon size={36} className="text-white" />
+                <div className={cn('w-24 h-24 rounded-3xl bg-gradient-to-br mx-auto mb-6 flex items-center justify-center', meta.gradient, meta.color.replace('text-', 'shadow-'))}>
+                  <AgentIcon size={40} className="text-white" />
                 </div>
-                <p className="heading-lg mb-2">开始与 {meta.label.split('·')[0].trim()} 对话</p>
-                <p className="body-md max-w-sm mb-6">
+                <p className="text-xl font-semibold mb-3">开始与 {meta.label.split('·')[0].trim()} 对话</p>
+                <p className="text-sm text-text-secondary max-w-sm mb-8">
                   {agent === 'claude' && '我可以帮你进行战略规划、复杂推理和多步任务编排'}
                   {agent === 'codex' && '我可以帮你生成代码、解决技术问题和执行工程任务'}
                   {agent === 'doubao' && '我可以帮你批量处理数据、整理信息和执行重复性任务'}
                 </p>
                 {/* Suggested prompts */}
-                <div className="flex flex-wrap gap-2 justify-center max-w-lg mx-auto">
+                <div className="flex flex-wrap gap-3 justify-center max-w-lg mx-auto">
                   {(agent === 'claude'
                     ? ['帮我制定本周学习计划', '分析这个方案的优缺点', '拆解一个复杂项目']
                     : agent === 'codex'
@@ -345,9 +345,9 @@ export default function Chat() {
                     <button
                       key={prompt}
                       onClick={() => setInput(prompt)}
-                      className="btn btn-sm rounded-xl text-text-secondary bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all"
+                      className="glass glass-hover px-4 py-2.5 rounded-2xl text-sm text-text-secondary transition-all flex items-center gap-2"
                     >
-                      <Sparkles size={11} className="text-accent-amber" />
+                      <Sparkles size={12} className="text-accent-amber" />
                       {prompt}
                     </button>
                   ))}
@@ -365,10 +365,10 @@ export default function Chat() {
             >
               <div
                 className={cn(
-                  'px-4 py-3 rounded-2xl body-md leading-relaxed',
+                  'px-5 py-3.5 rounded-2xl text-sm leading-relaxed',
                   msg.role === 'user'
-                    ? 'bg-accent-blue/15 text-text-primary rounded-br-md'
-                    : 'bg-bg-panel text-text-primary rounded-bl-md'
+                    ? 'glass bg-accent-blue/15 text-text-primary rounded-br-lg border border-accent-blue/20'
+                    : 'glass text-text-primary rounded-bl-lg'
                 )}
               >
                 {msg.role === 'assistant' ? (
@@ -404,17 +404,17 @@ export default function Chat() {
               </div>
               {/* Timestamp and copy button */}
               <div className={cn(
-                'flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity',
+                'flex items-center gap-2 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity',
                 msg.role === 'user' ? 'justify-end' : 'justify-start'
               )}>
-                <span className="caption font-mono">
+                <span className="caption font-mono text-text-muted">
                   {new Date(msg.created_at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
                 </span>
                 <CopyButton text={msg.content} />
                 {msg.role === 'assistant' && !loading && (
                   <button
                     onClick={() => handleRegenerate(msg.id)}
-                    className="p-1 rounded-md hover:bg-white/10 transition-all text-text-muted hover:text-text-primary"
+                    className="p-1.5 rounded-lg hover:bg-white/10 transition-all text-text-muted hover:text-text-primary"
                     title="重新生成"
                   >
                     <RotateCcw size={12} />
@@ -426,7 +426,7 @@ export default function Chat() {
           {/* Typing Indicator */}
           {loading && (messages.length === 0 || messages[messages.length - 1]?.role === 'user') && (
             <div className="max-w-3xl mr-auto animate-slide-up">
-              <div className="px-4 py-3 rounded-2xl rounded-bl-md bg-bg-panel inline-flex items-center gap-1.5">
+              <div className="glass px-5 py-3.5 rounded-2xl rounded-bl-lg inline-flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-accent-blue animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-2 h-2 rounded-full bg-accent-blue animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="w-2 h-2 rounded-full bg-accent-blue animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -437,7 +437,7 @@ export default function Chat() {
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-border shrink-0">
+        <div className="p-5 border-t border-border shrink-0">
           <div className="flex gap-3 items-end">
             <textarea
               ref={textareaRef}
@@ -446,19 +446,19 @@ export default function Chat() {
               onKeyDown={handleKeyDown}
               placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
               rows={1}
-              className="flex-1 input-glass resize-none min-h-[44px] max-h-[160px] py-3"
+              className="flex-1 glass rounded-2xl px-4 py-3 resize-none min-h-[48px] max-h-[160px] overflow-y-auto focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all placeholder-text-muted"
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || loading}
               className={cn(
-                'btn-icon-md rounded-xl transition-all duration-200 shrink-0',
+                'p-3 rounded-2xl transition-all duration-200 shrink-0',
                 input.trim() && !loading
-                  ? 'bg-accent-blue text-white hover:bg-accent-blue/80 glow-blue hover:scale-105 active:scale-95'
-                  : 'bg-white/5 text-text-muted cursor-not-allowed'
+                  ? 'bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 border border-accent-blue/30 hover:scale-105 active:scale-95'
+                  : 'glass text-text-muted cursor-not-allowed'
               )}
             >
-              <Send size={16} />
+              <Send size={18} />
             </button>
           </div>
         </div>

@@ -118,15 +118,22 @@ async def chat_stream(request: ChatRequest, db: Session = Depends(get_db)):
             full_response.append(chunk)
             yield f"data: {chunk}\n\n"
 
-        # 保存完整回复
-        complete_response = "".join(full_response)
-        assistant_msg = ConversationMessage(
-            conversation_id=conversation_id,
-            role="assistant",
-            content=complete_response
-        )
-        db.add(assistant_msg)
-        db.commit()
+        # 保存完整回复 — use a fresh session since the request-scoped one may be closed
+        from app.database import SessionLocal
+        save_db = SessionLocal()
+        try:
+            complete_response = "".join(full_response)
+            assistant_msg = ConversationMessage(
+                conversation_id=conversation_id,
+                role="assistant",
+                content=complete_response
+            )
+            save_db.add(assistant_msg)
+            save_db.commit()
+        except Exception:
+            save_db.rollback()
+        finally:
+            save_db.close()
 
         yield f"data: [DONE]\n\n"
 

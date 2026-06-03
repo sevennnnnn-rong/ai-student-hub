@@ -88,10 +88,14 @@ export default function Dashboard() {
   const pieData = useMemo(() => hourlyStats.filter((h) => h.count > 0).map((h) => ({ name: `${String(h.hour).padStart(2, '0')}:00`, value: h.count })), [hourlyStats])
 
   // Today vs yesterday comparison for trend arrows
-  const today = new Date().toISOString().slice(0, 10)
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
-  const todayStats = useMemo(() => dailyStats.find((d) => d.date === today), [dailyStats, today])
-  const yesterdayStats = useMemo(() => dailyStats.find((d) => d.date === yesterday), [dailyStats, yesterday])
+  const todayStats = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    return dailyStats.find((d) => d.date === today)
+  }, [dailyStats])
+  const yesterdayStats = useMemo(() => {
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+    return dailyStats.find((d) => d.date === yesterday)
+  }, [dailyStats])
   const todayMinutes = todayStats?.minutes ?? 0
   const yesterdayMinutes = yesterdayStats?.minutes ?? 0
 
@@ -128,48 +132,48 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-fade-in">
-        <h1 className="heading-xl">数据看板</h1>
+      <div className="space-y-8 animate-fade-in">
+        <h1 className="text-3xl font-bold">数据看板</h1>
         <DashboardSkeleton />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="heading-xl">数据看板</h1>
-          <p className="body-sm mt-1">
+          <h1 className="text-3xl font-bold mb-2">数据看板</h1>
+          <p className="text-sm text-text-secondary">
             {studyStreak > 0 ? `已连续学习 ${studyStreak} 天` : '开始你的学习之旅'}
           </p>
         </div>
         {studyStreak >= 3 && (
-          <div className="px-3 py-1.5 rounded-xl bg-accent-success/10 border border-accent-success/20 text-accent-success caption font-medium">
+          <div className="glass px-4 py-2 rounded-2xl bg-accent-success/10 border border-accent-success/20 text-accent-success text-sm font-medium">
             {studyStreak >= 7 ? '连续 7 天以上' : `连续 ${studyStreak} 天`}
           </div>
         )}
       </div>
 
       {/* Today's Summary */}
-      <GlassCard padding="md">
-        <div className="flex items-center gap-2 mb-5">
-          <Zap size={16} className="text-accent-amber" />
-          <h3 className="heading-md">今日概览</h3>
+      <GlassCard padding="lg" rounded="rounded-2xl">
+        <div className="flex items-center gap-2 mb-6">
+          <Zap size={18} className="text-accent-amber" />
+          <h3 className="text-lg font-semibold">今日概览</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Streak Status */}
-          <div className="flex flex-col items-center justify-center text-center p-4 rounded-xl bg-white/[0.03]">
+          <div className="flex flex-col items-center justify-center text-center p-5 rounded-2xl glass">
             <div className={cn(
-              'w-14 h-14 rounded-2xl flex items-center justify-center mb-3',
+              'w-16 h-16 rounded-2xl flex items-center justify-center mb-4',
               studyStreak >= 7 ? 'bg-accent-success/15' : studyStreak >= 3 ? 'bg-accent-blue/15' : 'bg-white/5'
             )}>
-              <Flame size={24} className={cn(
+              <Flame size={28} className={cn(
                 studyStreak >= 7 ? 'text-accent-success' : studyStreak >= 3 ? 'text-accent-blue' : 'text-text-muted'
               )} />
             </div>
-            <div className="text-2xl font-bold tracking-tight">{studyStreak} 天</div>
-            <div className="caption mt-1">
+            <div className="text-3xl font-bold tracking-tight">{studyStreak} 天</div>
+            <div className="text-xs text-text-muted mt-2">
               {studyStreak === 0 && '开始你的学习之旅'}
               {studyStreak >= 1 && studyStreak < 3 && '坚持就是胜利！'}
               {studyStreak >= 3 && studyStreak < 7 && '势头不错，继续加油！'}
@@ -180,41 +184,41 @@ export default function Dashboard() {
           </div>
 
           {/* Mini Weekly Heatmap */}
-          <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-white/[0.03]">
-            <div className="caption text-text-muted mb-3">本周学习日历</div>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center justify-center p-5 rounded-2xl glass">
+            <div className="text-xs text-text-muted mb-4">本周学习日历</div>
+            <div className="flex items-center gap-2.5">
               {weeklyHeatmap.map((day) => (
-                <div key={day.date} className="flex flex-col items-center gap-1.5">
+                <div key={day.date} className="flex flex-col items-center gap-2">
                   <div
                     className={cn(
-                      'w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-all',
-                      day.isToday && 'ring-2 ring-accent-blue ring-offset-1 ring-offset-bg-primary',
+                      'w-9 h-9 rounded-xl flex items-center justify-center text-xs font-medium transition-all',
+                      day.isToday && 'ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-primary',
                       day.minutes >= 60 ? 'bg-accent-success text-white' :
                       day.minutes >= 30 ? 'bg-accent-success/50 text-white' :
                       day.minutes > 0 ? 'bg-accent-success/20 text-accent-success' :
-                      'bg-white/5 text-text-muted'
+                      'glass text-text-muted'
                     )}
                   >
                     {day.minutes > 0 ? Math.round(day.minutes / 60 * 10) / 10 || '<1' : '·'}
                   </div>
-                  <span className={cn('caption', day.isToday ? 'text-accent-blue font-medium' : 'text-text-muted')}>
+                  <span className={cn('text-xs', day.isToday ? 'text-accent-blue font-medium' : 'text-text-muted')}>
                     {day.dayName}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="flex items-center gap-3 mt-3 caption text-text-muted">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-white/5" />无</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-accent-success/20" />少量</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-accent-success/50" />适中</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-accent-success" />充足</span>
+            <div className="flex items-center gap-4 mt-4 text-xs text-text-muted">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm glass" />无</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-accent-success/20" />少量</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-accent-success/50" />适中</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-accent-success" />充足</span>
             </div>
           </div>
 
           {/* Focus Time vs Goal */}
-          <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-white/[0.03]">
-            <div className="caption text-text-muted mb-3">今日专注进度</div>
-            <div className="relative w-24 h-24 mb-3">
+          <div className="flex flex-col items-center justify-center p-5 rounded-2xl glass">
+            <div className="text-xs text-text-muted mb-4">今日专注进度</div>
+            <div className="relative w-28 h-28 mb-4">
               {/* Progress ring */}
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="8"
@@ -230,14 +234,14 @@ export default function Dashboard() {
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <Clock size={14} className="text-text-muted mb-0.5" />
-                <span className="text-lg font-bold">{todayMinutes}</span>
-                <span className="caption text-text-muted">分钟</span>
+                <span className="text-xl font-bold">{todayMinutes}</span>
+                <span className="text-xs text-text-muted">分钟</span>
               </div>
             </div>
             <div className="text-center">
-              <div className="caption text-text-muted">目标 {focusGoal} 分钟</div>
+              <div className="text-xs text-text-muted">目标 {focusGoal} 分钟</div>
               <div className={cn(
-                'text-sm font-medium mt-1',
+                'text-sm font-medium mt-1.5',
                 focusProgress >= 100 ? 'text-accent-success' : focusProgress >= 50 ? 'text-accent-blue' : 'text-text-secondary'
               )}>
                 {focusProgress >= 100 ? '目标已达成！' : `还差 ${focusGoal - todayMinutes} 分钟`}
@@ -248,7 +252,7 @@ export default function Dashboard() {
       </GlassCard>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           icon={<CheckSquare size={18} />}
           label="今日待办"
@@ -284,16 +288,16 @@ export default function Dashboard() {
       </div>
 
       {/* Weekly Summary */}
-      <GlassCard padding="md">
-        <div className="flex items-center gap-2 mb-5">
-          <TrendingUp size={16} className="text-accent-blue" />
-          <h3 className="heading-md">本周概览</h3>
+      <GlassCard padding="lg" rounded="rounded-2xl">
+        <div className="flex items-center gap-2 mb-6">
+          <TrendingUp size={18} className="text-accent-blue" />
+          <h3 className="text-lg font-semibold">本周概览</h3>
         </div>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           <div className="text-center">
             <div className="text-3xl font-bold tracking-tight text-accent-blue">{completionRate}%</div>
-            <div className="body-sm mt-1.5">任务完成率</div>
-            <div className="w-full h-1.5 bg-white/5 rounded-full mt-2 overflow-hidden">
+            <div className="text-sm mt-2">任务完成率</div>
+            <div className="w-full h-2 glass rounded-full mt-3 overflow-hidden">
               <div
                 className="h-full bg-accent-blue rounded-full transition-all duration-500"
                 style={{ width: `${completionRate}%` }}
@@ -302,21 +306,21 @@ export default function Dashboard() {
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold tracking-tight text-accent-purple">{weekMinutes}</div>
-            <div className="body-sm mt-1.5">本周专注(分钟)</div>
-            <div className="caption mt-1">日均 {avgDailyMinutes} 分钟</div>
+            <div className="text-sm mt-2">本周专注(分钟)</div>
+            <div className="text-xs text-text-muted mt-1">日均 {avgDailyMinutes} 分钟</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold tracking-tight text-accent-amber">{dailyStats.filter((d) => d.minutes > 0).length}</div>
-            <div className="body-sm mt-1.5">活跃天数</div>
-            <div className="caption mt-1">共 {dailyStats.length} 天</div>
+            <div className="text-sm mt-2">活跃天数</div>
+            <div className="text-xs text-text-muted mt-1">共 {dailyStats.length} 天</div>
           </div>
           <div className="text-center">
             <div className={cn(
               'text-3xl font-bold tracking-tight',
               studyStreak >= 7 ? 'text-accent-success' : studyStreak >= 3 ? 'text-accent-blue' : 'text-text-secondary'
             )}>{studyStreak}</div>
-            <div className="body-sm mt-1.5">连续天数</div>
-            <div className="caption mt-1">
+            <div className="text-sm mt-2">连续天数</div>
+            <div className="text-xs text-text-muted mt-1">
               {studyStreak >= 7 ? '坚持得真棒！' : studyStreak >= 3 ? '继续保持！' : '加油！'}
             </div>
           </div>
@@ -326,8 +330,8 @@ export default function Dashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Line Chart */}
-        <GlassCard padding="md">
-          <h3 className="heading-md mb-4">专注时间趋势</h3>
+        <GlassCard padding="lg" rounded="rounded-2xl">
+          <h3 className="text-lg font-semibold mb-5">专注时间趋势</h3>
           {lineData.length === 0 ? (
             <EmptyState
               icon={<BarChart3 size={40} />}
@@ -335,15 +339,15 @@ export default function Dashboard() {
               description="完成一次番茄钟专注后，这里会显示趋势图"
             />
           ) : (
-            <Suspense fallback={<div className="h-[260px] skeleton" />}>
+            <Suspense fallback={<div className="h-[260px] glass rounded-xl" />}>
               <StudyTrendChart data={lineData} />
             </Suspense>
           )}
         </GlassCard>
 
         {/* Pie Chart */}
-        <GlassCard padding="md">
-          <h3 className="heading-md mb-4">专注时间分布</h3>
+        <GlassCard padding="lg" rounded="rounded-2xl">
+          <h3 className="text-lg font-semibold mb-5">专注时间分布</h3>
           {pieData.length === 0 ? (
             <EmptyState
               icon={<Timer size={40} />}
@@ -351,7 +355,7 @@ export default function Dashboard() {
               description="开始你的第一次专注，查看时间分布"
             />
           ) : (
-            <Suspense fallback={<div className="h-[260px] skeleton" />}>
+            <Suspense fallback={<div className="h-[260px] glass rounded-xl" />}>
               <FocusDistributionChart data={pieData} />
             </Suspense>
           )}
@@ -359,10 +363,10 @@ export default function Dashboard() {
       </div>
 
       {/* Task Completion Chart */}
-      <GlassCard padding="md">
-        <div className="flex items-center gap-2 mb-4">
-          <Target size={16} className="text-accent-purple" />
-          <h3 className="heading-md">任务完成情况</h3>
+      <GlassCard padding="lg" rounded="rounded-2xl">
+        <div className="flex items-center gap-2 mb-5">
+          <Target size={18} className="text-accent-purple" />
+          <h3 className="text-lg font-semibold">任务完成情况</h3>
         </div>
         {taskCompletionData.every((d) => d.pending === 0 && d.done === 0) ? (
           <EmptyState
@@ -371,7 +375,7 @@ export default function Dashboard() {
             description="添加一些任务后，这里会显示完成情况"
           />
         ) : (
-          <Suspense fallback={<div className="h-[200px] skeleton" />}>
+          <Suspense fallback={<div className="h-[200px] glass rounded-xl" />}>
             <TaskCompletionChart data={taskCompletionData} />
           </Suspense>
         )}

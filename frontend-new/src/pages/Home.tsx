@@ -51,6 +51,7 @@ function getGreeting(): string {
 export default function Home() {
   const navigate = useNavigate()
   usePageTitle()
+  const dailyQuote = getDailyQuote()
 
   return (
     <div className="h-full flex flex-col items-center justify-center animate-fade-in relative">
@@ -61,67 +62,67 @@ export default function Home() {
       </div>
 
       {/* Title */}
-      <div className="text-center mb-10 relative z-10">
-        <div className="flex items-center justify-center gap-2 mb-5">
+      <div className="text-center mb-12 relative z-10">
+        <div className="flex items-center justify-center gap-2 mb-6">
           <Sparkles size={16} className="text-accent-amber" />
           <span className="caption tracking-widest uppercase">AI-Powered 气象台 Hub</span>
           <Sparkles size={16} className="text-accent-amber" />
         </div>
-        <h1 className="text-6xl font-bold mb-5 tracking-tight">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
           <span className="gradient-text">气象台Hub</span>
         </h1>
-        <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="flex items-center justify-center gap-2 mb-3">
           <Calendar size={13} className="text-text-muted" />
           <p className="body-sm">{getDateString()}</p>
         </div>
-        <p className="body-lg mb-4">{getGreeting()}</p>
+        <p className="text-xl font-medium mb-6">{getGreeting()}</p>
         {/* Daily Quote */}
-        <div className="glass rounded-xl px-6 py-3.5 inline-block max-w-md mx-auto">
-          <p className="text-sm text-text-secondary italic leading-relaxed">"{getDailyQuote().text}"</p>
-          <p className="caption mt-1.5">—— {getDailyQuote().author}</p>
+        <div className="glass glass-hover rounded-2xl px-8 py-4 inline-block max-w-md mx-auto">
+          <p className="text-sm text-text-secondary italic leading-relaxed">"{dailyQuote.text}"</p>
+          <p className="caption mt-2">—— {dailyQuote.author}</p>
         </div>
-        <p className="body-sm mt-4">选择你的 AI 搭档，开始高效协作</p>
+        <p className="body-sm mt-6">选择你的 AI 搭档，开始高效协作</p>
       </div>
 
       {/* Agent Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl w-full px-4 relative z-10 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full px-4 relative z-10 mb-10">
         {agents.map((agent) => (
           <button
             key={agent.id}
             onClick={() => navigate(`/chat?agent=${agent.id}`)}
             className={cn(
-              'glass glass-hover p-6 rounded-2xl text-left transition-all duration-300 group cursor-pointer',
+              'glass glass-hover p-7 rounded-3xl text-left transition-all duration-300 group cursor-pointer',
               agent.borderColor,
               'stagger-item'
             )}
           >
             {/* Icon */}
             <div className={cn(
-              'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center mb-4',
+              'w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-5',
               'group-hover:scale-110 group-hover:rotate-3 transition-all duration-300',
               agent.gradient,
               agent.glow
             )}>
-              <agent.icon size={24} className="text-white" />
+              <agent.icon size={28} className="text-white" />
             </div>
 
             {/* Role tag */}
-            <div className="caption font-mono uppercase tracking-widest mb-1.5">
+            <div className="caption font-mono uppercase tracking-widest mb-2">
               {agent.role}
             </div>
 
             {/* Name */}
-            <h2 className="heading-lg mb-2">{agent.name}</h2>
+            <h2 className="text-xl font-semibold mb-3">{agent.name}</h2>
 
             {/* Description */}
-            <p className="body-md leading-relaxed mb-4">
+            <p className="text-sm text-text-secondary leading-relaxed mb-5">
               {agent.desc}
             </p>
 
             {/* Feature tags */}
-            <div className="flex flex-wrap gap-1.5 mb-5">
+            <div className="flex flex-wrap gap-2 mb-6">
               {agent.features.map((f) => (
-                <span key={f} className="caption px-2.5 py-1 rounded-full bg-white/5 text-text-muted border border-white/5">
+                <span key={f} className="text-xs px-3 py-1.5 rounded-full bg-white/[0.05] text-text-muted border border-white/5">
                   {f}
                 </span>
               ))}
@@ -138,27 +139,27 @@ export default function Home() {
 
       {/* Quick Actions */}
       <div className="w-full max-w-4xl px-4 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {quickActions.map((action) => (
             <button
               key={action.path}
               onClick={() => navigate(action.path)}
-              className="glass glass-hover p-4 rounded-xl text-left transition-all duration-200 group stagger-item"
+              className="glass glass-hover p-5 rounded-2xl text-left transition-all duration-200 group stagger-item"
             >
-              <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center mb-3', action.color)}>
-                <action.icon size={20} />
+              <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center mb-4', action.color)}>
+                <action.icon size={22} />
               </div>
-              <div className="body-md font-medium mb-0.5">{action.label}</div>
-              <div className="caption">{action.desc}</div>
+              <div className="body-md font-medium mb-1">{action.label}</div>
+              <div className="text-xs text-text-muted">{action.desc}</div>
             </button>
           ))}
         </div>
       </div>
 
       {/* Keyboard shortcut hint */}
-      <div className="mt-8 flex items-center gap-2 relative z-10">
+      <div className="mt-10 flex items-center gap-2 relative z-10">
         <Command size={13} className="text-text-muted" />
-        <span className="body-sm">按 <kbd className="bg-white/5 px-2 py-0.5 rounded-md border border-white/10 caption font-mono">Ctrl+K</kbd> 打开命令面板</span>
+        <span className="body-sm">按 <kbd className="glass px-2.5 py-1 rounded-lg border border-white/10 caption font-mono">Ctrl+K</kbd> 打开命令面板</span>
       </div>
     </div>
   )

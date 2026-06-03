@@ -17,9 +17,14 @@ export default function QuickNote() {
     if (saved) setContent(saved)
   }, [])
 
-  // Auto-save to localStorage
+  // Auto-save to localStorage (debounced 500ms)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
-    localStorage.setItem('quick_note', content)
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      localStorage.setItem('quick_note', content)
+    }, 500)
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
   }, [content])
 
   // Keyboard shortcut: Ctrl+Shift+N

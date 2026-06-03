@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from app.database import engine, Base
 from app.models import Task, PomodoroSession, Course, Note, Conversation, ConversationMessage
-from app.api import tasks, pomodoro, schedule, notes, ai, conversations, notifications
+from app.api import tasks, pomodoro, schedule, notes, ai, conversations, notifications, music
 from app.services.notification_service import start_scheduler, stop_scheduler
 from app.services.agents import agent_registry
 from app.services.agents.claude_agent import ClaudeAgent
@@ -75,6 +75,7 @@ app.include_router(notes.router, prefix="/api/notes", tags=["笔记"])
 app.include_router(ai.router, prefix="/api/ai", tags=["AI对话"])
 app.include_router(conversations.router, prefix="/api/conversations", tags=["对话管理"])
 app.include_router(notifications.router, prefix="/api/notifications", tags=["通知"])
+app.include_router(music.router, prefix="/api/music", tags=["音乐"])
 
 
 @app.get("/")

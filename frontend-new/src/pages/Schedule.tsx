@@ -82,15 +82,15 @@ export default function Schedule() {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">课程表</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">课程表</h1>
         <button
           onClick={() => setShowForm(!showForm)}
           className={cn(
-            'btn btn-sm rounded-xl font-medium flex items-center gap-1.5 transition-all',
+            'px-4 py-2.5 rounded-2xl text-sm font-medium flex items-center gap-2 transition-all',
             showForm
-              ? 'bg-accent-danger/15 text-accent-danger'
-              : 'bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25'
+              ? 'glass bg-accent-danger/20 text-accent-danger border border-accent-danger/30'
+              : 'bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 border border-accent-blue/30'
           )}
         >
           {showForm ? <X size={14} /> : <Plus size={14} />}
@@ -112,23 +112,23 @@ export default function Schedule() {
         const currentClass = todayCourses.find((c) => c.start_time <= currentTime && c.end_time > currentTime)
 
         return (
-          <div className="glass rounded-2xl p-4 mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Clock size={14} className="text-accent-blue" />
+          <div className="glass glass-hover rounded-3xl p-5 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock size={16} className="text-accent-blue" />
               <span className="text-sm font-medium">今日课程 ({todayCourses.length})</span>
               {currentClass && (
-                <span className="caption px-2 py-0.5 rounded-full bg-accent-success/15 text-accent-success font-medium">
+                <span className="text-xs px-2.5 py-1 rounded-full bg-accent-success/20 text-accent-success font-medium border border-accent-success/30">
                   正在上课
                 </span>
               )}
               {!currentClass && nextClass && (
-                <span className="caption px-2 py-0.5 rounded-full bg-accent-amber/15 text-accent-amber font-medium flex items-center gap-1">
+                <span className="text-xs px-2.5 py-1 rounded-full bg-accent-amber/20 text-accent-amber font-medium flex items-center gap-1 border border-accent-amber/30">
                   下一节: {nextClass.name} {nextClass.start_time}
                   <ChevronRight size={10} />
                 </span>
               )}
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-3 overflow-x-auto pb-1">
               {todayCourses.map((c) => {
                 const isCurrent = currentClass?.id === c.id
                 const isPast = c.end_time <= currentTime
@@ -136,15 +136,15 @@ export default function Schedule() {
                   <div
                     key={c.id}
                     className={cn(
-                      'shrink-0 px-3 py-2 rounded-xl text-xs border transition-all',
-                      isCurrent ? 'border-accent-success/30 ring-1 ring-accent-success/20' : 'border-white/5',
+                      'shrink-0 px-4 py-3 rounded-2xl text-xs glass transition-all',
+                      isCurrent ? 'ring-1 ring-accent-success/30 bg-accent-success/10' : '',
                       isPast && 'opacity-50'
                     )}
                     style={{ background: `${c.color || defaultColors[0]}15` }}
                   >
                     <div className="font-medium" style={{ color: c.color || defaultColors[0] }}>{c.name}</div>
-                    <div className="text-text-muted mt-0.5">{c.start_time} - {c.end_time}</div>
-                    {c.location && <div className="text-text-muted">{c.location}</div>}
+                    <div className="text-text-muted mt-1">{c.start_time} - {c.end_time}</div>
+                    {c.location && <div className="text-text-muted mt-0.5">{c.location}</div>}
                   </div>
                 )
               })}
@@ -155,29 +155,29 @@ export default function Schedule() {
 
       {/* Create Form */}
       {showForm && (
-        <div className="glass rounded-2xl p-5 mb-6 animate-slide-up">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div className="glass rounded-3xl p-6 mb-6 animate-slide-up">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
             <input placeholder="课程名" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="input-glass" />
+              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
             <input placeholder="教师" value={form.teacher} onChange={(e) => setForm({ ...form, teacher: e.target.value })}
-              className="input-glass" />
+              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
             <input placeholder="教室" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
-              className="input-glass" />
+              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
             <select value={form.day_of_week} onChange={(e) => setForm({ ...form, day_of_week: +e.target.value })}
-              className="input-glass">
+              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all">
               {dayLabels.map((d, i) => <option key={i} value={i + 1}>{d}</option>)}
             </select>
           </div>
-          <div className="flex gap-3 items-center flex-wrap">
+          <div className="flex gap-4 items-center flex-wrap">
             <input type="time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })}
-              className="input-glass w-auto" />
+              className="glass rounded-xl px-4 py-3 text-sm w-auto focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
             <span className="text-text-muted">—</span>
             <input type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })}
-              className="input-glass w-auto" />
-            <div className="flex gap-1.5 ml-2">
+              className="glass rounded-xl px-4 py-3 text-sm w-auto focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
+            <div className="flex gap-2 ml-2">
               {defaultColors.map((c) => (
                 <button key={c} onClick={() => setForm({ ...form, color: c })}
-                  className={cn('w-7 h-7 rounded-full border-2 transition-all hover:scale-110',
+                  className={cn('w-8 h-8 rounded-full border-2 transition-all hover:scale-110',
                     form.color === c ? 'border-white scale-110' : 'border-transparent'
                   )} style={{ background: c }}
                   aria-label={`选择颜色 ${c}`}
@@ -186,7 +186,7 @@ export default function Schedule() {
             </div>
             <div className="flex-1" />
             <button onClick={handleCreate}
-              className="btn btn-primary rounded-xl flex items-center gap-2">
+              className="bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 border border-accent-blue/30 rounded-xl px-5 py-2.5 flex items-center gap-2 text-sm font-medium transition-all">
               <Plus size={14} />
               保存
             </button>
@@ -204,13 +204,13 @@ export default function Schedule() {
           description="点击上方按钮添加你的第一门课程"
         />
       ) : (
-        <div className="glass rounded-2xl p-4 overflow-x-auto">
+        <div className="glass rounded-3xl p-5 overflow-x-auto">
           <div className="min-w-[700px] relative">
             {/* Header */}
-            <div className="flex items-center mb-2">
+            <div className="flex items-center mb-3">
               <div className="w-16 shrink-0" />
               {timeSlots.map((h) => (
-                <div key={h} className="flex-1 text-center caption text-text-muted font-mono">
+                <div key={h} className="flex-1 text-center text-xs text-text-muted font-mono">
                   {String(h).padStart(2, '0')}:00
                 </div>
               ))}
@@ -227,7 +227,7 @@ export default function Schedule() {
                 return (
                   <div
                     className="absolute top-0 bottom-0 w-0.5 bg-accent-danger z-10 pointer-events-none"
-                    style={{ left: `calc(64px + ${leftPercent}% * (100% - 64px) / 100)` }}
+                    style={{ left: `calc(64px + (100% - 64px) * ${leftPercent / 100})` }}
                   >
                     <div className="absolute -top-1 -left-1.5 w-3 h-3 rounded-full bg-accent-danger" />
                   </div>
@@ -240,44 +240,44 @@ export default function Schedule() {
               const day = idx + 1
               const isToday = new Date().getDay() === (idx + 1) % 7
               return (
-                <div key={day} className={cn('flex items-center mb-1', isToday && 'bg-accent-blue/5 rounded-lg')}>
+                <div key={day} className={cn('flex items-center mb-2', isToday && 'glass rounded-xl')}>
                   <div className={cn(
                     'w-16 shrink-0 text-xs font-medium',
                     isToday ? 'text-accent-blue' : 'text-text-secondary'
                   )}>
                     {label}
-                    {isToday && <span className="ml-1 caption text-accent-blue">(今天)</span>}
+                    {isToday && <span className="ml-1 text-xs text-accent-blue">(今天)</span>}
                   </div>
                   {timeSlots.map((h) => {
                     const cell = grid.get(`${day}-${h}`)
                     return (
-                      <div key={`${day}-${h}`} className="flex-1 h-10 mx-0.5 rounded-md relative group cursor-pointer">
+                      <div key={`${day}-${h}`} className="flex-1 h-11 mx-0.5 rounded-xl relative group cursor-pointer">
                         {cell && cell.length > 0 ? (
                           <div
-                            className="absolute inset-0 rounded-md opacity-80 hover:opacity-100 transition-opacity flex items-center justify-center"
-                            style={{ background: cell[0].color || defaultColors[0] }}
+                            className="absolute inset-0 rounded-xl opacity-80 hover:opacity-100 transition-opacity flex items-center justify-center glass"
+                            style={{ background: `${cell[0].color || defaultColors[0]}20` }}
                             onClick={() => setSelectedCourse(cell[0])}
                           >
-                            <span className="caption font-bold text-white drop-shadow-sm truncate px-1">
+                            <span className="text-xs font-bold text-white drop-shadow-sm truncate px-1.5">
                               {cell[0].name.slice(0, 4)}
                             </span>
                           </div>
                         ) : (
-                          <div className="absolute inset-0 rounded-md bg-white/[0.02] hover:bg-white/[0.05] transition-colors" />
+                          <div className="absolute inset-0 rounded-xl glass hover:bg-white/[0.05] transition-colors" />
                         )}
                         {/* Tooltip */}
                         {cell && cell.length > 0 && (
                           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-20">
-                            <div className="glass px-3 py-2 rounded-xl shadow-xl border border-white/10">
-                              <div className="text-xs font-bold text-text-primary">{cell[0].name}</div>
-                              <div className="caption text-text-muted mt-0.5">
+                            <div className="glass px-4 py-3 rounded-2xl shadow-xl border border-white/10">
+                              <div className="text-sm font-bold text-text-primary">{cell[0].name}</div>
+                              <div className="text-xs text-text-muted mt-1">
                                 {cell[0].start_time} - {cell[0].end_time}
                               </div>
                               {cell[0].teacher && (
-                                <div className="caption text-text-muted">{cell[0].teacher}</div>
+                                <div className="text-xs text-text-muted mt-0.5">{cell[0].teacher}</div>
                               )}
                               {cell[0].location && (
-                                <div className="caption text-text-muted">{cell[0].location}</div>
+                                <div className="text-xs text-text-muted">{cell[0].location}</div>
                               )}
                             </div>
                           </div>
@@ -291,12 +291,12 @@ export default function Schedule() {
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-border">
+          <div className="flex flex-wrap gap-4 mt-5 pt-5 border-t border-border">
             {[...new Set(courses.map((c) => JSON.stringify({ name: c.name, color: c.color || defaultColors[0] })))].map((item) => {
               const { name, color } = JSON.parse(item)
               return (
-                <div key={name} className="flex items-center gap-1.5 text-xs text-text-secondary">
-                  <div className="w-3 h-3 rounded-sm" style={{ background: color }} />
+                <div key={name} className="flex items-center gap-2 text-xs text-text-secondary">
+                  <div className="w-3 h-3 rounded-lg" style={{ background: color }} />
                   {name}
                 </div>
               )
@@ -308,12 +308,12 @@ export default function Schedule() {
       {/* Course Detail Modal */}
       {selectedCourse && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setSelectedCourse(null)}>
-          <div className="glass p-6 rounded-2xl w-80 animate-scale-in" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-3 h-3 rounded-full" style={{ background: selectedCourse.color || defaultColors[0] }} />
+          <div className="glass p-6 rounded-3xl w-80 animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-4 h-4 rounded-full" style={{ background: selectedCourse.color || defaultColors[0] }} />
               <h3 className="font-bold text-lg">{selectedCourse.name}</h3>
             </div>
-            <div className="space-y-2 text-sm text-text-secondary mb-6">
+            <div className="space-y-3 text-sm text-text-secondary mb-6">
               <div className="flex justify-between">
                 <span>时间</span>
                 <span>{dayLabels[selectedCourse.day_of_week - 1]} {selectedCourse.start_time} - {selectedCourse.end_time}</span>
@@ -331,9 +331,9 @@ export default function Schedule() {
                 </div>
               )}
             </div>
-            <div className="flex gap-2">
-              <button onClick={() => setSelectedCourse(null)} className="flex-1 btn btn-ghost rounded-xl text-sm">关闭</button>
-              <button onClick={() => handleDelete(selectedCourse.id)} className="flex-1 btn btn-primary rounded-xl bg-accent-danger/80 hover:bg-accent-danger text-sm">删除课程</button>
+            <div className="flex gap-3">
+              <button onClick={() => setSelectedCourse(null)} className="flex-1 glass px-4 py-2.5 rounded-2xl text-sm text-text-secondary hover:bg-white/[0.05] transition-all">关闭</button>
+              <button onClick={() => handleDelete(selectedCourse.id)} className="flex-1 bg-accent-danger/20 text-accent-danger hover:bg-accent-danger/30 border border-accent-danger/30 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">删除课程</button>
             </div>
           </div>
         </div>

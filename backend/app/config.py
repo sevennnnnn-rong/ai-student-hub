@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     trae_token: str = ""
     trae_region: str = "cn"
 
-    cors_origins: str = "http://localhost:3000,http://localhost:3001"
+    cors_origins: str = "http://localhost:3000,http://localhost:3001,tauri://localhost,https://tauri.localhost,http://tauri.localhost"
 
     model_config = {"env_file": ".env"}
 

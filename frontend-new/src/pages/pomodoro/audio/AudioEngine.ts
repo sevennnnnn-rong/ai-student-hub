@@ -62,13 +62,14 @@ const STORAGE_KEY = 'pomodoro_audio_state'
 const MASTER_VOLUME_KEY = 'pomodoro_master_volume'
 
 // Default track definitions
+// Sound samples sourced from iamskyy666/skyys-ambient-mixer (free ambient sounds)
 const DEFAULT_TRACKS: AudioTrack[] = [
   {
     id: 'rain',
     name: '雨声',
     icon: '🌧️',
-    type: 'generated',
-    generator: 'rain',
+    type: 'file',
+    url: '/sounds/rain.mp3',
     volume: 0.7,
     isPlaying: false,
     isMuted: false,
@@ -87,19 +88,9 @@ const DEFAULT_TRACKS: AudioTrack[] = [
     id: 'forest',
     name: '森林',
     icon: '🌲',
-    type: 'generated',
-    generator: 'pink',
-    volume: 0.8,
-    isPlaying: false,
-    isMuted: false,
-  },
-  {
-    id: 'birds',
-    name: '鸟鸣',
-    icon: '🐦',
     type: 'file',
     url: '/sounds/birds.mp3',
-    volume: 0.4,
+    volume: 0.8,
     isPlaying: false,
     isMuted: false,
   },
@@ -107,8 +98,8 @@ const DEFAULT_TRACKS: AudioTrack[] = [
     id: 'waves',
     name: '海浪',
     icon: '🌊',
-    type: 'generated',
-    generator: 'waves',
+    type: 'file',
+    url: '/sounds/ocean.mp3',
     volume: 0.7,
     isPlaying: false,
     isMuted: false,
@@ -117,8 +108,28 @@ const DEFAULT_TRACKS: AudioTrack[] = [
     id: 'wind',
     name: '风声',
     icon: '🌬️',
-    type: 'generated',
-    generator: 'wind',
+    type: 'file',
+    url: '/sounds/wind.mp3',
+    volume: 0.5,
+    isPlaying: false,
+    isMuted: false,
+  },
+  {
+    id: 'cafe',
+    name: '咖啡馆',
+    icon: '☕',
+    type: 'file',
+    url: '/sounds/cafe.mp3',
+    volume: 0.5,
+    isPlaying: false,
+    isMuted: false,
+  },
+  {
+    id: 'fireplace',
+    name: '壁炉',
+    icon: '🔥',
+    type: 'file',
+    url: '/sounds/fireplace.mp3',
     volume: 0.5,
     isPlaying: false,
     isMuted: false,
@@ -143,16 +154,6 @@ const DEFAULT_TRACKS: AudioTrack[] = [
     isPlaying: false,
     isMuted: false,
   },
-  {
-    id: 'pages',
-    name: '翻书',
-    icon: '📖',
-    type: 'file',
-    url: '/sounds/pages.mp3',
-    volume: 0.3,
-    isPlaying: false,
-    isMuted: false,
-  },
 ]
 
 export const DEFAULT_PRESETS: TrackPreset[] = [
@@ -171,7 +172,7 @@ export const DEFAULT_PRESETS: TrackPreset[] = [
     icon: '🌲',
     tracks: [
       { id: 'forest', volume: 0.6 },
-      { id: 'birds', volume: 0.4 },
+      { id: 'wind', volume: 0.2 },
     ],
   },
   {
@@ -181,6 +182,23 @@ export const DEFAULT_PRESETS: TrackPreset[] = [
     tracks: [
       { id: 'waves', volume: 0.8 },
       { id: 'wind', volume: 0.2 },
+    ],
+  },
+  {
+    id: 'cafe',
+    name: '咖啡馆',
+    icon: '☕',
+    tracks: [
+      { id: 'cafe', volume: 0.6 },
+    ],
+  },
+  {
+    id: 'cozy',
+    name: '温暖',
+    icon: '🔥',
+    tracks: [
+      { id: 'fireplace', volume: 0.5 },
+      { id: 'rain', volume: 0.3 },
     ],
   },
   {
@@ -268,6 +286,12 @@ class AudioEngine {
     if (!state) return
 
     const ctx = this.ensureContext()
+
+    // Lazily create GainNode if not yet created (deferred from loadState)
+    if (!state.gainNode) {
+      state.gainNode = ctx.createGain()
+      state.gainNode.gain.value = state.config.isMuted ? 0 : state.config.volume
+    }
 
     if (state.config.type === 'generated' && state.config.generator) {
       this.playGeneratedTrack(state, ctx)
@@ -402,11 +426,13 @@ class AudioEngine {
 
     const clamped = Math.max(0, Math.min(1, volume))
     state.config.volume = clamped
-    state.gainNode.gain.setTargetAtTime(
-      state.config.isMuted ? 0 : clamped,
-      this.ctx?.currentTime ?? 0,
-      0.05,
-    )
+    if (state.gainNode) {
+      state.gainNode.gain.setTargetAtTime(
+        state.config.isMuted ? 0 : clamped,
+        this.ctx?.currentTime ?? 0,
+        0.05,
+      )
+    }
     this.saveState()
     this.notify()
   }
@@ -419,11 +445,13 @@ class AudioEngine {
     if (!state) return
 
     state.config.isMuted = !state.config.isMuted
-    state.gainNode.gain.setTargetAtTime(
-      state.config.isMuted ? 0 : state.config.volume,
-      this.ctx?.currentTime ?? 0,
-      0.05,
-    )
+    if (state.gainNode) {
+      state.gainNode.gain.setTargetAtTime(
+        state.config.isMuted ? 0 : state.config.volume,
+        this.ctx?.currentTime ?? 0,
+        0.05,
+      )
+    }
     this.saveState()
     this.notify()
   }
@@ -477,7 +505,7 @@ class AudioEngine {
 
       state.config.volume = t.volume
       state.config.isMuted = false
-      state.gainNode.gain.value = t.volume
+      if (state.gainNode) state.gainNode.gain.value = t.volume
       this.play(t.id)
     }
 
@@ -503,7 +531,7 @@ class AudioEngine {
       if (defaultTrack) {
         state.config.volume = defaultTrack.volume
         state.config.isMuted = false
-        state.gainNode.gain.value = defaultTrack.volume
+        if (state.gainNode) state.gainNode.gain.value = defaultTrack.volume
       }
     })
     this.saveState()
@@ -551,15 +579,11 @@ class AudioEngine {
       }
     } catch { /* noop */ }
 
-    // Initialize track states
+    // Initialize track states — defer GainNode creation to avoid AudioContext before user gesture
     for (const track of DEFAULT_TRACKS) {
-      const ctx = this.ensureContext()
-      const gainNode = ctx.createGain()
-      gainNode.gain.value = track.volume
-
       const state: TrackState = {
         config: { ...track },
-        gainNode,
+        gainNode: null as any, // Created lazily on first play/setTrackVolume
         connected: false,
       }
 
@@ -572,7 +596,6 @@ class AudioEngine {
             state.config.volume = data[track.id].volume ?? track.volume
             state.config.isMuted = data[track.id].isMuted ?? false
             state.config.isPlaying = false // Don't auto-play on reload
-            gainNode.gain.value = state.config.isMuted ? 0 : state.config.volume
           }
         }
       } catch { /* noop */ }

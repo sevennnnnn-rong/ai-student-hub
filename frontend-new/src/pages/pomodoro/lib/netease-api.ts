@@ -1,9 +1,10 @@
 // ============================================================
 // NetEase Cloud Music API Wrapper
-// Based on NeteaseCloudMusicApi public instances
+// Routes through backend proxy (localhost:8000/api/music)
+// which forwards to local NeteaseCloudMusicApi (localhost:3002)
 // ============================================================
 
-const API_BASE = 'https://netease-cloud-music-api-iota.vercel.app'
+const API_BASE = 'http://localhost:8000/api/music'
 
 // ---------- Types ----------
 
@@ -64,6 +65,17 @@ export interface PlayerState {
 
 export type PlayMode = PlayerState['playMode']
 
+export interface LoginProfile {
+  userId: number
+  nickname: string
+  avatarUrl: string
+}
+
+export interface LoginStatus {
+  isLogin: boolean
+  profile?: LoginProfile
+}
+
 // ---------- Internal Helpers ----------
 
 interface ApiResponse<T> {
@@ -71,9 +83,10 @@ interface ApiResponse<T> {
   result?: T
   data?: T
   msg?: string
+  message?: string
 }
 
-async function apiGet<T>(path: string, params?: Record<string, string | number>): Promise<T> {
+async function apiGet<T>(path: string, params?: Record<string, string | number | boolean>): Promise<T> {
   const url = new URL(`${API_BASE}${path}`)
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
@@ -83,6 +96,7 @@ async function apiGet<T>(path: string, params?: Record<string, string | number>)
 
   const res = await fetch(url.toString(), {
     headers: { 'Accept': 'application/json' },
+    credentials: 'include',
   })
 
   if (!res.ok) {
@@ -92,7 +106,53 @@ async function apiGet<T>(path: string, params?: Record<string, string | number>)
   const json: ApiResponse<T> = await res.json()
 
   if (json.code !== 200 && json.code !== 0) {
-    throw new Error(json.msg || `API error code: ${json.code}`)
+    throw new Error(json.msg || json.message || `API error code: ${json.code}`)
+  }
+
+  return (json.result ?? json.data) as T
+}
+
+/** Like apiGet but returns the full JSON response without checking code.
+ *  Used for endpoints where non-200 codes are valid responses (e.g. QR status: 800/801/802/803). */
+async function apiGetAny(path: string, params?: Record<string, string | number | boolean>): Promise<any> {
+  const url = new URL(`${API_BASE}${path}`)
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => {
+      url.searchParams.set(k, String(v))
+    })
+  }
+
+  const res = await fetch(url.toString(), {
+    headers: { 'Accept': 'application/json' },
+    credentials: 'include',
+  })
+
+  if (!res.ok) {
+    throw new Error(`API request failed: ${res.status} ${res.statusText}`)
+  }
+
+  return await res.json()
+}
+
+async function apiPost<T>(path: string, body?: Record<string, any>): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    credentials: 'include',
+    body: body ? JSON.stringify(body) : undefined,
+  })
+
+  if (!res.ok) {
+    throw new Error(`API request failed: ${res.status} ${res.statusText}`)
+  }
+
+  const json: ApiResponse<T> = await res.json()
+
+  if (json.code !== 200 && json.code !== 0) {
+    throw new Error(json.msg || json.message || `API error code: ${json.code}`)
   }
 
   return (json.result ?? json.data) as T
@@ -135,7 +195,69 @@ function formatCount(count: number): string {
   return String(count)
 }
 
-// ---------- Public API ----------
+// ---------- Auth API ----------
+
+/**
+ * Check current login status
+ */
+export async function checkLoginStatus(): Promise<LoginStatus> {
+  try {
+    const data = await apiGet<any>('/login/status')
+    return {
+      isLogin: data?.isLogin ?? false,
+      profile: data?.profile,
+    }
+  } catch {
+    return { isLogin: false }
+  }
+}
+
+/**
+ * Get QR code key for login
+ */
+export async function getQrKey(): Promise<{ unikey: string; qrimg: string }> {
+  const data = await apiGet<any>('/login/qr/key')
+  return data
+}
+
+/**
+ * Create QR code image
+ */
+export async function createQrCode(key: string): Promise<{ qrimg: string; qrurl: string }> {
+  const data = await apiGet<any>('/login/qr/create', { key, qrimg: true })
+  return data
+}
+
+/**
+ * Poll QR code scan status
+ * Returns: code 800=expired, 801=waiting, 802=scanned, 803=confirmed
+ * NOTE: uses apiGetAny because QR status codes (800-803) are NOT standard API codes.
+ */
+export async function checkQrStatus(key: string): Promise<{ code: number; message: string }> {
+  const json = await apiGetAny('/login/qr/check', { key })
+  // Backend wraps as {code: 200, result: {code: 801, message: "..."}}
+  return json.result ?? json.data ?? json
+}
+
+/**
+ * Login with phone number
+ */
+export async function loginWithPhone(
+  phone: string,
+  password?: string,
+): Promise<{ isLogin: boolean; profile?: LoginProfile; message?: string }> {
+  const data = await apiPost<any>('/login/phone', { phone, password })
+  return data
+}
+
+/**
+ * Logout
+ */
+export async function logout(): Promise<void> {
+  await apiPost<any>('/logout')
+}
+
+// ---------- Music API ----------
 
 /**
  * Search songs by keyword
@@ -153,6 +275,21 @@ export async function searchSongs(
 }
 
 /**
+ * Search playlists by keyword
+ */
+export async function searchPlaylists(
+  keywords: string,
+  limit = 30,
+  offset = 0,
+): Promise<{ playlists: Playlist[]; playlistCount: number }> {
+  const data = await apiGet<any>('/search', { keywords, limit, offset, type: 1000 })
+  return {
+    playlists: (data.playlists || []).map(mapPlaylist),
+    playlistCount: data.playlistCount || 0,
+  }
+}
+
+/**
  * Get recommended playlists (personalized)
  */
 export async function getRecommendedPlaylists(limit = 12): Promise<Playlist[]> {
@@ -164,11 +301,10 @@ export async function getRecommendedPlaylists(limit = 12): Promise<Playlist[]> {
  * Get playlist detail with tracks
  */
 export async function getPlaylistDetail(id: number): Promise<Playlist & { tracks: Song[] }> {
-  const data = await apiGet<any>('/playlist/detail', { id })
-  const playlist = data.playlist || data
+  const data = await apiGet<any>(`/user/playlist/${id}`)
   return {
-    ...mapPlaylist(playlist),
-    tracks: (playlist.tracks || []).map(mapSong),
+    ...mapPlaylist(data),
+    tracks: (data.tracks || []).map(mapSong),
   }
 }
 
@@ -183,10 +319,16 @@ export async function getSongUrls(
   const data = await apiGet<any>('/song/url', { id: idStr })
   const urlMap = new Map<number, string>()
 
-  const list = data.data || data || []
+  const list = data?.data || data || []
+  if (!Array.isArray(list)) {
+    console.warn('[netease-api] getSongUrls: unexpected data shape', data)
+    return urlMap
+  }
   for (const item of list) {
     if (item.url) {
       urlMap.set(item.id, item.url)
+    } else {
+      console.warn(`[netease-api] Song ${item.id} has no URL (code=${item.code}, fee=${item.fee})`)
     }
   }
   return urlMap
@@ -226,6 +368,67 @@ export async function getLyrics(id: number): Promise<LyricLine[]> {
 export async function getSongDetail(ids: number[]): Promise<Song[]> {
   const data = await apiGet<any>('/song/detail', { ids: ids.join(',') })
   return (data.songs || []).map(mapSong)
+}
+
+// ---------- Daily Recommend API ----------
+
+/**
+ * Get daily recommended songs (login required)
+ */
+export async function getDailyRecommend(): Promise<Song[]> {
+  const data = await apiGet<any>('/recommend/songs')
+  return (data?.data?.dailySongs || data?.dailySongs || []).map(mapSong)
+}
+
+// ---------- Toplist API ----------
+
+export interface Toplist {
+  id: number
+  name: string
+  coverImgUrl: string
+  playCount: number
+  description?: string
+  trackCount?: number
+}
+
+/**
+ * Get all toplists/rankings
+ */
+export async function getToplists(): Promise<Toplist[]> {
+  const data = await apiGet<any>('/toplist')
+  return (data?.list || []).map((item: any) => ({
+    id: item.id,
+    name: item.name || '未知榜单',
+    coverImgUrl: item.coverImgUrl || '',
+    playCount: item.playCount || 0,
+    description: item.description,
+    trackCount: item.trackCount,
+  }))
+}
+
+// ---------- User Music API ----------
+
+/**
+ * Get user's playlists
+ */
+export async function getUserPlaylists(limit = 30, offset = 0): Promise<Playlist[]> {
+  const data = await apiGet<any>('/user/playlists', { limit, offset })
+  return (data.list || []).map(mapPlaylist)
+}
+
+/**
+ * Get user's liked songs
+ */
+export async function getUserLikes(): Promise<Song[]> {
+  const data = await apiGet<any>('/user/likes')
+  return (data.songs || []).map(mapSong)
+}
+
+/**
+ * Toggle like on a song
+ */
+export async function toggleLikeSong(id: number, like: boolean): Promise<void> {
+  await apiGet<any>('/like', { id, like })
 }
 
 // ---------- Utility Exports ----------

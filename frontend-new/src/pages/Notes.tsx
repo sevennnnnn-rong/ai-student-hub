@@ -36,6 +36,7 @@ export default function Notes() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { toast } = useToast()
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const editTitleRef = useRef('')
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [searchKeyword, setSearchKeyword] = useState('')
   const [deleteId, setDeleteId] = useState<number | null>(null)
@@ -70,19 +71,23 @@ export default function Notes() {
       setNotes((prev) => [note, ...prev])
       setActiveId(note.id)
       setEditTitle(note.title)
+      editTitleRef.current = note.title
       setEditContent('')
       setPreview(false)
       toast('笔记已创建', 'success')
-    } catch {
-      toast('创建失败', 'error')
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : '未知错误'
+      toast(`创建失败: ${msg}`, 'error')
     }
   }
 
   const handleSave = async () => {
     if (!activeId) return
+    // Cancel any pending auto-save to avoid race condition
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     setSaving(true)
     try {
-      const updated = await noteApi.update(activeId, { title: editTitle, content: editContent })
+      const updated = await noteApi.update(activeId, { title: editTitleRef.current, content: editContent })
       setNotes((prev) => prev.map((n) => (n.id === activeId ? updated : n)))
     } catch {
       toast('保存失败', 'error')
@@ -107,8 +112,11 @@ export default function Notes() {
   }
 
   const selectNote = (note: Note) => {
+    // Cancel any pending auto-save to avoid writing stale data
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     setActiveId(note.id)
     setEditTitle(note.title)
+    editTitleRef.current = note.title
     setEditContent(note.content)
   }
 
@@ -118,7 +126,11 @@ export default function Notes() {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => {
       if (activeId) {
-        noteApi.update(activeId, { title: editTitle, content: value }).catch(() => {})
+        noteApi.update(activeId, { title: editTitleRef.current, content: value })
+          .then((updated) => {
+            setNotes((prev) => prev.map((n) => (n.id === activeId ? updated : n)))
+          })
+          .catch(() => toast('自动保存失败', 'error'))
       }
     }, 1500)
   }
@@ -241,7 +253,7 @@ export default function Notes() {
               >
                 <ArrowLeft size={18} />
               </button>
-              <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} onBlur={handleSave}
+              <input value={editTitle} onChange={(e) => { setEditTitle(e.target.value); editTitleRef.current = e.target.value }} onBlur={handleSave}
                 className="flex-1 bg-transparent heading-lg focus:outline-none text-text-primary" />
               {/* Markdown formatting buttons */}
               {!preview && (

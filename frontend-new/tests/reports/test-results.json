@@ -1,0 +1,77 @@
+{
+  "config": {
+    "configFile": "D:\\Software\\ai-student-hub\\frontend-new\\tests\\playwright.config.ts",
+    "rootDir": "D:/Software/ai-student-hub/frontend-new/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/Software/ai-student-hub/frontend-new/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {},
+        "id": "tauri",
+        "name": "tauri",
+        "testDir": "D:/Software/ai-student-hub/frontend-new/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "reports/test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 16,
+    "webServer": null
+  },
+  "suites": [],
+  "errors": [
+    {
+      "message": "ReferenceError: describe is not defined",
+      "stack": "ReferenceError: describe is not defined\n    at D:\\Software\\ai-student-hub\\frontend-new\\tests\\wdio\\login.spec.ts:3:1",
+      "location": {
+        "file": "D:\\Software\\ai-student-hub\\frontend-new\\tests\\wdio\\login.spec.ts",
+        "column": 1,
+        "line": 3
+      },
+      "snippet": "\u001b[90m   at \u001b[39mwdio\\login.spec.ts:3\n\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { expect } \u001b[36mfrom\u001b[39m \u001b[32m'@wdio/globals'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 2 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 3 |\u001b[39m describe(\u001b[32m'Tauri App'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 4 |\u001b[39m     it(\u001b[32m'should launch the app'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 5 |\u001b[39m         \u001b[36mconst\u001b[39m title \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m browser\u001b[33m.\u001b[39mgetTitle()\u001b[33m;\u001b[39m\n \u001b[90m 6 |\u001b[39m         console\u001b[33m.\u001b[39mlog(\u001b[32m'Page title:'\u001b[39m\u001b[33m,\u001b[39m title)\u001b[33m;\u001b[39m\u001b[0m"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-06-03T03:01:37.249Z",
+    "duration": 205.45399999999995,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -32,13 +32,13 @@ type AgentStatus = 'unknown' | 'checking' | 'connected' | 'error'
 function ThemeToggle() {
   const { theme, toggle } = useTheme()
   return (
-    <GlassCard padding="md" className="mb-6">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
-          {theme === 'dark' ? <Moon size={18} className="text-accent-blue" /> : <Sun size={18} className="text-accent-amber" />}
+    <GlassCard padding="md" rounded="rounded-2xl" className="mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-4">
+          {theme === 'dark' ? <Moon size={20} className="text-accent-blue" /> : <Sun size={20} className="text-accent-amber" />}
           <div>
             <h3 className="font-medium text-sm">外观主题</h3>
-            <p className="caption text-text-muted">{theme === 'dark' ? '深色模式' : '浅色模式'}</p>
+            <p className="text-xs text-text-muted">{theme === 'dark' ? '深色模式' : '浅色模式'}</p>
           </div>
         </div>
         <button
@@ -58,27 +58,27 @@ function ThemeToggle() {
       </div>
       {/* Theme Preview */}
       <div className={cn(
-        'rounded-xl p-3 border transition-all',
+        'rounded-2xl p-4 border transition-all',
         theme === 'dark'
-          ? 'bg-[#0a0a14] border-white/5'
+          ? 'glass border-white/5'
           : 'bg-[#f8f9fc] border-black/5'
       )}>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <div className={cn(
-            'w-16 h-12 rounded-lg border',
-            theme === 'dark' ? 'bg-[#12121e] border-white/5' : 'bg-white border-black/5'
+            'w-20 h-14 rounded-xl border',
+            theme === 'dark' ? 'glass border-white/5' : 'bg-white border-black/5'
           )}>
-            <div className="p-1.5">
-              <div className={cn('w-8 h-1.5 rounded mb-1', theme === 'dark' ? 'bg-accent-blue/30' : 'bg-blue-500/20')} />
-              <div className={cn('w-6 h-1 rounded', theme === 'dark' ? 'bg-white/10' : 'bg-black/10')} />
+            <div className="p-2">
+              <div className={cn('w-10 h-1.5 rounded mb-1.5', theme === 'dark' ? 'bg-accent-blue/30' : 'bg-blue-500/20')} />
+              <div className={cn('w-7 h-1 rounded', theme === 'dark' ? 'bg-white/10' : 'bg-black/10')} />
             </div>
           </div>
-          <div className="flex-1 space-y-1.5">
-            <div className={cn('w-full h-1.5 rounded', theme === 'dark' ? 'bg-white/5' : 'bg-black/5')} />
-            <div className={cn('w-3/4 h-1.5 rounded', theme === 'dark' ? 'bg-white/5' : 'bg-black/5')} />
-            <div className="flex gap-1">
-              <div className={cn('w-4 h-1.5 rounded', theme === 'dark' ? 'bg-accent-blue/20' : 'bg-blue-500/15')} />
-              <div className={cn('w-4 h-1.5 rounded', theme === 'dark' ? 'bg-accent-purple/20' : 'bg-purple-500/15')} />
+          <div className="flex-1 space-y-2">
+            <div className={cn('w-full h-1.5 rounded-lg', theme === 'dark' ? 'bg-white/5' : 'bg-black/5')} />
+            <div className={cn('w-3/4 h-1.5 rounded-lg', theme === 'dark' ? 'bg-white/5' : 'bg-black/5')} />
+            <div className="flex gap-1.5">
+              <div className={cn('w-5 h-1.5 rounded-lg', theme === 'dark' ? 'bg-accent-blue/20' : 'bg-blue-500/15')} />
+              <div className={cn('w-5 h-1.5 rounded-lg', theme === 'dark' ? 'bg-accent-purple/20' : 'bg-purple-500/15')} />
             </div>
           </div>
         </div>
@@ -162,20 +162,20 @@ export default function Settings() {
 
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="heading-xl">设置</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">设置</h1>
         <div className="flex items-center gap-3">
           <button
             onClick={checkAllAgents}
-            className="btn btn-md rounded-xl bg-white/5 text-text-secondary hover:bg-white/10"
+            className="glass px-4 py-2.5 rounded-xl text-sm text-text-secondary hover:bg-white/[0.05] transition-all flex items-center gap-2"
           >
             <Wifi size={15} />
             检测连接
           </button>
           <button onClick={handleSave}
             className={cn(
-              'btn btn-md rounded-xl transition-all',
-              saved ? 'bg-accent-success/15 text-accent-success' : 'bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25'
+              'px-4 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2',
+              saved ? 'glass bg-accent-success/20 text-accent-success border border-accent-success/30' : 'bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 border border-accent-blue/30'
             )}>
             <Save size={15} />
             {saved ? '已保存' : '保存配置'}
@@ -184,12 +184,12 @@ export default function Settings() {
       </div>
 
       {/* Info banner */}
-      <GlassCard padding="md" className="mb-6 border-accent-blue/20">
+      <GlassCard padding="md" rounded="rounded-2xl" className="mb-6 border-accent-blue/20">
         <div className="flex items-start gap-3">
           <Info size={18} className="text-accent-blue shrink-0 mt-0.5" />
           <div className="text-sm text-text-secondary">
             <p className="mb-1">配置保存在浏览器本地存储中。确保后端服务已启动（默认端口 8000）。</p>
-            <p className="text-text-muted caption">Claude 和 Codex 通过本地 CLI 调用，Doubao 通过 HTTP API 调用。</p>
+            <p className="text-text-muted text-xs">Claude 和 Codex 通过本地 CLI 调用，Doubao 通过 HTTP API 调用。</p>
           </div>
         </div>
       </GlassCard>
@@ -198,16 +198,16 @@ export default function Settings() {
       <ThemeToggle />
 
       {/* Personalization */}
-      <GlassCard padding="md" className="mb-6">
-        <h3 className="heading-md mb-4">个性化</h3>
-        <div className="space-y-4">
+      <GlassCard padding="md" rounded="rounded-2xl" className="mb-6">
+        <h3 className="text-lg font-semibold mb-5">个性化</h3>
+        <div className="space-y-5">
           {/* Font Size */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="body-lg">字体大小</p>
-              <p className="caption">调整界面文字大小</p>
+              <p className="text-sm font-medium">字体大小</p>
+              <p className="text-xs text-text-muted">调整界面文字大小</p>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               {(['small', 'medium', 'large'] as const).map((size) => (
                 <button
                   key={size}
@@ -220,10 +220,10 @@ export default function Settings() {
                     setFontSize(size)
                   }}
                   className={cn(
-                    'btn btn-sm rounded-lg font-medium transition-all',
+                    'glass px-3 py-1.5 rounded-xl text-sm font-medium transition-all',
                     fontSize === size
-                      ? 'bg-accent-blue/15 text-accent-blue'
-                      : 'text-text-muted hover:bg-bg-panel-hover'
+                      ? 'bg-accent-blue/20 text-accent-blue border border-accent-blue/30'
+                      : 'text-text-muted hover:bg-white/[0.05]'
                   )}
                 >
                   {size === 'small' ? '小' : size === 'large' ? '大' : '中'}
@@ -234,8 +234,8 @@ export default function Settings() {
           {/* Compact Mode */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="body-lg">紧凑模式</p>
-              <p className="caption">减小间距，显示更多内容</p>
+              <p className="text-sm font-medium">紧凑模式</p>
+              <p className="text-xs text-text-muted">减小间距，显示更多内容</p>
             </div>
             <button
               onClick={() => {
@@ -245,7 +245,7 @@ export default function Settings() {
               }}
               className={cn(
                 'w-12 h-6 rounded-full transition-all duration-300 relative',
-                localStorage.getItem('app_compact') === 'true' ? 'bg-accent-blue/30' : 'bg-white/10'
+                localStorage.getItem('app_compact') === 'true' ? 'bg-accent-blue/30' : 'glass'
               )}
             >
               <div className={cn(
@@ -259,33 +259,33 @@ export default function Settings() {
         </div>
       </GlassCard>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {agentConfigs.map((agent) => (
-          <GlassCard key={agent.id} padding="md" hover>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className={cn('w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center', agent.gradient)}>
-                  <agent.icon size={20} className="text-white" />
+          <GlassCard key={agent.id} padding="md" rounded="rounded-2xl" hover>
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-4">
+                <div className={cn('w-12 h-12 rounded-2xl bg-gradient-to-br flex items-center justify-center', agent.gradient)}>
+                  <agent.icon size={22} className="text-white" />
                 </div>
                 <div>
-                  <h2 className="font-bold">{agent.name}</h2>
-                  <p className="caption text-text-muted">{agent.description}</p>
+                  <h2 className="font-bold text-base">{agent.name}</h2>
+                  <p className="text-xs text-text-muted">{agent.description}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {statusIcon(statuses[agent.id])}
                 <button
                   onClick={() => checkAgent(agent.id)}
-                  className="caption text-text-muted hover:text-text-primary transition-colors"
+                  className="text-xs text-text-muted hover:text-text-primary transition-colors"
                 >
                   检测
                 </button>
               </div>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {agent.fields.map((field) => (
                 <div key={field.key}>
-                  <label className="caption text-text-secondary mb-1 block">{field.label}</label>
+                  <label className="text-xs text-text-secondary mb-1.5 block">{field.label}</label>
                   <input
                     type={field.type}
                     value={configs[agent.id][field.key] || ''}
@@ -294,10 +294,10 @@ export default function Settings() {
                       [agent.id]: { ...configs[agent.id], [field.key]: e.target.value },
                     })}
                     placeholder={field.placeholder}
-                    className="input-glass"
+                    className="glass rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all w-full"
                   />
                   {field.hint && (
-                    <p className="caption text-text-muted mt-1">{field.hint}</p>
+                    <p className="text-xs text-text-muted mt-1.5">{field.hint}</p>
                   )}
                 </div>
               ))}
@@ -307,10 +307,10 @@ export default function Settings() {
       </div>
 
       {/* Data Management */}
-      <div className="mt-8">
-        <h2 className="heading-lg mb-4">数据管理</h2>
-        <GlassCard padding="md">
-          <div className="flex items-center gap-3">
+      <div className="mt-10">
+        <h2 className="text-xl font-semibold mb-4">数据管理</h2>
+        <GlassCard padding="md" rounded="rounded-2xl">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => {
                 const data = {
@@ -327,7 +327,7 @@ export default function Settings() {
                 URL.revokeObjectURL(url)
                 toast('配置已导出', 'success')
               }}
-              className="btn btn-md rounded-xl bg-white/5 text-text-secondary hover:bg-white/10"
+              className="glass px-4 py-2.5 rounded-xl text-sm text-text-secondary hover:bg-white/[0.05] transition-all flex items-center gap-2"
             >
               <Download size={16} />
               导出配置
@@ -355,7 +355,7 @@ export default function Settings() {
                 }
                 input.click()
               }}
-              className="btn btn-md rounded-xl bg-white/5 text-text-secondary hover:bg-white/10"
+              className="glass px-4 py-2.5 rounded-xl text-sm text-text-secondary hover:bg-white/[0.05] transition-all flex items-center gap-2"
             >
               <Upload size={16} />
               导入配置
@@ -365,10 +365,10 @@ export default function Settings() {
       </div>
 
       {/* Keyboard Shortcuts */}
-      <div className="mt-8">
-        <h2 className="heading-lg mb-4">快捷键</h2>
-        <GlassCard padding="md">
-          <div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="mt-10">
+        <h2 className="text-xl font-semibold mb-4">快捷键</h2>
+        <GlassCard padding="md" rounded="rounded-2xl">
+          <div className="grid grid-cols-2 gap-4 text-sm">
             {[
               { keys: 'Ctrl+K', action: '打开命令面板' },
               { keys: 'Ctrl+1-7', action: '快速导航' },
@@ -380,9 +380,9 @@ export default function Settings() {
               { keys: 'Shift+Enter', action: '消息换行' },
               { keys: 'Esc', action: '关闭弹窗' },
             ].map((shortcut) => (
-              <div key={shortcut.keys} className="flex items-center justify-between py-1">
+              <div key={shortcut.keys} className="flex items-center justify-between py-1.5">
                 <span className="text-text-secondary">{shortcut.action}</span>
-                <kbd className="text-xs text-text-muted bg-white/5 px-2 py-0.5 rounded border border-white/10">{shortcut.keys}</kbd>
+                <kbd className="text-xs text-text-muted glass px-2.5 py-1 rounded-lg">{shortcut.keys}</kbd>
               </div>
             ))}
           </div>
@@ -390,23 +390,32 @@ export default function Settings() {
       </div>
 
       {/* Data Clear */}
-      <div className="mt-8">
-        <h2 className="heading-lg mb-4">数据管理</h2>
-        <GlassCard padding="md">
+      <div className="mt-10">
+        <h2 className="text-xl font-semibold mb-4">数据管理</h2>
+        <GlassCard padding="md" rounded="rounded-2xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="body-lg font-medium">清除所有本地数据</p>
-              <p className="caption mt-0.5">清除 localStorage 中的所有应用数据，此操作不可撤销</p>
+              <p className="text-sm font-medium">清除所有本地数据</p>
+              <p className="text-xs text-text-muted mt-1">清除 localStorage 中的所有应用数据，此操作不可撤销</p>
             </div>
             <button
               onClick={() => {
                 if (confirm('确定要清除所有本地数据吗？此操作不可撤销。')) {
-                  localStorage.clear()
+                  // Only clear app-specific keys, not all localStorage
+                  const appPrefixes = ['cloudtime_', 'quick_note', 'theme', 'onboarding_', 'agentConfigs']
+                  const keysToRemove: string[] = []
+                  for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i)
+                    if (key && appPrefixes.some(p => key.startsWith(p))) {
+                      keysToRemove.push(key)
+                    }
+                  }
+                  keysToRemove.forEach(k => localStorage.removeItem(k))
                   toast('数据已清除，页面即将刷新', 'success')
                   setTimeout(() => window.location.reload(), 1000)
                 }
               }}
-              className="btn btn-md rounded-xl bg-accent-danger/15 text-accent-danger hover:bg-accent-danger/25"
+              className="glass px-4 py-2.5 rounded-xl text-sm bg-accent-danger/20 text-accent-danger hover:bg-accent-danger/30 border border-accent-danger/30 transition-all flex items-center gap-2"
             >
               <Trash2 size={15} />
               清除数据
@@ -416,10 +425,10 @@ export default function Settings() {
       </div>
 
       {/* About */}
-      <div className="mt-8 mb-8">
-        <h2 className="heading-lg mb-4">关于</h2>
-        <GlassCard padding="md">
-          <div className="text-sm space-y-3">
+      <div className="mt-10 mb-10">
+        <h2 className="text-xl font-semibold mb-4">关于</h2>
+        <GlassCard padding="md" rounded="rounded-2xl">
+          <div className="text-sm space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-text-secondary">应用名称</span>
               <span className="font-medium gradient-text">气象台Hub</span>
@@ -436,8 +445,8 @@ export default function Settings() {
               <span className="text-text-secondary">UI 框架</span>
               <span className="text-text-muted">TailwindCSS 4 + Liquid Glass</span>
             </div>
-            <div className="pt-2 border-t border-border">
-              <p className="caption text-text-muted text-center">
+            <div className="pt-3 border-t border-border">
+              <p className="text-xs text-text-muted text-center">
                 AI 驱动的学生效率工具集 · 让学习更智能
               </p>
             </div>

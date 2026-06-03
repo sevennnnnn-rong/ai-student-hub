@@ -38,13 +38,13 @@ export default function Layout() {
   return (
     <div className="flex h-full w-full bg-bg-primary relative z-10">
       {/* Desktop Sidebar */}
-      <div className={cn('hidden md:block', focusMode && 'sidebar-hidden')}>
+      <div className={cn('hidden md:block shrink-0', focusMode && 'sidebar-hidden')}>
         <Sidebar />
       </div>
 
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Mobile Header */}
-        <header className="md:hidden flex items-center justify-between px-4 py-3 shrink-0 border-b border-border bg-bg-primary/80 backdrop-blur-lg z-30">
+        <header className="md:hidden flex items-center justify-between px-4 py-3 shrink-0 border-b border-white/[0.06] bg-bg-primary/80 backdrop-blur-xl z-30">
           <h1 className="heading-md gradient-text">气象台Hub</h1>
           <div className="flex items-center gap-1">
             <button
@@ -67,20 +67,34 @@ export default function Layout() {
           </div>
         </header>
 
-        {/* Main Content */}
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
+        {/* Main Content Area — window-like inner padding */}
+        <main
+          ref={mainRef}
+          className={cn(
+            'flex-1 overflow-y-auto',
+            'p-4 md:p-6 lg:p-8',
+            'pb-24 md:pb-8'
+          )}
+        >
           <Outlet />
         </main>
       </div>
 
-      {/* Mobile Bottom Nav */}
+      {/* Mobile Bottom Nav (floating pill) */}
       {!focusMode && <MobileNav />}
 
       {/* Scroll to Top */}
       {showScrollTop && (
         <button
           onClick={() => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-40 w-10 h-10 rounded-xl glass glass-hover flex items-center justify-center text-text-muted hover:text-text-primary transition-all animate-scale-in"
+          className={cn(
+            'fixed bottom-28 right-4 md:bottom-8 md:right-8 z-40',
+            'w-10 h-10 rounded-full',
+            'glass glass-hover',
+            'flex items-center justify-center',
+            'text-text-muted hover:text-text-primary',
+            'transition-all animate-scale-in'
+          )}
           title="回到顶部"
         >
           <ArrowUp size={16} />

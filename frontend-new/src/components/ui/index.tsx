@@ -1,7 +1,7 @@
 import { cn } from '../../lib/utils'
 import { forwardRef, type ReactNode, type HTMLAttributes } from 'react'
 
-// ===== GlassCard =====
+// ===== GlassCard (Liquid Glass variant) =====
 interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean
   active?: boolean
@@ -50,7 +50,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
   )
 }
 
-// ===== Badge =====
+// ===== Badge (Liquid Glass pill) =====
 interface BadgeProps {
   variant?: 'default' | 'blue' | 'purple' | 'amber' | 'green' | 'red' | 'pink'
   children: ReactNode
@@ -58,24 +58,24 @@ interface BadgeProps {
 }
 
 const badgeColors = {
-  default: 'bg-white/8 text-text-secondary',
-  blue: 'bg-accent-blue/15 text-accent-blue',
-  purple: 'bg-accent-purple/15 text-accent-purple',
-  amber: 'bg-accent-amber/15 text-accent-amber',
-  green: 'bg-accent-success/15 text-accent-success',
-  red: 'bg-accent-danger/15 text-accent-danger',
-  pink: 'bg-accent-pink/15 text-accent-pink',
+  default: 'bg-white/8 text-text-secondary border border-white/[0.06]',
+  blue: 'bg-accent-blue/12 text-accent-blue border border-accent-blue/20',
+  purple: 'bg-accent-purple/12 text-accent-purple border border-accent-purple/20',
+  amber: 'bg-accent-amber/12 text-accent-amber border border-accent-amber/20',
+  green: 'bg-accent-success/12 text-accent-success border border-accent-success/20',
+  red: 'bg-accent-danger/12 text-accent-danger border border-accent-danger/20',
+  pink: 'bg-accent-pink/12 text-accent-pink border border-accent-pink/20',
 }
 
 export function Badge({ variant = 'default', children, className }: BadgeProps) {
   return (
-    <span className={cn('px-2.5 py-0.5 rounded-full caption font-medium', badgeColors[variant], className)}>
+    <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium tracking-wide', badgeColors[variant], className)}>
       {children}
     </span>
   )
 }
 
-// ===== StatCard =====
+// ===== StatCard (Liquid Glass) =====
 interface StatCardProps {
   icon: ReactNode
   label: string
@@ -112,4 +112,3 @@ export function StatCard({ icon, label, value, sub, color = 'bg-accent-blue', gl
     </GlassCard>
   )
 }
-
