@@ -1,6 +1,6 @@
 [package]
 name = "ai-student-hub"
-version = "1.0.0"
+version = "1.1.0"
 description = "AI驱动的大学生效率助手"
 authors = ["气象台Hub"]
 edition = "2021"
