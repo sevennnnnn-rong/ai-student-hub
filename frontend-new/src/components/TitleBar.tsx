@@ -18,8 +18,8 @@ function close() {
 
 export default function TitleBar() {
   return (
-    <div className="titlebar">
-      <div className="titlebar-brand" data-tauri-drag-region style={{ flex: 1 }}>
+    <div className="titlebar" data-tauri-drag-region style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+      <div className="titlebar-brand">
         <svg viewBox="0 0 100 100" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
           <circle cx="50" cy="50" r="50" fill="#1a2332"/>
           <g transform="translate(50,50)">
