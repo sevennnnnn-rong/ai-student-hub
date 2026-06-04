@@ -41,7 +41,7 @@ export const chatApi = {
       body: JSON.stringify({ message, agent, conversation_id: conversationId }),
     }),
   stream: async function* (message: string, agent: string, conversationId?: number) {
-    const res = await fetch(`${API_BASE}/api/ai/chat/stream`, {
+    const res = await fetch(`${API_BASE}/api/ai/chat/stream/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, agent, conversation_id: conversationId }),

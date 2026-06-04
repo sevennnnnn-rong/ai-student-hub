@@ -59,7 +59,7 @@ interface BadgeProps {
 
 const badgeColors = {
   default: 'bg-white/8 text-text-secondary border border-white/[0.06]',
-  blue: 'bg-accent-blue/12 text-accent-blue border border-accent-blue/20',
+  blue: 'bg-accent/12 text-accent border border-accent/20',
   purple: 'bg-accent-purple/12 text-accent-purple border border-accent-purple/20',
   amber: 'bg-accent-amber/12 text-accent-amber border border-accent-amber/20',
   green: 'bg-accent-success/12 text-accent-success border border-accent-success/20',
@@ -88,7 +88,7 @@ interface StatCardProps {
   trendValue?: string
 }
 
-export function StatCard({ icon, label, value, sub, color = 'bg-accent-blue', glow, className, trend, trendValue }: StatCardProps) {
+export function StatCard({ icon, label, value, sub, color = 'bg-accent', glow, className, trend, trendValue }: StatCardProps) {
   return (
     <GlassCard hover className={cn('stagger-item', className)}>
       <div className="flex items-center justify-between mb-3">

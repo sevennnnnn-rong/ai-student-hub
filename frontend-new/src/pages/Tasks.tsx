@@ -16,7 +16,7 @@ const priorityConfig = {
 
 const statusConfig = {
   pending: { icon: Circle, color: 'text-text-muted' },
-  in_progress: { icon: Clock, color: 'text-accent-blue' },
+  in_progress: { icon: Clock, color: 'text-accent' },
   done: { icon: CheckCircle, color: 'text-accent-success' },
 }
 
@@ -184,7 +184,7 @@ export default function Tasks() {
             onChange={(e) => setNewTitle(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
             placeholder="添加新任务..."
-            className="flex-1 glass rounded-xl px-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all"
+            className="flex-1 glass rounded-xl px-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
           />
           {/* Priority selector */}
           <div className="flex gap-2">
@@ -216,7 +216,7 @@ export default function Tasks() {
             className={cn(
               'p-2.5 rounded-xl transition-all',
               newTitle.trim()
-                ? 'bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 border border-accent-blue/30'
+                ? 'bg-accent/20 text-accent hover:bg-accent/30 border border-accent/30'
                 : 'glass text-text-muted cursor-not-allowed'
             )}
           >
@@ -262,7 +262,7 @@ export default function Tasks() {
             className={cn(
               'glass px-4 py-2 rounded-xl text-sm font-medium transition-all',
               filter === f
-                ? 'bg-accent-blue/20 text-accent-blue border border-accent-blue/30'
+                ? 'bg-accent/20 text-accent border border-accent/30'
                 : 'text-text-muted hover:text-text-secondary hover:bg-white/[0.05]'
             )}
           >
@@ -271,7 +271,7 @@ export default function Tasks() {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2">
-          <div className="flex items-center gap-1.5 glass rounded-xl px-3 py-2 focus-within:ring-2 focus:ring-accent-blue/30 transition-all">
+          <div className="flex items-center gap-1.5 glass rounded-xl px-3 py-2 focus-within:ring-2 focus:ring-accent/30 transition-all">
             <Search size={13} className="text-text-muted shrink-0" />
             <input
               value={searchQuery}
@@ -329,7 +329,7 @@ export default function Tasks() {
                 className={cn(
                   'flex items-center gap-3 group transition-all stagger-item',
                   dragId === task.id && 'opacity-40 scale-[0.98]',
-                  dragOverId === task.id && dragId !== task.id && 'ring-2 ring-accent-blue/30'
+                  dragOverId === task.id && dragId !== task.id && 'ring-2 ring-accent/30'
                 )}
               >
                 {/* Drag Handle */}
@@ -340,13 +340,13 @@ export default function Tasks() {
                 )}
                 <button
                   onClick={() => handleToggle(task)}
-                  className="shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue rounded"
+                  className="shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
                 >
                   <StatusIcon
                     size={22}
                     className={cn(
                       'transition-all',
-                      task.status === 'done' ? 'text-accent-success' : 'text-text-muted hover:text-accent-blue'
+                      task.status === 'done' ? 'text-accent-success' : 'text-text-muted hover:text-accent'
                     )}
                   />
                 </button>
@@ -362,7 +362,7 @@ export default function Tasks() {
                           if (e.key === 'Escape') setEditingId(null)
                         }}
                         autoFocus
-                        className="flex-1 glass rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30"
+                        className="flex-1 glass rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
                       />
                       <button onClick={() => saveEdit(task.id)} className="text-accent-success hover:text-accent-success/80">
                         <Check size={16} />
@@ -452,7 +452,7 @@ export default function Tasks() {
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => startEdit(task)}
-                      className="glass p-2 rounded-lg text-text-muted hover:text-accent-blue hover:bg-accent-blue/10"
+                      className="glass p-2 rounded-lg text-text-muted hover:text-accent hover:bg-accent/10"
                     >
                       <Edit2 size={14} />
                     </button>

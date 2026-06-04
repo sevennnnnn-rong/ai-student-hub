@@ -214,7 +214,7 @@ export default function Chat() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleNewChat}
-                className="glass p-2 rounded-xl text-text-muted hover:text-accent-blue transition-all"
+                className="glass p-2 rounded-xl text-text-muted hover:text-accent transition-all"
                 title="新对话"
               >
                 <Plus size={14} />
@@ -236,7 +236,7 @@ export default function Chat() {
                 className={cn(
                   'flex-1 glass px-3 py-2 rounded-xl font-medium text-sm transition-all duration-200',
                   agent === key
-                    ? 'bg-accent-blue/20 text-accent-blue border border-accent-blue/30'
+                    ? 'bg-accent/20 text-accent border border-accent/30'
                     : 'text-text-muted hover:text-text-secondary hover:bg-white/[0.05]'
                 )}
               >
@@ -256,7 +256,7 @@ export default function Chat() {
               className={cn(
                 'w-full text-left px-4 py-3 rounded-2xl transition-all group cursor-pointer',
                 activeConvId === conv.id
-                  ? 'glass bg-accent-blue/10 text-accent-blue border border-accent-blue/20'
+                  ? 'glass bg-accent/10 text-accent border border-accent/20'
                   : 'text-text-secondary hover:bg-white/[0.05]'
               )}
             >
@@ -313,7 +313,7 @@ export default function Chat() {
             </button>
           )}
           {loading && (
-            <div className="flex items-center gap-2 text-accent-blue">
+            <div className="flex items-center gap-2 text-accent">
               <Loader2 size={14} className="animate-spin" />
               <span className="caption">思考中...</span>
             </div>
@@ -367,7 +367,7 @@ export default function Chat() {
                 className={cn(
                   'px-5 py-3.5 rounded-2xl text-sm leading-relaxed',
                   msg.role === 'user'
-                    ? 'glass bg-accent-blue/15 text-text-primary rounded-br-lg border border-accent-blue/20'
+                    ? 'glass bg-accent/15 text-text-primary rounded-br-lg border border-accent/20'
                     : 'glass text-text-primary rounded-bl-lg'
                 )}
               >
@@ -427,9 +427,9 @@ export default function Chat() {
           {loading && (messages.length === 0 || messages[messages.length - 1]?.role === 'user') && (
             <div className="max-w-3xl mr-auto animate-slide-up">
               <div className="glass px-5 py-3.5 rounded-2xl rounded-bl-lg inline-flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-accent-blue animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 rounded-full bg-accent-blue animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 rounded-full bg-accent-blue animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           )}
@@ -446,7 +446,7 @@ export default function Chat() {
               onKeyDown={handleKeyDown}
               placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
               rows={1}
-              className="flex-1 glass rounded-2xl px-4 py-3 resize-none min-h-[48px] max-h-[160px] overflow-y-auto focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all placeholder-text-muted"
+              className="flex-1 glass rounded-2xl px-4 py-3 resize-none min-h-[48px] max-h-[160px] overflow-y-auto focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all placeholder-text-muted"
             />
             <button
               onClick={handleSend}
@@ -454,7 +454,7 @@ export default function Chat() {
               className={cn(
                 'p-3 rounded-2xl transition-all duration-200 shrink-0',
                 input.trim() && !loading
-                  ? 'bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 border border-accent-blue/30 hover:scale-105 active:scale-95'
+                  ? 'bg-accent/20 text-accent hover:bg-accent/30 border border-accent/30 hover:scale-105 active:scale-95'
                   : 'glass text-text-muted cursor-not-allowed'
               )}
             >

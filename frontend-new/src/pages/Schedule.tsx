@@ -10,7 +10,7 @@ import { usePageTitle } from '../hooks/usePageTitle'
 const dayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 const timeSlots = Array.from({ length: 15 }, (_, i) => i + 8)
 
-const defaultColors = ['#00d4ff', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899', '#10b981']
+const defaultColors = ['#C20C0C', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899', '#10b981']
 
 export default function Schedule() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -90,7 +90,7 @@ export default function Schedule() {
             'px-4 py-2.5 rounded-2xl text-sm font-medium flex items-center gap-2 transition-all',
             showForm
               ? 'glass bg-accent-danger/20 text-accent-danger border border-accent-danger/30'
-              : 'bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 border border-accent-blue/30'
+              : 'bg-accent/20 text-accent hover:bg-accent/30 border border-accent/30'
           )}
         >
           {showForm ? <X size={14} /> : <Plus size={14} />}
@@ -114,7 +114,7 @@ export default function Schedule() {
         return (
           <div className="glass glass-hover rounded-3xl p-5 mb-6">
             <div className="flex items-center gap-2 mb-4">
-              <Clock size={16} className="text-accent-blue" />
+              <Clock size={16} className="text-accent" />
               <span className="text-sm font-medium">今日课程 ({todayCourses.length})</span>
               {currentClass && (
                 <span className="text-xs px-2.5 py-1 rounded-full bg-accent-success/20 text-accent-success font-medium border border-accent-success/30">
@@ -158,22 +158,22 @@ export default function Schedule() {
         <div className="glass rounded-3xl p-6 mb-6 animate-slide-up">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
             <input placeholder="课程名" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
+              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all" />
             <input placeholder="教师" value={form.teacher} onChange={(e) => setForm({ ...form, teacher: e.target.value })}
-              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
+              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all" />
             <input placeholder="教室" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
-              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
+              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all" />
             <select value={form.day_of_week} onChange={(e) => setForm({ ...form, day_of_week: +e.target.value })}
-              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all">
+              className="glass rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all">
               {dayLabels.map((d, i) => <option key={i} value={i + 1}>{d}</option>)}
             </select>
           </div>
           <div className="flex gap-4 items-center flex-wrap">
             <input type="time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })}
-              className="glass rounded-xl px-4 py-3 text-sm w-auto focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
+              className="glass rounded-xl px-4 py-3 text-sm w-auto focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all" />
             <span className="text-text-muted">—</span>
             <input type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })}
-              className="glass rounded-xl px-4 py-3 text-sm w-auto focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all" />
+              className="glass rounded-xl px-4 py-3 text-sm w-auto focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all" />
             <div className="flex gap-2 ml-2">
               {defaultColors.map((c) => (
                 <button key={c} onClick={() => setForm({ ...form, color: c })}
@@ -186,7 +186,7 @@ export default function Schedule() {
             </div>
             <div className="flex-1" />
             <button onClick={handleCreate}
-              className="bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 border border-accent-blue/30 rounded-xl px-5 py-2.5 flex items-center gap-2 text-sm font-medium transition-all">
+              className="bg-accent/20 text-accent hover:bg-accent/30 border border-accent/30 rounded-xl px-5 py-2.5 flex items-center gap-2 text-sm font-medium transition-all">
               <Plus size={14} />
               保存
             </button>
@@ -243,10 +243,10 @@ export default function Schedule() {
                 <div key={day} className={cn('flex items-center mb-2', isToday && 'glass rounded-xl')}>
                   <div className={cn(
                     'w-16 shrink-0 text-xs font-medium',
-                    isToday ? 'text-accent-blue' : 'text-text-secondary'
+                    isToday ? 'text-accent' : 'text-text-secondary'
                   )}>
                     {label}
-                    {isToday && <span className="ml-1 text-xs text-accent-blue">(今天)</span>}
+                    {isToday && <span className="ml-1 text-xs text-accent">(今天)</span>}
                   </div>
                   {timeSlots.map((h) => {
                     const cell = grid.get(`${day}-${h}`)

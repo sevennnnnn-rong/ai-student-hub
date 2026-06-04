@@ -6,7 +6,7 @@
   "build": {
     "frontendDist": "../frontend-new/dist",
     "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "cmd /c \"cd ..\\backend && ..\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --port 8000 &\" && cmd /c \"cd ..\\frontend-new && npm run dev\"",
+    "beforeDevCommand": "cd D:/Software/ai-student-hub/frontend-new && npm run dev",
     "beforeBuildCommand": ""
   },
   "app": {
@@ -19,11 +19,12 @@
         "minHeight": 600,
         "resizable": true,
         "fullscreen": false,
-        "decorations": true
+        "decorations": false,
+        "transparent": true
       }
     ],
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' http://localhost:3001 http://localhost:8000 http://localhost:8080 ws://localhost:3001; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src 'self' https: http:"
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://localhost:3000 http://localhost:3001 http://localhost:8000 http://localhost:8080 ws://localhost:3001; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src 'self' https: http:"
     },
     "trayIcon": {
       "iconPath": "icons/icon.png",

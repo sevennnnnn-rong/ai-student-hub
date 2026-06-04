@@ -141,7 +141,7 @@ export default function CommandPalette() {
                           className={cn(
                             'w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors',
                             globalIndex === selectedIndex
-                              ? 'bg-accent-blue/10 text-accent-blue'
+                              ? 'bg-accent/10 text-accent'
                               : 'text-text-secondary hover:bg-bg-panel-hover'
                           )}
                         >

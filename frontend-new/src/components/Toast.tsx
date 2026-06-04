@@ -39,7 +39,7 @@ const icons = {
 const colors = {
   success: 'border-accent-success/30 bg-accent-success/10 text-accent-success',
   error: 'border-accent-danger/30 bg-accent-danger/10 text-accent-danger',
-  info: 'border-accent-blue/30 bg-accent-blue/10 text-accent-blue',
+  info: 'border-accent/30 bg-accent/10 text-accent',
 }
 
 let toastId = 0

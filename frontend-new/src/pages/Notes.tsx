@@ -160,13 +160,13 @@ export default function Notes() {
       )}>
         <div className="p-3 border-b border-border">
           <div className="flex gap-2">
-            <div className="flex-1 flex items-center gap-2 bg-white/[0.04] rounded-lg px-2 border border-border focus-within:border-accent-blue/30 transition-colors">
+            <div className="flex-1 flex items-center gap-2 bg-white/[0.04] rounded-lg px-2 border border-border focus-within:border-accent/30 transition-colors">
               <Search size={14} className="text-text-muted shrink-0" />
               <input value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)}
                 placeholder="搜索..." className="w-full bg-transparent caption py-2 focus:outline-none text-text-primary placeholder-text-muted" />
             </div>
             <button onClick={handleCreate}
-              className="btn-icon-sm bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25 transition-all shrink-0"
+              className="btn-icon-sm bg-accent/15 text-accent hover:bg-accent/25 transition-all shrink-0"
               aria-label="新建笔记">
               <Plus size={14} />
             </button>
@@ -180,7 +180,7 @@ export default function Notes() {
                 className={cn(
                   'px-2 py-1 rounded-lg caption font-medium whitespace-nowrap transition-all',
                   activeFolder === folder
-                    ? 'bg-accent-blue/15 text-accent-blue'
+                    ? 'bg-accent/15 text-accent'
                     : 'text-text-muted hover:text-text-secondary hover:bg-bg-panel-hover'
                 )}
               >
@@ -201,7 +201,7 @@ export default function Notes() {
             <div key={note.id} onClick={() => selectNote(note)}
               className={cn(
                 'px-3 py-2.5 rounded-xl cursor-pointer transition-all group',
-                activeId === note.id ? 'bg-accent-blue/10 border border-accent-blue/20' : 'hover:bg-bg-panel-hover border border-transparent'
+                activeId === note.id ? 'bg-accent/10 border border-accent/20' : 'hover:bg-bg-panel-hover border border-transparent'
               )}>
               <div className="flex items-center justify-between">
                 <div className="text-sm font-medium truncate flex-1">
@@ -225,7 +225,7 @@ export default function Notes() {
                 return (
                   <div className="flex gap-1 mt-1 flex-wrap">
                     {tags.slice(0, 3).map((tag) => (
-                      <span key={tag} className="caption px-1.5 py-0.5 rounded bg-accent-blue/10 text-accent-blue">
+                      <span key={tag} className="caption px-1.5 py-0.5 rounded bg-accent/10 text-accent">
                         {tag}
                       </span>
                     ))}
@@ -319,7 +319,7 @@ export default function Notes() {
                   className={cn(
                     'btn-icon-sm transition-all',
                     preview
-                      ? 'bg-accent-blue/15 text-accent-blue'
+                      ? 'bg-accent/15 text-accent'
                       : 'text-text-muted hover:text-text-primary'
                   )}
                   title={preview ? '编辑模式' : '预览模式'}

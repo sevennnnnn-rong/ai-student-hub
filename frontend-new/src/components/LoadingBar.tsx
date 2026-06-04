@@ -23,11 +23,11 @@ export default function LoadingBar() {
   return (
     <div className="fixed top-0 left-0 right-0 z-[10000] h-0.5 pointer-events-none">
       <div
-        className="h-full bg-gradient-to-r from-accent-blue via-accent-purple to-accent-blue rounded-r-full transition-all duration-300 ease-out"
+        className="h-full bg-gradient-to-r from-accent via-accent-hover to-accent rounded-r-full transition-all duration-300 ease-out"
         style={{
           width: `${progress}%`,
           opacity: visible ? 1 : 0,
-          boxShadow: '0 0 12px rgba(0, 212, 255, 0.6), 0 0 4px rgba(139, 92, 246, 0.4)',
+          boxShadow: '0 0 12px rgba(194, 12, 12, 0.6), 0 0 4px rgba(155, 9, 9, 0.4)',
         }}
       />
       {/* Shimmer overlay */}

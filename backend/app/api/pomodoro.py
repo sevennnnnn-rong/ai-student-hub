@@ -79,12 +79,14 @@ def get_stats(period: str = "today", db: Session = Depends(get_db)):
         sessions = db.query(PomodoroSession).all()
 
     completed = [s for s in sessions if s.completed]
+    total_min = sum(s.duration_minutes or 0 for s in completed)
 
     return success_response({
         "total_sessions": len(sessions),
         "completed_sessions": len(completed),
-        "total_minutes": sum(s.duration_minutes or 0 for s in completed),
-        "total_hours": round(sum(s.duration_minutes or 0 for s in completed) / 60, 2),
+        "total_minutes": total_min,
+        "today_minutes": total_min if period == "today" else 0,
+        "total_hours": round(total_min / 60, 2),
         "completion_rate": round(len(completed) / len(sessions) * 100, 1) if sessions else 0
     })
 

@@ -7,7 +7,7 @@ const steps = [
     icon: Sparkles,
     title: '欢迎使用 气象台Hub',
     description: '你的 AI 驱动学习助手，让学习更智能、更高效。',
-    color: 'from-accent-blue to-accent-purple',
+    color: 'from-accent to-accent-purple',
   },
   {
     icon: Brain,
@@ -47,7 +47,10 @@ export default function Onboarding() {
 
   return (
     <div className="fixed inset-0 z-[9998] flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => {
+        localStorage.setItem('onboarding_done', 'true')
+        setDismissed(true)
+      }} />
       <div className="relative glass rounded-3xl p-8 w-[480px] max-w-[90vw] animate-scale-in shadow-2xl">
         {/* Close button */}
         <button
@@ -68,7 +71,7 @@ export default function Onboarding() {
               key={i}
               className={cn(
                 'h-1 rounded-full transition-all duration-300',
-                i === currentStep ? 'bg-accent-blue flex-[3]' : i < currentStep ? 'bg-accent-blue/50 flex-1' : 'bg-white/10 flex-1'
+                i === currentStep ? 'bg-accent flex-[3]' : i < currentStep ? 'bg-accent/50 flex-1' : 'bg-white/10 flex-1'
               )}
             />
           ))}
@@ -104,7 +107,7 @@ export default function Onboarding() {
             }}
             className={cn(
               'flex-1 py-2.5 rounded-xl text-sm font-medium text-white transition-all flex items-center justify-center gap-2',
-              'bg-gradient-to-r from-accent-blue to-blue-600 hover:shadow-lg hover:shadow-accent-blue/20'
+              'bg-gradient-to-r from-accent to-accent-hover hover:shadow-lg hover:shadow-accent/20'
             )}
           >
             {isLast ? '开始使用' : '下一步'}

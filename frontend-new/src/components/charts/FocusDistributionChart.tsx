@@ -1,7 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { tooltipStyle } from '../../lib/chart-config'
 
-const COLORS = ['#00d4ff', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899', '#10b981', '#06b6d4', '#f97316']
+const COLORS = ['#C20C0C', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899', '#10b981', '#06b6d4', '#f97316']
 
 export default function FocusDistributionChart({ data }: { data: { name: string; value: number }[] }) {
   return (

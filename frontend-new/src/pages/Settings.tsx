@@ -35,7 +35,7 @@ function ThemeToggle() {
     <GlassCard padding="md" rounded="rounded-2xl" className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-4">
-          {theme === 'dark' ? <Moon size={20} className="text-accent-blue" /> : <Sun size={20} className="text-accent-amber" />}
+          {theme === 'dark' ? <Moon size={20} className="text-accent" /> : <Sun size={20} className="text-accent-amber" />}
           <div>
             <h3 className="font-medium text-sm">外观主题</h3>
             <p className="text-xs text-text-muted">{theme === 'dark' ? '深色模式' : '浅色模式'}</p>
@@ -45,13 +45,13 @@ function ThemeToggle() {
           onClick={toggle}
           className={cn(
             'w-12 h-6 rounded-full transition-all duration-300 relative',
-            theme === 'dark' ? 'bg-accent-blue/30' : 'bg-accent-amber/30'
+            theme === 'dark' ? 'bg-accent/30' : 'bg-accent-amber/30'
           )}
         >
           <div className={cn(
             'w-5 h-5 rounded-full transition-all duration-300 absolute top-0.5',
             theme === 'dark'
-              ? 'left-[26px] bg-accent-blue'
+              ? 'left-[26px] bg-accent'
               : 'left-0.5 bg-accent-amber'
           )} />
         </button>
@@ -69,7 +69,7 @@ function ThemeToggle() {
             theme === 'dark' ? 'glass border-white/5' : 'bg-white border-black/5'
           )}>
             <div className="p-2">
-              <div className={cn('w-10 h-1.5 rounded mb-1.5', theme === 'dark' ? 'bg-accent-blue/30' : 'bg-blue-500/20')} />
+              <div className={cn('w-10 h-1.5 rounded mb-1.5', theme === 'dark' ? 'bg-accent/30' : 'bg-blue-500/20')} />
               <div className={cn('w-7 h-1 rounded', theme === 'dark' ? 'bg-white/10' : 'bg-black/10')} />
             </div>
           </div>
@@ -77,7 +77,7 @@ function ThemeToggle() {
             <div className={cn('w-full h-1.5 rounded-lg', theme === 'dark' ? 'bg-white/5' : 'bg-black/5')} />
             <div className={cn('w-3/4 h-1.5 rounded-lg', theme === 'dark' ? 'bg-white/5' : 'bg-black/5')} />
             <div className="flex gap-1.5">
-              <div className={cn('w-5 h-1.5 rounded-lg', theme === 'dark' ? 'bg-accent-blue/20' : 'bg-blue-500/15')} />
+              <div className={cn('w-5 h-1.5 rounded-lg', theme === 'dark' ? 'bg-accent/20' : 'bg-blue-500/15')} />
               <div className={cn('w-5 h-1.5 rounded-lg', theme === 'dark' ? 'bg-accent-purple/20' : 'bg-purple-500/15')} />
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function Settings() {
     switch (status) {
       case 'connected': return <Check size={14} className="text-accent-success" />
       case 'error': return <AlertCircle size={14} className="text-accent-danger" />
-      case 'checking': return <div className="w-3.5 h-3.5 border-2 border-accent-blue border-t-transparent rounded-full animate-spin" />
+      case 'checking': return <div className="w-3.5 h-3.5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       default: return <WifiOff size={14} className="text-text-muted" />
     }
   }
@@ -175,7 +175,7 @@ export default function Settings() {
           <button onClick={handleSave}
             className={cn(
               'px-4 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2',
-              saved ? 'glass bg-accent-success/20 text-accent-success border border-accent-success/30' : 'bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 border border-accent-blue/30'
+              saved ? 'glass bg-accent-success/20 text-accent-success border border-accent-success/30' : 'bg-accent/20 text-accent hover:bg-accent/30 border border-accent/30'
             )}>
             <Save size={15} />
             {saved ? '已保存' : '保存配置'}
@@ -184,9 +184,9 @@ export default function Settings() {
       </div>
 
       {/* Info banner */}
-      <GlassCard padding="md" rounded="rounded-2xl" className="mb-6 border-accent-blue/20">
+      <GlassCard padding="md" rounded="rounded-2xl" className="mb-6 border-accent/20">
         <div className="flex items-start gap-3">
-          <Info size={18} className="text-accent-blue shrink-0 mt-0.5" />
+          <Info size={18} className="text-accent shrink-0 mt-0.5" />
           <div className="text-sm text-text-secondary">
             <p className="mb-1">配置保存在浏览器本地存储中。确保后端服务已启动（默认端口 8000）。</p>
             <p className="text-text-muted text-xs">Claude 和 Codex 通过本地 CLI 调用，Doubao 通过 HTTP API 调用。</p>
@@ -222,7 +222,7 @@ export default function Settings() {
                   className={cn(
                     'glass px-3 py-1.5 rounded-xl text-sm font-medium transition-all',
                     fontSize === size
-                      ? 'bg-accent-blue/20 text-accent-blue border border-accent-blue/30'
+                      ? 'bg-accent/20 text-accent border border-accent/30'
                       : 'text-text-muted hover:bg-white/[0.05]'
                   )}
                 >
@@ -245,13 +245,13 @@ export default function Settings() {
               }}
               className={cn(
                 'w-12 h-6 rounded-full transition-all duration-300 relative',
-                localStorage.getItem('app_compact') === 'true' ? 'bg-accent-blue/30' : 'glass'
+                localStorage.getItem('app_compact') === 'true' ? 'bg-accent/30' : 'glass'
               )}
             >
               <div className={cn(
                 'w-5 h-5 rounded-full transition-all duration-300 absolute top-0.5',
                 localStorage.getItem('app_compact') === 'true'
-                  ? 'left-[26px] bg-accent-blue'
+                  ? 'left-[26px] bg-accent'
                   : 'left-0.5 bg-text-muted'
               )} />
             </button>
@@ -294,7 +294,7 @@ export default function Settings() {
                       [agent.id]: { ...configs[agent.id], [field.key]: e.target.value },
                     })}
                     placeholder={field.placeholder}
-                    className="glass rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue/30 transition-all w-full"
+                    className="glass rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all w-full"
                   />
                   {field.hint && (
                     <p className="text-xs text-text-muted mt-1.5">{field.hint}</p>

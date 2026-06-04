@@ -166,10 +166,10 @@ export default function Dashboard() {
           <div className="flex flex-col items-center justify-center text-center p-5 rounded-2xl glass">
             <div className={cn(
               'w-16 h-16 rounded-2xl flex items-center justify-center mb-4',
-              studyStreak >= 7 ? 'bg-accent-success/15' : studyStreak >= 3 ? 'bg-accent-blue/15' : 'bg-white/5'
+              studyStreak >= 7 ? 'bg-accent-success/15' : studyStreak >= 3 ? 'bg-accent/15' : 'bg-white/5'
             )}>
               <Flame size={28} className={cn(
-                studyStreak >= 7 ? 'text-accent-success' : studyStreak >= 3 ? 'text-accent-blue' : 'text-text-muted'
+                studyStreak >= 7 ? 'text-accent-success' : studyStreak >= 3 ? 'text-accent' : 'text-text-muted'
               )} />
             </div>
             <div className="text-3xl font-bold tracking-tight">{studyStreak} 天</div>
@@ -192,7 +192,7 @@ export default function Dashboard() {
                   <div
                     className={cn(
                       'w-9 h-9 rounded-xl flex items-center justify-center text-xs font-medium transition-all',
-                      day.isToday && 'ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-primary',
+                      day.isToday && 'ring-2 ring-accent ring-offset-2 ring-offset-bg-primary',
                       day.minutes >= 60 ? 'bg-accent-success text-white' :
                       day.minutes >= 30 ? 'bg-accent-success/50 text-white' :
                       day.minutes > 0 ? 'bg-accent-success/20 text-accent-success' :
@@ -201,7 +201,7 @@ export default function Dashboard() {
                   >
                     {day.minutes > 0 ? Math.round(day.minutes / 60 * 10) / 10 || '<1' : '·'}
                   </div>
-                  <span className={cn('text-xs', day.isToday ? 'text-accent-blue font-medium' : 'text-text-muted')}>
+                  <span className={cn('text-xs', day.isToday ? 'text-accent font-medium' : 'text-text-muted')}>
                     {day.dayName}
                   </span>
                 </div>
@@ -226,7 +226,7 @@ export default function Dashboard() {
                 <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8"
                   className={cn(
                     'transition-all duration-700',
-                    focusProgress >= 100 ? 'stroke-accent-success' : focusProgress >= 50 ? 'stroke-accent-blue' : 'stroke-accent-amber'
+                    focusProgress >= 100 ? 'stroke-accent-success' : focusProgress >= 50 ? 'stroke-accent' : 'stroke-accent-amber'
                   )}
                   strokeDasharray={`${focusProgress * 2.64} 264`}
                   strokeLinecap="round"
@@ -242,7 +242,7 @@ export default function Dashboard() {
               <div className="text-xs text-text-muted">目标 {focusGoal} 分钟</div>
               <div className={cn(
                 'text-sm font-medium mt-1.5',
-                focusProgress >= 100 ? 'text-accent-success' : focusProgress >= 50 ? 'text-accent-blue' : 'text-text-secondary'
+                focusProgress >= 100 ? 'text-accent-success' : focusProgress >= 50 ? 'text-accent' : 'text-text-secondary'
               )}>
                 {focusProgress >= 100 ? '目标已达成！' : `还差 ${focusGoal - todayMinutes} 分钟`}
               </div>
@@ -258,7 +258,7 @@ export default function Dashboard() {
           label="今日待办"
           value={todayPending}
           sub="个任务"
-          color="bg-accent-blue"
+          color="bg-accent"
           glow="glow-blue"
         />
         <StatCard
@@ -290,16 +290,16 @@ export default function Dashboard() {
       {/* Weekly Summary */}
       <GlassCard padding="lg" rounded="rounded-2xl">
         <div className="flex items-center gap-2 mb-6">
-          <TrendingUp size={18} className="text-accent-blue" />
+          <TrendingUp size={18} className="text-accent" />
           <h3 className="text-lg font-semibold">本周概览</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           <div className="text-center">
-            <div className="text-3xl font-bold tracking-tight text-accent-blue">{completionRate}%</div>
+            <div className="text-3xl font-bold tracking-tight text-accent">{completionRate}%</div>
             <div className="text-sm mt-2">任务完成率</div>
             <div className="w-full h-2 glass rounded-full mt-3 overflow-hidden">
               <div
-                className="h-full bg-accent-blue rounded-full transition-all duration-500"
+                className="h-full bg-accent rounded-full transition-all duration-500"
                 style={{ width: `${completionRate}%` }}
               />
             </div>
@@ -317,7 +317,7 @@ export default function Dashboard() {
           <div className="text-center">
             <div className={cn(
               'text-3xl font-bold tracking-tight',
-              studyStreak >= 7 ? 'text-accent-success' : studyStreak >= 3 ? 'text-accent-blue' : 'text-text-secondary'
+              studyStreak >= 7 ? 'text-accent-success' : studyStreak >= 3 ? 'text-accent' : 'text-text-secondary'
             )}>{studyStreak}</div>
             <div className="text-sm mt-2">连续天数</div>
             <div className="text-xs text-text-muted mt-1">

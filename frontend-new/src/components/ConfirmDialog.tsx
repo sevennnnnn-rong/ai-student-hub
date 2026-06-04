@@ -28,9 +28,9 @@ const variantConfig = {
   },
   info: {
     icon: Info,
-    iconBg: 'bg-accent-blue/15',
-    iconColor: 'text-accent-blue',
-    confirmBg: 'bg-accent-blue hover:bg-accent-blue/80',
+    iconBg: 'bg-accent/15',
+    iconColor: 'text-accent',
+    confirmBg: 'bg-accent hover:bg-accent/80',
   },
 }
 

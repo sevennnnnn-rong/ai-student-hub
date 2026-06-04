@@ -4,7 +4,7 @@ import { Plus, MessageSquare, CheckSquare, StickyNote, X, Timer } from 'lucide-r
 import { cn } from '../lib/utils'
 
 const actions = [
-  { icon: MessageSquare, label: 'AI 对话', desc: '与 AI 搭档交流', action: '/chat', color: 'bg-accent-blue' },
+  { icon: MessageSquare, label: 'AI 对话', desc: '与 AI 搭档交流', action: '/chat', color: 'bg-accent' },
   { icon: CheckSquare, label: '新建任务', desc: '添加待办事项', action: '/tasks', color: 'bg-accent-success' },
   { icon: StickyNote, label: '新建笔记', desc: '记录想法灵感', action: '/notes', color: 'bg-accent-amber' },
   { icon: Timer, label: '开始专注', desc: '启动番茄钟', action: '/pomodoro', color: 'bg-accent-purple' },
@@ -53,7 +53,7 @@ export default function FloatingActionButton() {
           'transition-all duration-300 hover:scale-105 active:scale-95',
           open
             ? 'bg-accent-danger rotate-45'
-            : 'bg-gradient-to-br from-accent-blue to-blue-600 glow-blue'
+            : 'bg-gradient-to-br from-accent to-accent-hover hover-glow'
         )}
       >
         {open ? <X size={24} /> : <Plus size={24} />}

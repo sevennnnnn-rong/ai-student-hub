@@ -58,7 +58,7 @@ export default function ShortcutsModal() {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-2">
-            <Keyboard size={18} className="text-accent-blue" />
+            <Keyboard size={18} className="text-accent" />
             <h2 className="font-bold">键盘快捷键</h2>
           </div>
           <button

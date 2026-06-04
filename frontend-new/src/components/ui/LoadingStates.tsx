@@ -9,7 +9,7 @@ interface SpinnerProps {
 
 const spinnerSizes = { sm: 'w-4 h-4', md: 'w-6 h-6', lg: 'w-8 h-8' }
 
-export function Spinner({ size = 'md', color = 'border-accent-blue', className }: SpinnerProps) {
+export function Spinner({ size = 'md', color = 'border-accent', className }: SpinnerProps) {
   return (
     <div className={cn('border-2 border-current border-t-transparent rounded-full animate-spin', spinnerSizes[size], color, className)} />
   )
