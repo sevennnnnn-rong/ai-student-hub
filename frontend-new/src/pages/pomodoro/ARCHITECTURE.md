@@ -13,8 +13,7 @@ src/pages/pomodoro/
 │   ├── QuickTodo.tsx            # 快速待办工具
 │   ├── FocusStats.tsx           # 专注统计工具
 │   ├── VolumeControl.tsx        # 音量控制工具
-│   ├── MotivationalQuote.tsx    # 座右铭显示
-│   └── CloudTime.tsx            # 云Time模块（网易云音乐）
+│   └── MotivationalQuote.tsx    # 座右铭显示
 ├── scenes/
 │   ├── index.ts                 # 场景配置导出
 │   ├── RainyWindow.tsx          # 雨天窗边
@@ -63,13 +62,6 @@ src/pages/pomodoro/
 - 专注统计
 - 音量控制
 - 快捷键帮助
-
-### 4. 云Time模块 (Cloud Time)
-网易云音乐接入：
-- 搜索歌曲
-- 推荐歌单
-- 播放控制
-- 收藏功能
 
 ## 状态管理
 
